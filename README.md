@@ -1,9 +1,11 @@
-# K-FreeLang: 한국형 독립 프로그래밍 언어
+# 🚀 K-FreeLang v1.0
 
-![Status](https://img.shields.io/badge/status-Independent%20Project-brightgreen)
-![Version](https://img.shields.io/badge/version-0.1--alpha-blue)
-![Language](https://img.shields.io/badge/language-FreeLang%20%2B%20Korean-ff6b6b)
-![License](https://img.shields.io/badge/license-MIT-green)
+**한국형 독립 프로그래밍 언어**
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](package.json)
+[![Status](https://img.shields.io/badge/status-Stable-success.svg)](#)
+[![Language](https://img.shields.io/badge/language-FreeLang%20%2B%20Korean-ff6b6b)](#)
 
 ---
 
