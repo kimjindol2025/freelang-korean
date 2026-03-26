@@ -427,9 +427,29 @@ export class KoreanParser {
       if (this.check(TokenType.RBRACE)) break;
 
       const variantName = this.consume(TokenType.IDENTIFIER, '열거 값 필요').value;
+      let fields: AST.TypeAnnotation[] = [];
+
+      // 열거형 variant에 데이터 타입 지원 (Ok(값: 문자열), Err(오류: 문자열))
+      if (this.check(TokenType.LPAREN)) {
+        this.advance();
+
+        // 튜플 형식: Ok(문자열), Err(숫자, 문자열)
+        if (!this.check(TokenType.RPAREN)) {
+          fields.push(this.parseTypeAnnotation());
+
+          while (this.check(TokenType.COMMA)) {
+            this.advance();
+            fields.push(this.parseTypeAnnotation());
+          }
+        }
+
+        this.consume(TokenType.RPAREN, ') 필요');
+      }
+
       const variant: AST.EnumVariant = {
         type: 'EnumVariant',
         name: variantName,
+        fields: fields.length > 0 ? fields : undefined,
         line: this.peek().line,
         column: this.peek().column
       };
@@ -495,19 +515,32 @@ export class KoreanParser {
   }
 
   /**
-   * Impl block 파싱: 구현 특성명 { 함수 구현들 ... }
+   * Impl block 파싱: impl Trait for Type { 함수 구현들 ... }
+   * 또는: impl Type { 함수 구현들 ... }
    */
   private parseImplBlock(): AST.ImplBlock {
     const implToken = this.advance();
-    const traitName = this.consume(TokenType.IDENTIFIER, '특성명 필요').value;
+    let traitName = this.consume(TokenType.IDENTIFIER, '타입/특성명 필요').value;
+    let forType: string | undefined;
+
+    // "impl Trait for Type" 형식 지원
+    if (this.check(TokenType.FOR)) {
+      this.advance();
+      forType = this.consume(TokenType.IDENTIFIER, '타입명 필요').value;
+    }
+
     this.consume(TokenType.LBRACE, '{ 필요');
 
     const methods: AST.FunctionDeclaration[] = [];
     while (!this.check(TokenType.RBRACE) && !this.isAtEnd()) {
+      this.skipNewlines();
+      if (this.check(TokenType.RBRACE)) break;
+
       if (this.check(TokenType.FN)) {
         const fnDecl = this.parseFunctionDeclaration() as AST.FunctionDeclaration;
         methods.push(fnDecl);
       }
+      this.skipNewlines();
     }
 
     this.consume(TokenType.RBRACE, '} 필요');
@@ -515,6 +548,7 @@ export class KoreanParser {
     return {
       type: 'ImplBlock',
       traitName,
+      forType,
       methods,
       line: implToken.line,
       column: implToken.column

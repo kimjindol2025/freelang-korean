@@ -179,6 +179,7 @@ export interface FunctionSignature extends ASTNode {
 export interface ImplBlock extends ASTNode {
   type: 'ImplBlock';
   traitName: string;
+  forType?: string;  // impl Trait for Type 형식에서 Type
   methods: FunctionDeclaration[];
 }
 

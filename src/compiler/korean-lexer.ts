@@ -72,11 +72,15 @@ export enum TokenType {
   MUT = 'MUT',             // 불변 / mut
   REF = 'REF',             // 참조 / ref
 
-  // P2: 고급 키워드 (15개)
+  // P2: 고급 키워드 (15개 + 확장 5개)
   ASYNC = 'ASYNC',         // 비동기 / async
   AWAIT = 'AWAIT',         // 대기 / await
   SPAWN = 'SPAWN',         // 동시실행 / spawn
   SYNC = 'SYNC',           // 동기화 / sync
+  LOCK = 'LOCK',           // 락 / lock
+  MUTEX = 'MUTEX',         // 뮤텍스 / mutex
+  SEMAPHORE = 'SEMAPHORE', // 세마포어 / semaphore
+  CHANNEL = 'CHANNEL',     // 채널 / channel
   UNSAFE = 'UNSAFE',       // 안전하지않음 / unsafe
   MACRO = 'MACRO',         // 매크로 / macro
   GENERIC = 'GENERIC',     // 제네릭 / generic
@@ -131,11 +135,15 @@ const KOREAN_KEYWORDS: Map<string, TokenType> = new Map([
   ['불변', TokenType.MUT],
   ['참조', TokenType.REF],
 
-  // P2: 고급 (15개)
+  // P2: 고급 (15개 + 확장 4개)
   ['비동기', TokenType.ASYNC],
   ['대기', TokenType.AWAIT],
   ['동시실행', TokenType.SPAWN],
   ['동기화', TokenType.SYNC],
+  ['락', TokenType.LOCK],
+  ['뮤텍스', TokenType.MUTEX],
+  ['세마포어', TokenType.SEMAPHORE],
+  ['채널', TokenType.CHANNEL],
   ['안전하지않음', TokenType.UNSAFE],
   ['매크로', TokenType.MACRO],
   ['제네릭', TokenType.GENERIC],
@@ -177,11 +185,15 @@ const ENGLISH_KEYWORDS: Map<string, TokenType> = new Map([
   ['mut', TokenType.MUT],
   ['ref', TokenType.REF],
 
-  // P2: 고급 (15개)
+  // P2: 고급 (15개 + 확장 4개)
   ['async', TokenType.ASYNC],
   ['await', TokenType.AWAIT],
   ['spawn', TokenType.SPAWN],
   ['sync', TokenType.SYNC],
+  ['lock', TokenType.LOCK],
+  ['mutex', TokenType.MUTEX],
+  ['semaphore', TokenType.SEMAPHORE],
+  ['channel', TokenType.CHANNEL],
   ['unsafe', TokenType.UNSAFE],
   ['macro', TokenType.MACRO],
   ['generic', TokenType.GENERIC],
