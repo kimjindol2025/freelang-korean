@@ -276,7 +276,9 @@ export type Expression =
   | Literal
   | MatchExpression
   | GenericExpression
-  | AwaitExpression;
+  | AwaitExpression
+  | SpawnExpression
+  | SyncBlock;
 
 export interface BinaryExpression extends ASTNode {
   type: 'BinaryExpression';
@@ -345,6 +347,16 @@ export interface MatchArm extends ASTNode {
   pattern: Pattern;
   guard?: Expression;
   body: Expression | BlockStatement;
+}
+
+export interface SpawnExpression extends ASTNode {
+  type: 'SpawnExpression';
+  body: Statement[];
+}
+
+export interface SyncBlock extends ASTNode {
+  type: 'SyncBlock';
+  body: Statement[];
 }
 
 export type Pattern =

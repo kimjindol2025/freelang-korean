@@ -192,7 +192,7 @@ export class KoreanParser {
   }
 
   /**
-   * Async function declaration 파싱
+   * Async function declaration 파싱: 비동기 함수 이름(...) → 타입 { ... }
    */
   private parseAsyncFunctionDeclaration(): AST.AsyncFunctionDeclaration {
     const asyncToken = this.advance();
@@ -217,6 +217,56 @@ export class KoreanParser {
       body,
       line: asyncToken.line,
       column: asyncToken.column
+    };
+  }
+
+  /**
+   * Spawn expression 파싱: 동시실행 { ... }
+   * 스폰된 작업은 동시에 실행됨
+   */
+  private parseSpawnExpression(): AST.SpawnExpression {
+    const spawnToken = this.advance();
+    this.consume(TokenType.LBRACE, '{ 필요');
+
+    const body: AST.Statement[] = [];
+    while (!this.check(TokenType.RBRACE) && !this.isAtEnd()) {
+      this.skipNewlines();
+      const stmt = this.parseStatement();
+      if (stmt) body.push(stmt);
+    }
+
+    this.consume(TokenType.RBRACE, '} 필요');
+
+    return {
+      type: 'SpawnExpression',
+      body,
+      line: spawnToken.line,
+      column: spawnToken.column
+    };
+  }
+
+  /**
+   * Sync block 파싱: 동기화 { ... }
+   * 한 번에 하나의 작업만 실행
+   */
+  private parseSyncBlock(): AST.SyncBlock {
+    const syncToken = this.advance();
+    this.consume(TokenType.LBRACE, '{ 필요');
+
+    const body: AST.Statement[] = [];
+    while (!this.check(TokenType.RBRACE) && !this.isAtEnd()) {
+      this.skipNewlines();
+      const stmt = this.parseStatement();
+      if (stmt) body.push(stmt);
+    }
+
+    this.consume(TokenType.RBRACE, '} 필요');
+
+    return {
+      type: 'SyncBlock',
+      body,
+      line: syncToken.line,
+      column: syncToken.column
     };
   }
 
@@ -1220,6 +1270,16 @@ export class KoreanParser {
     // Match expression (조건 value { 패턴 ... })
     if (this.check(TokenType.MATCH)) {
       return this.parseMatchExpression();
+    }
+
+    // Spawn expression (동시실행 { ... })
+    if (this.check(TokenType.SPAWN)) {
+      return this.parseSpawnExpression();
+    }
+
+    // Sync block (동기화 { ... })
+    if (this.check(TokenType.SYNC)) {
+      return this.parseSyncBlock();
     }
 
     throw new Error(
