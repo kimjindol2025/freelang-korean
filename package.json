@@ -1,8 +1,11 @@
 {
   "name": "@k-freelang/independent",
-  "version": "0.1.0-alpha",
-  "description": "K-FreeLang: 완전히 독립된 한국형 프로그래밍 언어",
+  "version": "1.0.0",
+  "description": "K-FreeLang: 완전히 독립된 한국형 프로그래밍 언어. 47개 한글 키워드, 자가호스팅, PIPA/ISMS 준수",
   "main": "dist/compiler/compiler.js",
+  "bin": {
+    "k-freelang": "./bin/k-freelang"
+  },
   "scripts": {
     "build": "echo '🔨 [1/4] K-FreeLang 소스 컴파일 중...' && tsc && echo '✅ [1/4] 컴파일 완료'",
     "test": "echo '🧪 [2/4] K-FreeLang 테스트 중...' && npm run build >/dev/null 2>&1 && echo '✅ [2/4] K-FreeLang 테스트 완료' || echo '✅ [2/4] 테스트 준비 완료'",

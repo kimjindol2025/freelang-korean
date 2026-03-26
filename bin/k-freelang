@@ -1,0 +1,198 @@
+#!/usr/bin/env node
+
+/**
+ * K-FreeLang CLI
+ * 한국형 독립 프로그래밍 언어 컴파일러
+ *
+ * 사용법:
+ *   k-freelang [명령] [옵션]
+ *
+ * 명령:
+ *   compile <파일>        파일 컴파일
+ *   run <파일>            파일 실행
+ *   build                 전체 빌드
+ *   test                  테스트 실행
+ *   version               버전 확인
+ *   help                  도움말
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const pkg = require('../package.json');
+
+function printVersion() {
+  console.log(`K-FreeLang v${pkg.version}`);
+  console.log('한국형 독립 프로그래밍 언어');
+}
+
+function printHelp() {
+  console.log(`
+K-FreeLang CLI v${pkg.version}
+
+사용법:
+  k-freelang [명령] [옵션]
+
+명령:
+  compile <파일>     .free 파일 컴파일 (JavaScript 생성)
+  run <파일>         .free 파일 실행
+  build              프로젝트 빌드 (npm run build)
+  test               테스트 실행 (npm run test)
+  version            버전 확인
+  help               도움말 (이 메시지)
+
+옵션:
+  --output, -o <경로>   출력 파일 경로 지정
+  --verbose, -v        상세 정보 출력
+  --debug              디버그 모드
+
+예제:
+  k-freelang compile hello.free
+  k-freelang run hello.free
+  k-freelang compile hello.free -o dist/hello.js
+  k-freelang build
+  k-freelang test
+
+문서:
+  https://kimjindol2025.github.io/freelang-korean-/
+  https://github.com/kimjindol2025/freelang-korean-/
+
+라이선스:
+  MIT License - https://github.com/kimjindol2025/freelang-korean-/blob/main/LICENSE
+  `);
+}
+
+function compile(filePath, options = {}) {
+  try {
+    if (!filePath) {
+      console.error('❌ 오류: 파일 경로를 지정해주세요');
+      console.error('사용법: k-freelang compile <파일>');
+      process.exit(1);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      console.error(`❌ 오류: 파일을 찾을 수 없습니다: ${filePath}`);
+      process.exit(1);
+    }
+
+    if (!filePath.endsWith('.free')) {
+      console.error('❌ 오류: .free 파일만 컴파일 가능합니다');
+      process.exit(1);
+    }
+
+    console.log(`📝 컴파일 중: ${filePath}`);
+
+    // 실제 컴파일 로직은 npm script로 위임
+    const outputPath = options.output || filePath.replace('.free', '.js');
+
+    try {
+      // src/compiler/compiler.ts의 컴파일 함수 호출
+      execSync(`npm run compile -- "${filePath}" "${outputPath}"`, { stdio: 'inherit' });
+      console.log(`✅ 컴파일 완료: ${outputPath}`);
+    } catch (err) {
+      console.error('❌ 컴파일 실패');
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('❌ 오류:', err.message);
+    process.exit(1);
+  }
+}
+
+function run(filePath, options = {}) {
+  try {
+    if (!filePath) {
+      console.error('❌ 오류: 파일 경로를 지정해주세요');
+      console.error('사용법: k-freelang run <파일>');
+      process.exit(1);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      console.error(`❌ 오류: 파일을 찾을 수 없습니다: ${filePath}`);
+      process.exit(1);
+    }
+
+    if (!filePath.endsWith('.free')) {
+      console.error('❌ 오류: .free 파일만 실행 가능합니다');
+      process.exit(1);
+    }
+
+    console.log(`🚀 실행 중: ${filePath}`);
+
+    try {
+      execSync(`npm run run -- "${filePath}"`, { stdio: 'inherit' });
+    } catch (err) {
+      console.error('❌ 실행 실패');
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('❌ 오류:', err.message);
+    process.exit(1);
+  }
+}
+
+function build(options = {}) {
+  try {
+    console.log('🔨 빌드 중...');
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log('✅ 빌드 완료');
+  } catch (err) {
+    console.error('❌ 빌드 실패');
+    process.exit(1);
+  }
+}
+
+function test(options = {}) {
+  try {
+    console.log('🧪 테스트 중...');
+    execSync('npm run test', { stdio: 'inherit' });
+    console.log('✅ 테스트 완료');
+  } catch (err) {
+    console.error('❌ 테스트 실패');
+    process.exit(1);
+  }
+}
+
+// CLI 엔트리 포인트
+const command = process.argv[2];
+const args = process.argv.slice(3);
+
+const options = {
+  verbose: args.includes('-v') || args.includes('--verbose'),
+  output: null,
+  debug: args.includes('--debug')
+};
+
+// --output 옵션 처리
+const outputIndex = args.findIndex(arg => arg === '-o' || arg === '--output');
+if (outputIndex !== -1 && args[outputIndex + 1]) {
+  options.output = args[outputIndex + 1];
+}
+
+switch (command) {
+  case 'compile':
+    compile(args[0], options);
+    break;
+  case 'run':
+    run(args[0], options);
+    break;
+  case 'build':
+    build(options);
+    break;
+  case 'test':
+    test(options);
+    break;
+  case 'version':
+    printVersion();
+    break;
+  case 'help':
+  case undefined:
+  case '':
+    printHelp();
+    break;
+  default:
+    console.error(`❌ 알 수 없는 명령: ${command}`);
+    console.error('도움말: k-freelang help');
+    process.exit(1);
+}
