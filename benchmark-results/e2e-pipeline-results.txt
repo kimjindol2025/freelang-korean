@@ -1,0 +1,17 @@
+K-FreeLang E2E 파이프라인 테스트 결과
+테스트 일시: 2026. 03. 27. (금) 00:49:23 KST
+
+테스트 케이스:
+  1. 변수선언 (Lexing → Parsing → Semantic → IR → Optimization → Codegen)
+  2. 함수정의 (함수 선언 및 호출)
+  3. 제어흐름 (if-else 문)
+  4. 루프 (for 루프 + 최적화)
+  5. 패턴매칭 (P2 기능)
+  6. 비동기 (async/await)
+  7. 동시성 (뮤텍스, 채널)
+  8. 상수폴딩 최적화
+  9. 데드코드제거 최적화
+  10. 성능 벤치마크
+
+기대 결과: 모든 테스트 통과
+✓ E2E 테스트 파일 생성됨: /home/kimjin/kim/Desktop/kim/01_Active_Projects/FREELANG_Projects/freelang-korean-independent/tests/e2e-pipeline-test.free
