@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
-_v2-source/
+_v2-source/node_modules/
+_v2-source/dist/
 dist/
 build/
 
