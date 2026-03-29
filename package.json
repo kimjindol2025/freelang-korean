@@ -1,7 +1,7 @@
 {
   "name": "kfreelang",
-  "version": "1.0.0",
-  "description": "K-FreeLang v1.0 - 한국형 독립 프로그래밍 언어 (K-StdLib 594개 함수 + 46개 모듈)",
+  "version": "1.0.1",
+  "description": "K-FreeLang v1.0 - 한국형 독립 프로그래밍 언어 (K-StdLib 594개 함수 + 46개 모듈 + Essential Libraries Tier 1)",
   "main": "dist/cli/index.js",
   "types": "dist/cli/index.d.ts",
   "scripts": {
