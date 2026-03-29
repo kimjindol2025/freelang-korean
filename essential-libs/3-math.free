@@ -1,0 +1,160 @@
+// K-FreeLang Essential Library: Math (수학 연산)
+// 10개 함수: add, subtract, multiply, divide, modulo, floor, ceil, round, abs, max
+
+// ═══════════════════════════════════════════════════════════════
+// 1. Math_add(a, b) → number
+// 두 수를 더합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_add(a: number, b: number) -> number {
+  return a + b;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 2. Math_subtract(a, b) → number
+// a에서 b를 뺍니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_subtract(a: number, b: number) -> number {
+  return a - b;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 3. Math_multiply(a, b) → number
+// 두 수를 곱합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_multiply(a: number, b: number) -> number {
+  return a * b;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. Math_divide(a, b) → number
+// a를 b로 나눕니다. (b가 0이면 0을 반환합니다.)
+// ═══════════════════════════════════════════════════════════════
+function Math_divide(a: number, b: number) -> number {
+  if b == 0 {
+    return 0;
+  }
+  return a / b;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5. Math_modulo(a, b) → number
+// a를 b로 나눈 나머지를 반환합니다. (b가 0이면 0을 반환합니다.)
+// ═══════════════════════════════════════════════════════════════
+function Math_modulo(a: number, b: number) -> number {
+  if b == 0 {
+    return 0;
+  }
+  return a % b;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. Math_floor(x) → number
+// x보다 작거나 같은 최대 정수를 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_floor(x: number) -> number {
+  // 간단한 구현: 정수 부분만 반환
+  var int_part = 0;
+
+  if x >= 0 {
+    // 양수인 경우
+    var temp = x;
+    while temp >= 1 {
+      temp = temp - 1;
+      int_part = int_part + 1;
+    }
+    return int_part;
+  } else {
+    // 음수인 경우
+    var temp = x;
+    while temp <= -1 {
+      temp = temp + 1;
+      int_part = int_part - 1;
+    }
+    if temp < 0 {
+      int_part = int_part - 1;
+    }
+    return int_part;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. Math_ceil(x) → number
+// x보다 크거나 같은 최소 정수를 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_ceil(x: number) -> number {
+  // 간단한 구현
+  var int_part = Math_floor(x);
+
+  if int_part == x {
+    return int_part;
+  } else {
+    return int_part + 1;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 8. Math_round(x) → number
+// x에 가장 가까운 정수를 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_round(x: number) -> number {
+  var int_part = Math_floor(x);
+  var decimal_part = x - int_part;
+
+  if decimal_part >= 0.5 {
+    return int_part + 1;
+  } else {
+    return int_part;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. Math_abs(x) → number
+// x의 절댓값을 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_abs(x: number) -> number {
+  if x < 0 {
+    return -x;
+  }
+  return x;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. Math_max(a, b) → number
+// a와 b 중 더 큰 값을 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Math_max(a: number, b: number) -> number {
+  if a >= b {
+    return a;
+  }
+  return b;
+}
+
+// 추가 함수 (보너스): Math_min(a, b) → number
+function Math_min(a: number, b: number) -> number {
+  if a <= b {
+    return a;
+  }
+  return b;
+}
+
+// 추가 함수 (보너스): Math_power(base, exponent) → number
+function Math_power(base: number, exponent: number) -> number {
+  if exponent == 0 {
+    return 1;
+  }
+
+  var result = 1;
+  var i = 0;
+
+  if exponent > 0 {
+    while i < exponent {
+      result = result * base;
+      i = i + 1;
+    }
+  } else {
+    // 음수 지수는 0을 반환 (단순화)
+    return 0;
+  }
+
+  return result;
+}

@@ -1,0 +1,343 @@
+// K-FreeLang Essential Library: JSON (JSON 처리)
+// 10개 함수: stringify, parse, toJSON, fromJSON, prettify, minify, validate, merge, clone, isValid
+
+// ═══════════════════════════════════════════════════════════════
+// 1. JSON_stringify(key, value) → string
+// 간단한 key-value를 JSON 형식으로 변환합니다.
+// ═══════════════════════════════════════════════════════════════
+function JSON_stringify(key: string, value: string) -> string {
+  return "{\"" + key + "\":\"" + value + "\"}";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 2. JSON_parse(json_str, key) → string
+// JSON 문자열에서 특정 key의 value를 추출합니다.
+// ═══════════════════════════════════════════════════════════════
+function JSON_parse(json_str: string, key: string) -> string {
+  var search_key = "\"" + key + "\":\"";
+  var start_idx = JSON_indexOf(json_str, search_key);
+
+  if start_idx < 0 {
+    return "";
+  }
+
+  var value_start = start_idx + search_key.length;
+  var value_end = JSON_indexOf(json_str.substring(value_start, json_str.length), "\"");
+
+  if value_end < 0 {
+    return "";
+  }
+
+  return json_str.substring(value_start, value_start + value_end);
+}
+
+// Helper 함수: JSON에서 특정 문자열의 위치 찾기
+function JSON_indexOf(str: string, search: string) -> number {
+  var i = 0;
+  var str_len = str.length;
+  var search_len = search.length;
+
+  while i <= str_len - search_len {
+    var j = 0;
+    var match = true;
+
+    while j < search_len {
+      if str[i + j] != search[j] {
+        match = false;
+      }
+      j = j + 1;
+    }
+
+    if match {
+      return i;
+    }
+
+    i = i + 1;
+  }
+
+  return -1;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 3. JSON_toJSON(obj_str) → string
+// 문자열 형식의 객체를 JSON으로 변환합니다.
+// 형식: "key=value,key2=value2" → {"key":"value","key2":"value2"}
+// ═══════════════════════════════════════════════════════════════
+function JSON_toJSON(obj_str: string) -> string {
+  var result = "{";
+  var current_pair = "";
+  var i = 0;
+
+  while i < obj_str.length {
+    if obj_str[i] == "," {
+      if JSON_containsEquals(current_pair) {
+        if result.length > 1 {
+          result = result + ",";
+        }
+        var pair_json = JSON_pairToJSON(current_pair);
+        result = result + pair_json;
+      }
+      current_pair = "";
+    } else {
+      current_pair = current_pair + obj_str[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 쌍 처리
+  if JSON_containsEquals(current_pair) {
+    if result.length > 1 {
+      result = result + ",";
+    }
+    var pair_json = JSON_pairToJSON(current_pair);
+    result = result + pair_json;
+  }
+
+  result = result + "}";
+  return result;
+}
+
+// Helper 함수: "="를 포함하는지 확인
+function JSON_containsEquals(str: string) -> bool {
+  var i = 0;
+  while i < str.length {
+    if str[i] == "=" {
+      return true;
+    }
+    i = i + 1;
+  }
+  return false;
+}
+
+// Helper 함수: "key=value" 형식을 JSON 쌍으로 변환
+function JSON_pairToJSON(pair: string) -> string {
+  var eq_idx = JSON_indexOf(pair, "=");
+  if eq_idx < 0 {
+    return "";
+  }
+
+  var key = pair.substring(0, eq_idx);
+  var value = pair.substring(eq_idx + 1, pair.length);
+
+  return "\"" + key + "\":\"" + value + "\"";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. JSON_fromJSON(json_str) → string
+// JSON 형식을 문자열 형식으로 변환합니다.
+// {"key":"value","key2":"value2"} → "key=value,key2=value2"
+// ═══════════════════════════════════════════════════════════════
+function JSON_fromJSON(json_str: string) -> string {
+  var result = "";
+  var i = 1;  // "{" 스킵
+  var in_quotes = false;
+  var current_key = "";
+  var current_value = "";
+  var parsing_key = true;
+
+  while i < json_str.length - 1 {  // "}" 스킵
+    var char = json_str[i];
+
+    if char == "\"" {
+      in_quotes = !in_quotes;
+    } else if char == ":" && !in_quotes {
+      parsing_key = false;
+    } else if char == "," && !in_quotes {
+      if result.length > 0 {
+        result = result + ",";
+      }
+      result = result + current_key + "=" + current_value;
+      current_key = "";
+      current_value = "";
+      parsing_key = true;
+    } else if in_quotes {
+      if parsing_key {
+        current_key = current_key + char;
+      } else {
+        current_value = current_value + char;
+      }
+    }
+
+    i = i + 1;
+  }
+
+  // 마지막 쌍 처리
+  if current_key.length > 0 {
+    if result.length > 0 {
+      result = result + ",";
+    }
+    result = result + current_key + "=" + current_value;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5. JSON_prettify(json_str) → string
+// JSON을 보기 좋게 포맷합니다 (줄바꿈 추가).
+// ═══════════════════════════════════════════════════════════════
+function JSON_prettify(json_str: string) -> string {
+  var result = "";
+  var indent = 0;
+  var i = 0;
+
+  while i < json_str.length {
+    var char = json_str[i];
+
+    if char == "{" || char == "[" {
+      result = result + char + "\n";
+      indent = indent + 2;
+      // 들여쓰기 추가
+      var j = 0;
+      while j < indent {
+        result = result + " ";
+        j = j + 1;
+      }
+    } else if char == "}" || char == "]" {
+      result = result + "\n";
+      indent = indent - 2;
+      // 들여쓰기 추가
+      var j = 0;
+      while j < indent {
+        result = result + " ";
+        j = j + 1;
+      }
+      result = result + char;
+    } else if char == "," {
+      result = result + char + "\n";
+      // 들여쓰기 추가
+      var j = 0;
+      while j < indent {
+        result = result + " ";
+        j = j + 1;
+      }
+    } else {
+      result = result + char;
+    }
+
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. JSON_minify(json_str) → string
+// JSON을 최소화합니다 (공백 제거).
+// ═══════════════════════════════════════════════════════════════
+function JSON_minify(json_str: string) -> string {
+  var result = "";
+  var i = 0;
+
+  while i < json_str.length {
+    var char = json_str[i];
+
+    if char != " " && char != "\n" && char != "\t" && char != "\r" {
+      result = result + char;
+    }
+
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. JSON_validate(json_str) → bool
+// JSON 문자열이 유효한지 확인합니다.
+// ═══════════════════════════════════════════════════════════════
+function JSON_validate(json_str: string) -> bool {
+  var minified = JSON_minify(json_str);
+
+  // 기본 검증: "{" 로 시작하고 "}"로 끝나는지 확인
+  if minified.length < 2 {
+    return false;
+  }
+
+  if minified[0] != "{" && minified[0] != "[" {
+    return false;
+  }
+
+  var last_idx = minified.length - 1;
+  if minified[last_idx] != "}" && minified[last_idx] != "]" {
+    return false;
+  }
+
+  // 대괄호 일치 확인
+  var brace_count = 0;
+  var bracket_count = 0;
+  var i = 0;
+
+  while i < minified.length {
+    var char = minified[i];
+
+    if char == "{" {
+      brace_count = brace_count + 1;
+    } else if char == "}" {
+      brace_count = brace_count - 1;
+      if brace_count < 0 {
+        return false;
+      }
+    } else if char == "[" {
+      bracket_count = bracket_count + 1;
+    } else if char == "]" {
+      bracket_count = bracket_count - 1;
+      if bracket_count < 0 {
+        return false;
+      }
+    }
+
+    i = i + 1;
+  }
+
+  return brace_count == 0 && bracket_count == 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 8. JSON_merge(json1, json2) → string
+// 두 JSON 객체를 병합합니다.
+// ═══════════════════════════════════════════════════════════════
+function JSON_merge(json1: string, json2: string) -> string {
+  // json1과 json2에서 내용을 추출하여 병합
+  var obj1_str = JSON_fromJSON(json1);
+  var obj2_str = JSON_fromJSON(json2);
+
+  var merged = "";
+  if obj1_str.length > 0 {
+    merged = obj1_str;
+  }
+
+  if obj2_str.length > 0 {
+    if merged.length > 0 {
+      merged = merged + ",";
+    }
+    merged = merged + obj2_str;
+  }
+
+  return JSON_toJSON(merged);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. JSON_clone(json_str) → string
+// JSON 문자열을 깊은 복사합니다.
+// ═══════════════════════════════════════════════════════════════
+function JSON_clone(json_str: string) -> string {
+  // 단순히 문자열을 복사
+  var result = "";
+  var i = 0;
+
+  while i < json_str.length {
+    result = result + json_str[i];
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. JSON_isValid(json_str) → bool
+// 유효한 JSON인지 확인합니다 (JSON_validate의 별칭).
+// ═══════════════════════════════════════════════════════════════
+function JSON_isValid(json_str: string) -> bool {
+  return JSON_validate(json_str);
+}

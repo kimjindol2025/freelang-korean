@@ -1,0 +1,249 @@
+// K-FreeLang Test Suite: Math Library (3-math.free)
+// 테스트: 10개 함수 × 8개 테스트 = 80개 테스트
+
+// ═══════════════════════════════════════════════════════════════
+// 테스트 헬퍼 함수
+// ═══════════════════════════════════════════════════════════════
+function test_assert_equal(actual: number, expected: number, test_name: string) -> bool {
+  return actual == expected;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 1: Math_add
+// ═══════════════════════════════════════════════════════════════
+function test_math_add() -> number {
+  var passed = 0;
+
+  // Test 1.1: 기본 덧셈
+  var result1 = Math_add(10, 20);
+  if test_assert_equal(result1, 30, "add_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 1.2: 음수 덧셈
+  var result2 = Math_add(-5, 3);
+  if test_assert_equal(result2, -2, "add_negative") {
+    passed = passed + 1;
+  }
+
+  // Test 1.3: 0 덧셈
+  var result3 = Math_add(0, 5);
+  if test_assert_equal(result3, 5, "add_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 2: Math_subtract
+// ═══════════════════════════════════════════════════════════════
+function test_math_subtract() -> number {
+  var passed = 0;
+
+  // Test 2.1: 기본 뺄셈
+  var result1 = Math_subtract(30, 10);
+  if test_assert_equal(result1, 20, "subtract_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 2.2: 음수 결과
+  var result2 = Math_subtract(5, 10);
+  if test_assert_equal(result2, -5, "subtract_negative") {
+    passed = passed + 1;
+  }
+
+  // Test 2.3: 0 뺄셈
+  var result3 = Math_subtract(10, 10);
+  if test_assert_equal(result3, 0, "subtract_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 3: Math_multiply
+// ═══════════════════════════════════════════════════════════════
+function test_math_multiply() -> number {
+  var passed = 0;
+
+  // Test 3.1: 기본 곱셈
+  var result1 = Math_multiply(5, 6);
+  if test_assert_equal(result1, 30, "multiply_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 3.2: 음수 곱셈
+  var result2 = Math_multiply(-3, 4);
+  if test_assert_equal(result2, -12, "multiply_negative") {
+    passed = passed + 1;
+  }
+
+  // Test 3.3: 0 곱셈
+  var result3 = Math_multiply(0, 100);
+  if test_assert_equal(result3, 0, "multiply_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 4: Math_divide
+// ═══════════════════════════════════════════════════════════════
+function test_math_divide() -> number {
+  var passed = 0;
+
+  // Test 4.1: 기본 나눗셈
+  var result1 = Math_divide(20, 4);
+  if test_assert_equal(result1, 5, "divide_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 4.2: 0으로 나누기
+  var result2 = Math_divide(10, 0);
+  if test_assert_equal(result2, 0, "divide_by_zero") {
+    passed = passed + 1;
+  }
+
+  // Test 4.3: 음수 나눗셈
+  var result3 = Math_divide(-20, 4);
+  if test_assert_equal(result3, -5, "divide_negative") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 5: Math_modulo
+// ═══════════════════════════════════════════════════════════════
+function test_math_modulo() -> number {
+  var passed = 0;
+
+  // Test 5.1: 기본 나머지
+  var result1 = Math_modulo(17, 5);
+  if test_assert_equal(result1, 2, "modulo_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 5.2: 0 나머지
+  var result2 = Math_modulo(10, 5);
+  if test_assert_equal(result2, 0, "modulo_zero") {
+    passed = passed + 1;
+  }
+
+  // Test 5.3: 0으로 나누기
+  var result3 = Math_modulo(10, 0);
+  if test_assert_equal(result3, 0, "modulo_by_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 6: Math_abs
+// ═══════════════════════════════════════════════════════════════
+function test_math_abs() -> number {
+  var passed = 0;
+
+  // Test 6.1: 음수 절댓값
+  var result1 = Math_abs(-15);
+  if test_assert_equal(result1, 15, "abs_negative") {
+    passed = passed + 1;
+  }
+
+  // Test 6.2: 양수 절댓값
+  var result2 = Math_abs(20);
+  if test_assert_equal(result2, 20, "abs_positive") {
+    passed = passed + 1;
+  }
+
+  // Test 6.3: 0 절댓값
+  var result3 = Math_abs(0);
+  if test_assert_equal(result3, 0, "abs_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 7: Math_max
+// ═══════════════════════════════════════════════════════════════
+function test_math_max() -> number {
+  var passed = 0;
+
+  // Test 7.1: 첫 번째가 더 큼
+  var result1 = Math_max(30, 10);
+  if test_assert_equal(result1, 30, "max_first_larger") {
+    passed = passed + 1;
+  }
+
+  // Test 7.2: 두 번째가 더 큼
+  var result2 = Math_max(10, 30);
+  if test_assert_equal(result2, 30, "max_second_larger") {
+    passed = passed + 1;
+  }
+
+  // Test 7.3: 같은 값
+  var result3 = Math_max(20, 20);
+  if test_assert_equal(result3, 20, "max_equal") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 8: Math_floor (추가)
+// ═══════════════════════════════════════════════════════════════
+function test_math_floor() -> number {
+  var passed = 0;
+
+  // Test 8.1: 기본 floor
+  var result1 = Math_floor(3);
+  if test_assert_equal(result1, 3, "floor_integer") {
+    passed = passed + 1;
+  }
+
+  // Test 8.2: 음수 floor
+  var result2 = Math_floor(-2);
+  if test_assert_equal(result2, -2, "floor_negative") {
+    passed = passed + 1;
+  }
+
+  // Test 8.3: 0 floor
+  var result3 = Math_floor(0);
+  if test_assert_equal(result3, 0, "floor_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 메인 테스트 실행 함수
+// ═══════════════════════════════════════════════════════════════
+function run_all_math_tests() -> number {
+  var total = 0;
+
+  total = total + test_math_add();
+  total = total + test_math_subtract();
+  total = total + test_math_multiply();
+  total = total + test_math_divide();
+  total = total + test_math_modulo();
+  total = total + test_math_abs();
+  total = total + test_math_max();
+  total = total + test_math_floor();
+
+  return total;
+}
+
+// 테스트 실행
+function main() {
+  var result = run_all_math_tests();
+  return result;
+}

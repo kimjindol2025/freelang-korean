@@ -1,0 +1,295 @@
+// K-FreeLang Essential Library: Array (배열 처리)
+// 10개 함수: push, pop, shift, unshift, length, get, set, contains, filter, map
+// 참고: 배열은 쉼표로 구분된 문자열로 표현됩니다 (예: "1,2,3,4,5")
+
+// ═══════════════════════════════════════════════════════════════
+// 1. Array_push(arr, value) → string
+// 배열 끝에 요소를 추가합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_push(arr: string, value: string) -> string {
+  if arr.length == 0 {
+    return value;
+  }
+  return arr + "," + value;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 2. Array_pop(arr) → string
+// 배열 끝에서 요소를 제거합니다 (제거된 요소를 반환).
+// ═══════════════════════════════════════════════════════════════
+function Array_pop(arr: string) -> string {
+  var last_comma = -1;
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      last_comma = i;
+    }
+    i = i + 1;
+  }
+
+  if last_comma < 0 {
+    // 요소가 하나뿐이므로 전체 반환
+    return arr;
+  }
+
+  // 마지막 쉼표 이후의 요소를 반환
+  var result = "";
+  i = last_comma + 1;
+  while i < arr.length {
+    result = result + arr[i];
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 3. Array_shift(arr) → string
+// 배열 시작에서 요소를 제거합니다 (제거된 요소를 반환).
+// ═══════════════════════════════════════════════════════════════
+function Array_shift(arr: string) -> string {
+  var first_comma = -1;
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      first_comma = i;
+      break;
+    }
+    i = i + 1;
+  }
+
+  if first_comma < 0 {
+    // 요소가 하나뿐이므로 전체 반환
+    return arr;
+  }
+
+  // 첫 번째 쉼표 이전의 요소를 반환
+  var result = "";
+  i = 0;
+  while i < first_comma {
+    result = result + arr[i];
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. Array_unshift(arr, value) → string
+// 배열 시작에 요소를 추가합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_unshift(arr: string, value: string) -> string {
+  if arr.length == 0 {
+    return value;
+  }
+  return value + "," + arr;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5. Array_length(arr) → number
+// 배열의 길이를 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_length(arr: string) -> number {
+  if arr.length == 0 {
+    return 0;
+  }
+
+  var count = 1;
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      count = count + 1;
+    }
+    i = i + 1;
+  }
+
+  return count;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. Array_get(arr, index) → string
+// 지정된 인덱스의 요소를 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_get(arr: string, index: number) -> string {
+  var current_index = 0;
+  var current_element = "";
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      if current_index == index {
+        return current_element;
+      }
+      current_index = current_index + 1;
+      current_element = "";
+    } else {
+      current_element = current_element + arr[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 요소 확인
+  if current_index == index {
+    return current_element;
+  }
+
+  return "";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. Array_set(arr, index, value) → string
+// 지정된 인덱스의 요소를 설정합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_set(arr: string, index: number, value: string) -> string {
+  var current_index = 0;
+  var result = "";
+  var current_element = "";
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      if current_index == index {
+        if result.length > 0 {
+          result = result + ",";
+        }
+        result = result + value;
+      } else {
+        if result.length > 0 {
+          result = result + ",";
+        }
+        result = result + current_element;
+      }
+      current_index = current_index + 1;
+      current_element = "";
+    } else {
+      current_element = current_element + arr[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 요소 처리
+  if current_index == index {
+    if result.length > 0 {
+      result = result + ",";
+    }
+    result = result + value;
+  } else {
+    if result.length > 0 {
+      result = result + ",";
+    }
+    result = result + current_element;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 8. Array_contains(arr, value) → bool
+// 배열에 특정 값이 포함되어 있는지 확인합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_contains(arr: string, value: string) -> bool {
+  var current_element = "";
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      if current_element == value {
+        return true;
+      }
+      current_element = "";
+    } else {
+      current_element = current_element + arr[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 요소 확인
+  if current_element == value {
+    return true;
+  }
+
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. Array_filter(arr, predicate_prefix) → string
+// 조건을 만족하는 요소만 필터링합니다.
+// 참고: 단순화된 구현 - 특정 패턴의 요소만 남김
+// 예: Array_filter("1,2,3,4,5", "2") → "2"
+// ═══════════════════════════════════════════════════════════════
+function Array_filter(arr: string, predicate_prefix: string) -> string {
+  var result = "";
+  var current_element = "";
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      if Array_startsWith(current_element, predicate_prefix) {
+        if result.length > 0 {
+          result = result + ",";
+        }
+        result = result + current_element;
+      }
+      current_element = "";
+    } else {
+      current_element = current_element + arr[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 요소 처리
+  if Array_startsWith(current_element, predicate_prefix) {
+    if result.length > 0 {
+      result = result + ",";
+    }
+    result = result + current_element;
+  }
+
+  return result;
+}
+
+// Helper 함수: 문자열이 특정 접두사로 시작하는지 확인
+function Array_startsWith(str: string, prefix: string) -> bool {
+  var i = 0;
+  while i < prefix.length && i < str.length {
+    if str[i] != prefix[i] {
+      return false;
+    }
+    i = i + 1;
+  }
+  return i == prefix.length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. Array_join(arr, separator) → string
+// 배열의 모든 요소를 지정된 구분자로 연결합니다.
+// ═══════════════════════════════════════════════════════════════
+function Array_join(arr: string, separator: string) -> string {
+  var result = "";
+  var current_element = "";
+  var i = 0;
+
+  while i < arr.length {
+    if arr[i] == "," {
+      if result.length > 0 {
+        result = result + separator;
+      }
+      result = result + current_element;
+      current_element = "";
+    } else {
+      current_element = current_element + arr[i];
+    }
+    i = i + 1;
+  }
+
+  // 마지막 요소 처리
+  if result.length > 0 {
+    result = result + separator;
+  }
+  result = result + current_element;
+
+  return result;
+}

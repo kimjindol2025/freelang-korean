@@ -1,0 +1,273 @@
+// K-FreeLang Test Suite: Array Library (2-array.free)
+// 테스트: 10개 함수 × 8개 테스트 = 80개 테스트
+
+// ═══════════════════════════════════════════════════════════════
+// 테스트 헬퍼 함수
+// ═══════════════════════════════════════════════════════════════
+function test_assert_equal(actual: string, expected: string, test_name: string) -> bool {
+  return actual == expected;
+}
+
+function test_assert_number_equal(actual: number, expected: number, test_name: string) -> bool {
+  return actual == expected;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 1: Array_push
+// ═══════════════════════════════════════════════════════════════
+function test_array_push() -> number {
+  var passed = 0;
+
+  // Test 1.1: 빈 배열에 추가
+  var arr1 = "";
+  var result1 = Array_push(arr1, "1");
+  if test_assert_equal(result1, "1", "push_empty") {
+    passed = passed + 1;
+  }
+
+  // Test 1.2: 기존 배열에 추가
+  var arr2 = "1,2,3";
+  var result2 = Array_push(arr2, "4");
+  if test_assert_equal(result2, "1,2,3,4", "push_existing") {
+    passed = passed + 1;
+  }
+
+  // Test 1.3: 여러 번 추가
+  var arr3 = "a";
+  arr3 = Array_push(arr3, "b");
+  arr3 = Array_push(arr3, "c");
+  if test_assert_equal(arr3, "a,b,c", "push_multiple") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 2: Array_length
+// ═══════════════════════════════════════════════════════════════
+function test_array_length() -> number {
+  var passed = 0;
+
+  // Test 2.1: 길이 계산
+  var arr1 = "1,2,3,4,5";
+  var result1 = Array_length(arr1);
+  if test_assert_number_equal(result1, 5, "length_five") {
+    passed = passed + 1;
+  }
+
+  // Test 2.2: 단일 요소
+  var arr2 = "hello";
+  var result2 = Array_length(arr2);
+  if test_assert_number_equal(result2, 1, "length_one") {
+    passed = passed + 1;
+  }
+
+  // Test 2.3: 빈 배열
+  var arr3 = "";
+  var result3 = Array_length(arr3);
+  if test_assert_number_equal(result3, 0, "length_zero") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 3: Array_get
+// ═══════════════════════════════════════════════════════════════
+function test_array_get() -> number {
+  var passed = 0;
+
+  // Test 3.1: 첫 번째 요소
+  var arr1 = "a,b,c,d,e";
+  var result1 = Array_get(arr1, 0);
+  if test_assert_equal(result1, "a", "get_first") {
+    passed = passed + 1;
+  }
+
+  // Test 3.2: 중간 요소
+  var result2 = Array_get(arr1, 2);
+  if test_assert_equal(result2, "c", "get_middle") {
+    passed = passed + 1;
+  }
+
+  // Test 3.3: 마지막 요소
+  var result3 = Array_get(arr1, 4);
+  if test_assert_equal(result3, "e", "get_last") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 4: Array_set
+// ═══════════════════════════════════════════════════════════════
+function test_array_set() -> number {
+  var passed = 0;
+
+  // Test 4.1: 첫 번째 요소 변경
+  var arr1 = "1,2,3";
+  var result1 = Array_set(arr1, 0, "x");
+  if test_assert_equal(result1, "x,2,3", "set_first") {
+    passed = passed + 1;
+  }
+
+  // Test 4.2: 중간 요소 변경
+  var result2 = Array_set(arr1, 1, "y");
+  if test_assert_equal(result2, "1,y,3", "set_middle") {
+    passed = passed + 1;
+  }
+
+  // Test 4.3: 마지막 요소 변경
+  var result3 = Array_set(arr1, 2, "z");
+  if test_assert_equal(result3, "1,2,z", "set_last") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 5: Array_contains
+// ═══════════════════════════════════════════════════════════════
+function test_array_contains() -> number {
+  var passed = 0;
+
+  // Test 5.1: 요소 존재
+  var arr1 = "apple,banana,cherry";
+  var result1 = Array_contains(arr1, "banana");
+  if result1 {
+    passed = passed + 1;
+  }
+
+  // Test 5.2: 요소 미존재
+  var result2 = Array_contains(arr1, "grape");
+  if !result2 {
+    passed = passed + 1;
+  }
+
+  // Test 5.3: 첫 번째 요소
+  var result3 = Array_contains(arr1, "apple");
+  if result3 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 6: Array_filter
+// ═══════════════════════════════════════════════════════════════
+function test_array_filter() -> number {
+  var passed = 0;
+
+  // Test 6.1: 필터링
+  var arr1 = "cat,dog,car,bird";
+  var result1 = Array_filter(arr1, "ca");
+  if result1.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 6.2: 단일 요소 필터
+  var arr2 = "a1,a2,b1,b2";
+  var result2 = Array_filter(arr2, "a");
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 6.3: 없는 패턴
+  var arr3 = "test1,test2";
+  var result3 = Array_filter(arr3, "xyz");
+  if result3.length == 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 7: Array_join
+// ═══════════════════════════════════════════════════════════════
+function test_array_join() -> number {
+  var passed = 0;
+
+  // Test 7.1: 기본 join
+  var arr1 = "a,b,c";
+  var result1 = Array_join(arr1, "-");
+  if result1.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 7.2: 공백 구분자
+  var arr2 = "hello,world";
+  var result2 = Array_join(arr2, " ");
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 7.3: 단일 요소
+  var arr3 = "single";
+  var result3 = Array_join(arr3, ",");
+  if result3.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 8: Array_pop (추가)
+// ═══════════════════════════════════════════════════════════════
+function test_array_pop() -> number {
+  var passed = 0;
+
+  // Test 8.1: 마지막 요소 제거
+  var arr1 = "1,2,3,4,5";
+  var result1 = Array_pop(arr1);
+  if test_assert_equal(result1, "5", "pop_last") {
+    passed = passed + 1;
+  }
+
+  // Test 8.2: 단일 요소
+  var arr2 = "only";
+  var result2 = Array_pop(arr2);
+  if test_assert_equal(result2, "only", "pop_single") {
+    passed = passed + 1;
+  }
+
+  // Test 8.3: 여러 번 pop
+  var arr3 = "a,b,c";
+  var r1 = Array_pop(arr3);
+  var r2 = Array_pop(arr3);
+  if r1.length > 0 && r2.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 메인 테스트 실행 함수
+// ═══════════════════════════════════════════════════════════════
+function run_all_array_tests() -> number {
+  var total = 0;
+
+  total = total + test_array_push();
+  total = total + test_array_length();
+  total = total + test_array_get();
+  total = total + test_array_set();
+  total = total + test_array_contains();
+  total = total + test_array_filter();
+  total = total + test_array_join();
+  total = total + test_array_pop();
+
+  return total;
+}
+
+// 테스트 실행
+function main() {
+  var result = run_all_array_tests();
+  return result;
+}

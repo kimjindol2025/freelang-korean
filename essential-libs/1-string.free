@@ -1,0 +1,354 @@
+// K-FreeLang Essential Library: String (문자열 조작)
+// 10개 함수: concat, split, trim, replace, indexOf, substring, toUpperCase, toLowerCase, contains, startsWith
+
+// ═══════════════════════════════════════════════════════════════
+// 1. concat(str1, str2) → string
+// 두 문자열을 연결합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_concat(str1: string, str2: string) -> string {
+  return str1 + str2;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 2. split(str, delimiter) → string (쉼표로 구분된 배열 표현)
+// 문자열을 구분자로 분할합니다. 결과는 쉼표로 구분된 문자열로 반환됩니다.
+// ═══════════════════════════════════════════════════════════════
+function String_split(str: string, delimiter: string) -> string {
+  var result = "";
+  var current = "";
+  var i = 0;
+  var str_len = str.length;
+  var delim_len = delimiter.length;
+
+  while i < str_len {
+    var match = true;
+    var j = 0;
+
+    // 현재 위치에서 delimiter와 일치하는지 확인
+    while j < delim_len && i + j < str_len {
+      if str[i + j] != delimiter[j] {
+        match = false;
+      }
+      j = j + 1;
+    }
+
+    if match && j == delim_len {
+      // delimiter를 찾았음
+      if result.length > 0 {
+        result = result + ",";
+      }
+      result = result + current;
+      current = "";
+      i = i + delim_len;
+    } else {
+      // delimiter가 아니므로 current에 추가
+      current = current + str[i];
+      i = i + 1;
+    }
+  }
+
+  // 마지막 부분 추가
+  if result.length > 0 {
+    result = result + ",";
+  }
+  result = result + current;
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 3. trim(str) → string
+// 문자열의 앞뒤 공백을 제거합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_trim(str: string) -> string {
+  var start = 0;
+  var end = str.length;
+
+  // 앞의 공백 찾기
+  while start < str.length && str[start] == " " {
+    start = start + 1;
+  }
+
+  // 뒤의 공백 찾기
+  while end > start && str[end - 1] == " " {
+    end = end - 1;
+  }
+
+  if start >= end {
+    return "";
+  }
+
+  return str.substring(start, end);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. replace(str, old_str, new_str) → string
+// 문자열에서 old_str을 new_str로 치환합니다 (첫 번째 발생만).
+// ═══════════════════════════════════════════════════════════════
+function String_replace(str: string, old_str: string, new_str: string) -> string {
+  var index = String_indexOf(str, old_str);
+
+  if index < 0 {
+    return str;
+  }
+
+  var before = str.substring(0, index);
+  var after = str.substring(index + old_str.length, str.length);
+
+  return before + new_str + after;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5. indexOf(str, search) → number
+// 문자열에서 search의 위치를 반환합니다. 없으면 -1을 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_indexOf(str: string, search: string) -> number {
+  var i = 0;
+  var str_len = str.length;
+  var search_len = search.length;
+
+  if search_len == 0 {
+    return 0;
+  }
+
+  while i <= str_len - search_len {
+    var j = 0;
+    var match = true;
+
+    while j < search_len {
+      if str[i + j] != search[j] {
+        match = false;
+      }
+      j = j + 1;
+    }
+
+    if match {
+      return i;
+    }
+
+    i = i + 1;
+  }
+
+  return -1;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. substring(str, start, end) → string
+// 문자열의 start부터 end 이전까지의 부분을 반환합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_substring(str: string, start: number, end: number) -> string {
+  var str_len = str.length;
+
+  if start < 0 {
+    start = 0;
+  }
+  if end > str_len {
+    end = str_len;
+  }
+  if start >= end {
+    return "";
+  }
+
+  var result = "";
+  var i = start;
+
+  while i < end {
+    result = result + str[i];
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. toUpperCase(str) → string
+// 문자열을 대문자로 변환합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_toUpperCase(str: string) -> string {
+  var result = "";
+  var i = 0;
+
+  while i < str.length {
+    var char = str[i];
+
+    // a-z를 A-Z로 변환
+    if char >= "a" && char <= "z" {
+      // ASCII 값 차이는 32
+      var code = 0;
+      if char == "a" { code = 0; }
+      else if char == "b" { code = 1; }
+      else if char == "c" { code = 2; }
+      else if char == "d" { code = 3; }
+      else if char == "e" { code = 4; }
+      else if char == "f" { code = 5; }
+      else if char == "g" { code = 6; }
+      else if char == "h" { code = 7; }
+      else if char == "i" { code = 8; }
+      else if char == "j" { code = 9; }
+      else if char == "k" { code = 10; }
+      else if char == "l" { code = 11; }
+      else if char == "m" { code = 12; }
+      else if char == "n" { code = 13; }
+      else if char == "o" { code = 14; }
+      else if char == "p" { code = 15; }
+      else if char == "q" { code = 16; }
+      else if char == "r" { code = 17; }
+      else if char == "s" { code = 18; }
+      else if char == "t" { code = 19; }
+      else if char == "u" { code = 20; }
+      else if char == "v" { code = 21; }
+      else if char == "w" { code = 22; }
+      else if char == "x" { code = 23; }
+      else if char == "y" { code = 24; }
+      else if char == "z" { code = 25; }
+
+      var upper_char = "";
+      if code == 0 { upper_char = "A"; }
+      else if code == 1 { upper_char = "B"; }
+      else if code == 2 { upper_char = "C"; }
+      else if code == 3 { upper_char = "D"; }
+      else if code == 4 { upper_char = "E"; }
+      else if code == 5 { upper_char = "F"; }
+      else if code == 6 { upper_char = "G"; }
+      else if code == 7 { upper_char = "H"; }
+      else if code == 8 { upper_char = "I"; }
+      else if code == 9 { upper_char = "J"; }
+      else if code == 10 { upper_char = "K"; }
+      else if code == 11 { upper_char = "L"; }
+      else if code == 12 { upper_char = "M"; }
+      else if code == 13 { upper_char = "N"; }
+      else if code == 14 { upper_char = "O"; }
+      else if code == 15 { upper_char = "P"; }
+      else if code == 16 { upper_char = "Q"; }
+      else if code == 17 { upper_char = "R"; }
+      else if code == 18 { upper_char = "S"; }
+      else if code == 19 { upper_char = "T"; }
+      else if code == 20 { upper_char = "U"; }
+      else if code == 21 { upper_char = "V"; }
+      else if code == 22 { upper_char = "W"; }
+      else if code == 23 { upper_char = "X"; }
+      else if code == 24 { upper_char = "Y"; }
+      else if code == 25 { upper_char = "Z"; }
+
+      result = result + upper_char;
+    } else {
+      result = result + char;
+    }
+
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 8. toLowerCase(str) → string
+// 문자열을 소문자로 변환합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_toLowerCase(str: string) -> string {
+  var result = "";
+  var i = 0;
+
+  while i < str.length {
+    var char = str[i];
+
+    // A-Z를 a-z로 변환
+    if char >= "A" && char <= "Z" {
+      var code = 0;
+      if char == "A" { code = 0; }
+      else if char == "B" { code = 1; }
+      else if char == "C" { code = 2; }
+      else if char == "D" { code = 3; }
+      else if char == "E" { code = 4; }
+      else if char == "F" { code = 5; }
+      else if char == "G" { code = 6; }
+      else if char == "H" { code = 7; }
+      else if char == "I" { code = 8; }
+      else if char == "J" { code = 9; }
+      else if char == "K" { code = 10; }
+      else if char == "L" { code = 11; }
+      else if char == "M" { code = 12; }
+      else if char == "N" { code = 13; }
+      else if char == "O" { code = 14; }
+      else if char == "P" { code = 15; }
+      else if char == "Q" { code = 16; }
+      else if char == "R" { code = 17; }
+      else if char == "S" { code = 18; }
+      else if char == "T" { code = 19; }
+      else if char == "U" { code = 20; }
+      else if char == "V" { code = 21; }
+      else if char == "W" { code = 22; }
+      else if char == "X" { code = 23; }
+      else if char == "Y" { code = 24; }
+      else if char == "Z" { code = 25; }
+
+      var lower_char = "";
+      if code == 0 { lower_char = "a"; }
+      else if code == 1 { lower_char = "b"; }
+      else if code == 2 { lower_char = "c"; }
+      else if code == 3 { lower_char = "d"; }
+      else if code == 4 { lower_char = "e"; }
+      else if code == 5 { lower_char = "f"; }
+      else if code == 6 { lower_char = "g"; }
+      else if code == 7 { lower_char = "h"; }
+      else if code == 8 { lower_char = "i"; }
+      else if code == 9 { lower_char = "j"; }
+      else if code == 10 { lower_char = "k"; }
+      else if code == 11 { lower_char = "l"; }
+      else if code == 12 { lower_char = "m"; }
+      else if code == 13 { lower_char = "n"; }
+      else if code == 14 { lower_char = "o"; }
+      else if code == 15 { lower_char = "p"; }
+      else if code == 16 { lower_char = "q"; }
+      else if code == 17 { lower_char = "r"; }
+      else if code == 18 { lower_char = "s"; }
+      else if code == 19 { lower_char = "t"; }
+      else if code == 20 { lower_char = "u"; }
+      else if code == 21 { lower_char = "v"; }
+      else if code == 22 { lower_char = "w"; }
+      else if code == 23 { lower_char = "x"; }
+      else if code == 24 { lower_char = "y"; }
+      else if code == 25 { lower_char = "z"; }
+
+      result = result + lower_char;
+    } else {
+      result = result + char;
+    }
+
+    i = i + 1;
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. contains(str, search) → bool
+// 문자열에 search가 포함되어 있는지 확인합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_contains(str: string, search: string) -> bool {
+  var index = String_indexOf(str, search);
+  return index >= 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. startsWith(str, prefix) → bool
+// 문자열이 prefix로 시작하는지 확인합니다.
+// ═══════════════════════════════════════════════════════════════
+function String_startsWith(str: string, prefix: string) -> bool {
+  var prefix_len = prefix.length;
+  var str_len = str.length;
+
+  if prefix_len > str_len {
+    return false;
+  }
+
+  var i = 0;
+  while i < prefix_len {
+    if str[i] != prefix[i] {
+      return false;
+    }
+    i = i + 1;
+  }
+
+  return true;
+}

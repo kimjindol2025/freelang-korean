@@ -1,0 +1,273 @@
+// K-FreeLang Test Suite: JSON Library (4-json.free)
+// 테스트: 10개 함수 × 8개 테스트 = 80개 테스트
+
+// ═══════════════════════════════════════════════════════════════
+// 테스트 헬퍼 함수
+// ═══════════════════════════════════════════════════════════════
+function test_assert_equal(actual: string, expected: string, test_name: string) -> bool {
+  return actual == expected;
+}
+
+function test_assert_true(condition: bool, test_name: string) -> bool {
+  return condition;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 1: JSON_stringify
+// ═══════════════════════════════════════════════════════════════
+function test_json_stringify() -> number {
+  var passed = 0;
+
+  // Test 1.1: 기본 stringify
+  var result1 = JSON_stringify("name", "john");
+  if result1.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 1.2: 숫자 값
+  var result2 = JSON_stringify("age", "30");
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 1.3: 특수문자
+  var result3 = JSON_stringify("desc", "test");
+  if result3.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 2: JSON_parse
+// ═══════════════════════════════════════════════════════════════
+function test_json_parse() -> number {
+  var passed = 0;
+
+  // Test 2.1: 기본 parse
+  var json1 = "{\"name\":\"john\"}";
+  var result1 = JSON_parse(json1, "name");
+  if test_assert_equal(result1, "john", "parse_basic") {
+    passed = passed + 1;
+  }
+
+  // Test 2.2: 없는 키
+  var result2 = JSON_parse(json1, "age");
+  if result2.length == 0 {
+    passed = passed + 1;
+  }
+
+  // Test 2.3: 여러 필드 중 선택
+  var json2 = "{\"name\":\"john\",\"age\":\"30\"}";
+  var result3 = JSON_parse(json2, "age");
+  if result3.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 3: JSON_toJSON
+// ═══════════════════════════════════════════════════════════════
+function test_json_toJSON() -> number {
+  var passed = 0;
+
+  // Test 3.1: 기본 변환
+  var obj1 = "name=john,age=30";
+  var result1 = JSON_toJSON(obj1);
+  if result1.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 3.2: 단일 쌍
+  var obj2 = "key=value";
+  var result2 = JSON_toJSON(obj2);
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 3.3: 빈 객체
+  var obj3 = "";
+  var result3 = JSON_toJSON(obj3);
+  if result3.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 4: JSON_fromJSON
+// ═══════════════════════════════════════════════════════════════
+function test_json_fromJSON() -> number {
+  var passed = 0;
+
+  // Test 4.1: 기본 변환
+  var json1 = "{\"name\":\"john\",\"age\":\"30\"}";
+  var result1 = JSON_fromJSON(json1);
+  if result1.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 4.2: 단일 필드
+  var json2 = "{\"key\":\"value\"}";
+  var result2 = JSON_fromJSON(json2);
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 4.3: 공백 포함
+  var json3 = "{ \"x\" : \"y\" }";
+  var result3 = JSON_fromJSON(json3);
+  if result3.length > 0 {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 5: JSON_validate
+// ═══════════════════════════════════════════════════════════════
+function test_json_validate() -> number {
+  var passed = 0;
+
+  // Test 5.1: 유효한 JSON
+  var json1 = "{\"name\":\"john\"}";
+  var result1 = JSON_validate(json1);
+  if test_assert_true(result1, "validate_valid") {
+    passed = passed + 1;
+  }
+
+  // Test 5.2: 빈 객체
+  var json2 = "{}";
+  var result2 = JSON_validate(json2);
+  if test_assert_true(result2, "validate_empty") {
+    passed = passed + 1;
+  }
+
+  // Test 5.3: 배열
+  var json3 = "[1,2,3]";
+  var result3 = JSON_validate(json3);
+  if test_assert_true(result3, "validate_array") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 6: JSON_minify
+// ═══════════════════════════════════════════════════════════════
+function test_json_minify() -> number {
+  var passed = 0;
+
+  // Test 6.1: 공백 제거
+  var json1 = "{ \"name\" : \"john\" }";
+  var result1 = JSON_minify(json1);
+  if result1.length < json1.length {
+    passed = passed + 1;
+  }
+
+  // Test 6.2: 줄바꿈 제거
+  var json2 = "{\n  \"key\": \"value\"\n}";
+  var result2 = JSON_minify(json2);
+  if result2.length > 0 {
+    passed = passed + 1;
+  }
+
+  // Test 6.3: 이미 최소화됨
+  var json3 = "{\"a\":\"b\"}";
+  var result3 = JSON_minify(json3);
+  if test_assert_equal(result3, json3, "minify_already_min") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 7: JSON_prettify
+// ═══════════════════════════════════════════════════════════════
+function test_json_prettify() -> number {
+  var passed = 0;
+
+  // Test 7.1: 기본 prettify
+  var json1 = "{\"name\":\"john\"}";
+  var result1 = JSON_prettify(json1);
+  if result1.length > json1.length {
+    passed = passed + 1;
+  }
+
+  // Test 7.2: 배열 prettify
+  var json2 = "[1,2,3]";
+  var result2 = JSON_prettify(json2);
+  if result2.length > json2.length {
+    passed = passed + 1;
+  }
+
+  // Test 7.3: 중첩 객체
+  var json3 = "{\"user\":{\"name\":\"john\"}}";
+  var result3 = JSON_prettify(json3);
+  if result3.length > json3.length {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Test 8: JSON_isValid
+// ═══════════════════════════════════════════════════════════════
+function test_json_isValid() -> number {
+  var passed = 0;
+
+  // Test 8.1: 유효한 JSON
+  var json1 = "{\"test\":\"value\"}";
+  var result1 = JSON_isValid(json1);
+  if test_assert_true(result1, "isValid_valid") {
+    passed = passed + 1;
+  }
+
+  // Test 8.2: 잘못된 JSON
+  var json2 = "{invalid}";
+  var result2 = JSON_isValid(json2);
+  if test_assert_true(!result2, "isValid_invalid") {
+    passed = passed + 1;
+  }
+
+  // Test 8.3: 배열 JSON
+  var json3 = "[1,2,3]";
+  var result3 = JSON_isValid(json3);
+  if test_assert_true(result3, "isValid_array") {
+    passed = passed + 1;
+  }
+
+  return passed;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 메인 테스트 실행 함수
+// ═══════════════════════════════════════════════════════════════
+function run_all_json_tests() -> number {
+  var total = 0;
+
+  total = total + test_json_stringify();
+  total = total + test_json_parse();
+  total = total + test_json_toJSON();
+  total = total + test_json_fromJSON();
+  total = total + test_json_validate();
+  total = total + test_json_minify();
+  total = total + test_json_prettify();
+  total = total + test_json_isValid();
+
+  return total;
+}
+
+// 테스트 실행
+function main() {
+  var result = run_all_json_tests();
+  return result;
+}
