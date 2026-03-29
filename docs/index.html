@@ -401,6 +401,108 @@
       color: #667eea;
     }
 
+    /* Learning Section */
+    .learning {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .learning h2 {
+      color: white;
+    }
+
+    .learning-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .learning-tab {
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .learning-tab:hover,
+    .learning-tab.active {
+      background: white;
+      color: #667eea;
+      border-color: white;
+    }
+
+    .learning-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .learning-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .learning-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .learning-number {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .learning-card h3 {
+      font-size: 22px;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .learning-card p {
+      opacity: 0.9;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .learning-time {
+      font-size: 14px;
+      opacity: 0.8;
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .learning-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 20px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .learning-link:hover {
+      background: white;
+      color: #667eea;
+    }
+
     /* Docs Section */
     .docs {
       background: #f9f9f9;
@@ -543,6 +645,7 @@
         <li><a href="#features">기능</a></li>
         <li><a href="#install">설치</a></li>
         <li><a href="#packages">패키지</a></li>
+        <li><a href="#learning">학습</a></li>
         <li><a href="#docs">문서</a></li>
         <li><a href="#community">커뮤니티</a></li>
       </ul>
@@ -732,6 +835,105 @@ freelang hello.fl</div>
     </div>
   </section>
 
+  <!-- Learning Section -->
+  <section id="learning" class="learning">
+    <div class="container">
+      <h2>🎓 K-FreeLang 10단계 학습 코스</h2>
+      <p style="text-align: center; margin-bottom: 2rem; opacity: 0.9; font-size: 18px;">
+        한글 프로그래밍을 단계별로 배워보세요. 초급부터 고급까지 6.5시간의 완전한 커리큘럼
+      </p>
+
+      <div class="learning-grid">
+        <!-- Tier 1: 기초 -->
+        <div class="learning-card">
+          <div class="learning-number">1️⃣</div>
+          <h3>Step 1: 안녕, 프리랭!</h3>
+          <p>설치부터 기본 출력까지. 첫 프로그램을 작성해보세요.</p>
+          <div class="learning-time">⏱️ 20분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step1-hello-korean" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">2️⃣</div>
+          <h3>Step 2: 변수와 자료형</h3>
+          <p>변수, 상수, 자료형과 다양한 연산자를 배워봅니다.</p>
+          <div class="learning-time">⏱️ 30분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step2-variables-types" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">3️⃣</div>
+          <h3>Step 3: 조건문과 반복문</h3>
+          <p>if/else, for/while로 프로그램의 흐름을 제어합니다.</p>
+          <div class="learning-time">⏱️ 40분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step3-control-flow" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <!-- Tier 2: 중급 -->
+        <div class="learning-card">
+          <div class="learning-number">4️⃣</div>
+          <h3>Step 4: 함수 정의와 호출</h3>
+          <p>함수를 정의하고 재사용 가능한 코드를 작성합니다.</p>
+          <div class="learning-time">⏱️ 40분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step4-functions" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">5️⃣</div>
+          <h3>Step 5: 배열 다루기</h3>
+          <p>배열을 생성하고 여러 데이터를 효율적으로 관리합니다.</p>
+          <div class="learning-time">⏱️ 35분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step5-arrays" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">6️⃣</div>
+          <h3>Step 6: 객체와 구조체</h3>
+          <p>구조체로 관련 데이터를 한곳에 묶어 관리합니다.</p>
+          <div class="learning-time">⏱️ 40분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step6-objects" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">7️⃣</div>
+          <h3>Step 7: 문자열과 정규식</h3>
+          <p>문자열을 조작하고 패턴 매칭으로 텍스트를 처리합니다.</p>
+          <div class="learning-time">⏱️ 45분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step7-strings" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <!-- Tier 3: 고급 -->
+        <div class="learning-card">
+          <div class="learning-number">8️⃣</div>
+          <h3>Step 8: 모듈과 라이브러리</h3>
+          <p>모듈을 이용해 코드를 조직하고 재사용합니다.</p>
+          <div class="learning-time">⏱️ 40분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step8-modules" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">9️⃣</div>
+          <h3>Step 9: 에러 처리와 디버깅</h3>
+          <p>예외 처리로 안정적인 프로그램을 작성합니다.</p>
+          <div class="learning-time">⏱️ 35분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step9-error-handling" target="_blank" class="learning-link">학습하기</a>
+        </div>
+
+        <div class="learning-card">
+          <div class="learning-number">🔟</div>
+          <h3>Step 10: 실전 프로젝트</h3>
+          <p>계산기, TODO 앱, 성적관리 시스템을 만들어봅니다.</p>
+          <div class="learning-time">⏱️ 60분</div>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials/step10-projects" target="_blank" class="learning-link">학습하기</a>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 3rem;">
+        <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials" target="_blank" style="color: white; background: rgba(255, 255, 255, 0.2); padding: 15px 40px; border-radius: 8px; display: inline-block; font-weight: 600; border: 2px solid white; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='#667eea';" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.color='white';">전체 학습 코스 보기</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Community Section -->
   <section id="community" class="community">
     <div class="container">
@@ -779,9 +981,9 @@ freelang hello.fl</div>
         </div>
 
         <div class="doc-card">
-          <h3>튜토리얼</h3>
-          <p>단계별 튜토리얼로 FreeLang의 기초부터 고급 기능까지 배워보세요.</p>
-          <a href="https://github.com/freelang-io">튜토리얼 →</a>
+          <h3>K-FreeLang 10단계 학습</h3>
+          <p>한글로 배우는 10단계 완전 학습 코스. 초급부터 고급까지 6.5시간의 실제 프로젝트와 함께.</p>
+          <a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials">학습 코스 →</a>
         </div>
 
         <div class="doc-card">
@@ -830,7 +1032,7 @@ freelang hello.fl</div>
         <ul>
           <li><a href="https://github.com/freelang-io/freelang-integration-guide">통합 가이드</a></li>
           <li><a href="https://github.com/freelang-io">API 문서</a></li>
-          <li><a href="https://github.com/freelang-io">튜토리얼</a></li>
+          <li><a href="https://github.com/kimjindol2025/freelang-korean/tree/master/tutorials">10단계 학습</a></li>
         </ul>
       </div>
       <div class="footer-section">
