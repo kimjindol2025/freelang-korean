@@ -1,0 +1,391 @@
+// K-StdLib: Audit Logging Module (audit)
+// 감시 로깅, 변경 이력 추적, 보안 감시
+
+// 감시 로그 레벨
+function get_log_level_trace() -> i32 { return 0; }
+function get_log_level_debug() -> i32 { return 1; }
+function get_log_level_info() -> i32 { return 2; }
+function get_log_level_warn() -> i32 { return 3; }
+function get_log_level_error() -> i32 { return 4; }
+function get_log_level_critical() -> i32 { return 5; }
+
+// 감시 로그 항목
+struct AuditLog {
+  timestamp: string,      // ISO 8601 형식
+  level: i32,            // 0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=CRITICAL
+  user_id: string,       // 사용자 ID
+  action: string,        // 수행 액션 (CREATE, READ, UPDATE, DELETE, LOGIN 등)
+  resource: string,      // 대상 리소스
+  old_value: string,     // 이전 값
+  new_value: string,     // 새 값
+  ip_address: string,    // IP 주소
+  status: string,        // SUCCESS, FAILED
+  message: string        // 메시지
+}
+
+// 감시 로그 생성
+function create_audit_log(user_id: string, action: string, resource: string,
+                          old_value: string, new_value: string,
+                          ip_address: string, status: string, message: string) -> AuditLog {
+  var log = AuditLog {
+    timestamp: "2026-03-30T00:00:00Z",  // 현재시간 (실제로는 시스템 시간)
+    level: get_log_level_info(),
+    user_id: user_id,
+    action: action,
+    resource: resource,
+    old_value: old_value,
+    new_value: new_value,
+    ip_address: ip_address,
+    status: status,
+    message: message
+  };
+
+  return log;
+}
+
+// 감시 로그 포맷팅
+function format_audit_log(log: AuditLog) -> string {
+  var result = "";
+
+  result = result + log.timestamp;
+  result = result + " [";
+
+  // 로그 레벨 문자열
+  if log.level == get_log_level_trace() {
+    result = result + "TRACE";
+  }
+  else if log.level == get_log_level_debug() {
+    result = result + "DEBUG";
+  }
+  else if log.level == get_log_level_info() {
+    result = result + "INFO";
+  }
+  else if log.level == get_log_level_warn() {
+    result = result + "WARN";
+  }
+  else if log.level == get_log_level_error() {
+    result = result + "ERROR";
+  }
+  else if log.level == get_log_level_critical() {
+    result = result + "CRITICAL";
+  }
+
+  result = result + "] ";
+  result = result + log.user_id;
+  result = result + " - ";
+  result = result + log.action;
+  result = result + " ";
+  result = result + log.resource;
+  result = result + " (";
+  result = result + log.status;
+  result = result + ")";
+
+  if log.message.len > 0 {
+    result = result + ": ";
+    result = result + log.message;
+  }
+
+  return result;
+}
+
+// 변경 이력 항목
+struct ChangeHistory {
+  timestamp: string,
+  field_name: string,
+  old_value: string,
+  new_value: string,
+  changed_by: string
+}
+
+// 변경 이력 생성
+function create_change_history(field_name: string, old_value: string,
+                               new_value: string, changed_by: string) -> ChangeHistory {
+  var history = ChangeHistory {
+    timestamp: "2026-03-30T00:00:00Z",
+    field_name: field_name,
+    old_value: old_value,
+    new_value: new_value,
+    changed_by: changed_by
+  };
+
+  return history;
+}
+
+// 로그인 감시
+function log_login(user_id: string, ip_address: string, success: bool) -> AuditLog {
+  var status = "SUCCESS";
+  if !success {
+    status = "FAILED";
+  }
+
+  var log = create_audit_log(
+    user_id,
+    "LOGIN",
+    "USER",
+    "",
+    "",
+    ip_address,
+    status,
+    "로그인 시도"
+  );
+
+  log.level = get_log_level_warn();
+
+  return log;
+}
+
+// 로그아웃 감시
+function log_logout(user_id: string, ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "LOGOUT",
+    "USER",
+    "",
+    "",
+    ip_address,
+    "SUCCESS",
+    "로그아웃"
+  );
+
+  log.level = get_log_level_info();
+
+  return log;
+}
+
+// 데이터 수정 감시
+function log_update(user_id: string, resource: string, field: string,
+                    old_value: string, new_value: string, ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "UPDATE",
+    resource,
+    old_value,
+    new_value,
+    ip_address,
+    "SUCCESS",
+    field + " 필드 수정"
+  );
+
+  log.level = get_log_level_info();
+
+  return log;
+}
+
+// 데이터 삭제 감시
+function log_delete(user_id: string, resource: string, resource_id: string,
+                    ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "DELETE",
+    resource,
+    resource_id,
+    "",
+    ip_address,
+    "SUCCESS",
+    resource + " 삭제"
+  );
+
+  log.level = get_log_level_warn();
+
+  return log;
+}
+
+// 데이터 생성 감시
+function log_create(user_id: string, resource: string, resource_id: string,
+                    ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "CREATE",
+    resource,
+    "",
+    resource_id,
+    ip_address,
+    "SUCCESS",
+    resource + " 생성"
+  );
+
+  log.level = get_log_level_info();
+
+  return log;
+}
+
+// 접근 거부 감시
+function log_access_denied(user_id: string, resource: string,
+                          ip_address: string, reason: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "ACCESS",
+    resource,
+    "",
+    "",
+    ip_address,
+    "FAILED",
+    "접근 거부: " + reason
+  );
+
+  log.level = get_log_level_warn();
+
+  return log;
+}
+
+// 권한 변경 감시
+function log_permission_change(user_id: string, target_user: string,
+                              old_role: string, new_role: string,
+                              ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "PERMISSION_CHANGE",
+    "USER",
+    old_role,
+    new_role,
+    ip_address,
+    "SUCCESS",
+    target_user + " 권한 변경"
+  );
+
+  log.level = get_log_level_warn();
+
+  return log;
+}
+
+// 보안 이벤트 감시 (의심 활동)
+function log_security_event(user_id: string, event_type: string,
+                           event_details: string, ip_address: string) -> AuditLog {
+  var log = create_audit_log(
+    user_id,
+    "SECURITY_EVENT",
+    "SYSTEM",
+    "",
+    "",
+    ip_address,
+    "ALERT",
+    event_type + ": " + event_details
+  );
+
+  log.level = get_log_level_critical();
+
+  return log;
+}
+
+// 감시 로그 필터링 (레벨별)
+function filter_audit_logs_by_level(logs: AuditLog, min_level: i32) -> bool {
+  return logs.level >= min_level;
+}
+
+// 감시 로그 필터링 (사용자별)
+function filter_audit_logs_by_user(log: AuditLog, user_id: string) -> bool {
+  return log.user_id == user_id;
+}
+
+// 감시 로그 필터링 (액션별)
+function filter_audit_logs_by_action(log: AuditLog, action: string) -> bool {
+  return log.action == action;
+}
+
+// 감시 로그 통계
+struct AuditStatistics {
+  total_logs: i32,
+  success_count: i32,
+  failed_count: i32,
+  critical_count: i32
+}
+
+function create_audit_statistics() -> AuditStatistics {
+  var stats = AuditStatistics {
+    total_logs: 0,
+    success_count: 0,
+    failed_count: 0,
+    critical_count: 0
+  };
+
+  return stats;
+}
+
+// 감시 로그 분석
+function analyze_audit_log(log: AuditLog, stats: AuditStatistics) -> AuditStatistics {
+  var new_stats = AuditStatistics {
+    total_logs: stats.total_logs + 1,
+    success_count: stats.success_count,
+    failed_count: stats.failed_count,
+    critical_count: stats.critical_count
+  };
+
+  if log.status == "SUCCESS" {
+    new_stats.success_count = new_stats.success_count + 1;
+  } else {
+    new_stats.failed_count = new_stats.failed_count + 1;
+  }
+
+  if log.level == get_log_level_critical() {
+    new_stats.critical_count = new_stats.critical_count + 1;
+  }
+
+  return new_stats;
+}
+
+// 의심 활동 감지 (같은 사용자가 짧은 시간에 많은 실패)
+function detect_brute_force(user_id: string, failed_attempts: i32, threshold: i32) -> bool {
+  return failed_attempts >= threshold;
+}
+
+// 이상 활동 감지 (비정상적인 IP에서의 접근)
+function detect_anomalous_login(user_id: string, new_ip: string, known_ips: string) -> bool {
+  // known_ips에 new_ip가 포함되어 있는지 확인
+  var i = 0;
+  var current_ip = "";
+
+  for i = 0; i < known_ips.len; i = i + 1 {
+    if known_ips[i] == 44 {  // ','
+      if current_ip == new_ip {
+        return false;  // 정상 IP
+      }
+      current_ip = "";
+    } else {
+      current_ip = current_ip + known_ips[i];
+    }
+  }
+
+  // 마지막 IP 확인
+  if current_ip == new_ip {
+    return false;
+  }
+
+  return true;  // 이상 IP
+}
+
+// 감시 알림 생성
+function generate_audit_alert(log: AuditLog, alert_recipient: string) -> string {
+  var alert = "🚨 감시 알림\n";
+  alert = alert + "시간: " + log.timestamp + "\n";
+  alert = alert + "사용자: " + log.user_id + "\n";
+  alert = alert + "액션: " + log.action + "\n";
+  alert = alert + "자원: " + log.resource + "\n";
+  alert = alert + "IP: " + log.ip_address + "\n";
+  alert = alert + "메시지: " + log.message + "\n";
+  alert = alert + "받는사람: " + alert_recipient;
+
+  return alert;
+}
+
+// CSV 형식으로 로그 내보내기
+function export_audit_log_as_csv(log: AuditLog) -> string {
+  var csv = "";
+
+  csv = csv + log.timestamp;
+  csv = csv + ",";
+  csv = csv + log.user_id;
+  csv = csv + ",";
+  csv = csv + log.action;
+  csv = csv + ",";
+  csv = csv + log.resource;
+  csv = csv + ",";
+  csv = csv + log.old_value;
+  csv = csv + ",";
+  csv = csv + log.new_value;
+  csv = csv + ",";
+  csv = csv + log.ip_address;
+  csv = csv + ",";
+  csv = csv + log.status;
+
+  return csv;
+}

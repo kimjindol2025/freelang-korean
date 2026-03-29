@@ -1,0 +1,380 @@
+// K-StdLib: Korean Date Module (kdate)
+// 음력/양력 변환, 한국 절기, 휴일 정보
+
+// 날짜 구조체
+struct KDate {
+  year: i32,
+  month: i32,
+  day: i32,
+  is_lunar: bool  // true = 음력, false = 양력
+}
+
+// 윤년 여부 확인
+function is_leap_year(year: i32) -> bool {
+  // 4의 배수이고, 100의 배수가 아니거나, 400의 배수
+  if year % 400 == 0 {
+    return true;
+  }
+  if year % 100 == 0 {
+    return false;
+  }
+  if year % 4 == 0 {
+    return true;
+  }
+  return false;
+}
+
+// 양력의 각 월별 일수
+function get_days_in_month_solar(year: i32, month: i32) -> i32 {
+  if month < 1 || month > 12 {
+    return 0;
+  }
+
+  var days = 31;
+
+  if month == 2 {
+    if is_leap_year(year) {
+      days = 29;
+    } else {
+      days = 28;
+    }
+  }
+  else if month == 4 || month == 6 || month == 9 || month == 11 {
+    days = 30;
+  }
+
+  return days;
+}
+
+// 양력 일년의 총 일수
+function get_days_in_year_solar(year: i32) -> i32 {
+  if is_leap_year(year) {
+    return 366;
+  } else {
+    return 365;
+  }
+}
+
+// 음력 윤달 여부 확인 (간단한 버전)
+function is_lunar_leap_month(year: i32, month: i32) -> bool {
+  // 실제 음력 윤달은 복잡한 계산 필요
+  // 여기선 대략적인 패턴 (간소화 버전)
+  var leap_years = [2023, 2026, 2029, 2032, 2035, 2038, 2041, 2044];
+
+  var i = 0;
+  for i = 0; i < leap_years.len; i = i + 1 {
+    if leap_years[i] == year {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// 음력 각 월별 일수 (29일 또는 30일)
+function get_days_in_month_lunar(year: i32, month: i32) -> i32 {
+  // 음력 월별 일수 (대소월)
+  // 간소화 버전: 기본 30일, 일부 월은 29일
+  if month == 1 || month == 3 || month == 5 || month == 7 ||
+     month == 9 || month == 11 {
+    return 30;
+  } else {
+    return 29;
+  }
+}
+
+// 양력 → 음력 변환 (간소화 버전)
+function solar_to_lunar(solar_year: i32, solar_month: i32, solar_day: i32) -> KDate {
+  // 정확한 변환은 복잡한 알고리즘 필요
+  // 여기선 근사값으로 처리
+
+  var lunar_year = solar_year;
+  var lunar_month = solar_month;
+  var lunar_day = solar_day;
+
+  // 1월 20일 이전이면 전년도 11월 이후 (윤달 고려 안함)
+  if solar_month == 1 && solar_day < 20 {
+    lunar_year = solar_year - 1;
+    lunar_month = 11 + (solar_day / 10);
+  }
+
+  var result = KDate {
+    year: lunar_year,
+    month: lunar_month,
+    day: lunar_day,
+    is_lunar: true
+  };
+
+  return result;
+}
+
+// 음력 → 양력 변환 (간소화 버전)
+function lunar_to_solar(lunar_year: i32, lunar_month: i32, lunar_day: i32) -> KDate {
+  // 정확한 변환은 복잡한 알고리즘 필요
+  var solar_year = lunar_year;
+  var solar_month = lunar_month + 1;
+  var solar_day = lunar_day;
+
+  // 월 오버플로우 처리
+  if solar_month > 12 {
+    solar_month = 1;
+    solar_year = solar_year + 1;
+  }
+
+  var result = KDate {
+    year: solar_year,
+    month: solar_month,
+    day: solar_day,
+    is_lunar: false
+  };
+
+  return result;
+}
+
+// 24절기 정보 (양력 기준)
+struct SolarTerm {
+  name: string,
+  month: i32,
+  day: i32
+}
+
+function get_solar_term_for_month(month: i32) -> SolarTerm {
+  // 24절기 중 각 월의 절기 (대략)
+  var term = SolarTerm {
+    name: "",
+    month: month,
+    day: 1
+  };
+
+  if month == 1 {
+    term.name = "소한";
+    term.day = 6;
+  }
+  else if month == 2 {
+    term.name = "입춘";
+    term.day = 4;
+  }
+  else if month == 3 {
+    term.name = "춘분";
+    term.day = 20;
+  }
+  else if month == 4 {
+    term.name = "청명";
+    term.day = 5;
+  }
+  else if month == 5 {
+    term.name = "입하";
+    term.day = 5;
+  }
+  else if month == 6 {
+    term.name = "하지";
+    term.day = 21;
+  }
+  else if month == 7 {
+    term.name = "대서";
+    term.day = 22;
+  }
+  else if month == 8 {
+    term.name = "입추";
+    term.day = 7;
+  }
+  else if month == 9 {
+    term.name = "추분";
+    term.day = 22;
+  }
+  else if month == 10 {
+    term.name = "한로";
+    term.day = 8;
+  }
+  else if month == 11 {
+    term.name = "입동";
+    term.day = 7;
+  }
+  else if month == 12 {
+    term.name = "동지";
+    term.day = 21;
+  }
+
+  return term;
+}
+
+// 한국 공휴일 확인
+function is_korean_holiday(year: i32, month: i32, day: i32) -> bool {
+  // 고정 공휴일
+  if month == 1 && day == 1 {
+    return true;  // 신정
+  }
+  if month == 3 && day == 1 {
+    return true;  // 삼일절
+  }
+  if month == 5 && day == 5 {
+    return true;  // 어린이날
+  }
+  if month == 6 && day == 6 {
+    return true;  // 현충일
+  }
+  if month == 8 && day == 15 {
+    return true;  // 광복절
+  }
+  if month == 10 && day == 3 {
+    return true;  // 개천절
+  }
+  if month == 10 && day == 9 {
+    return true;  // 한글날
+  }
+  if month == 12 && day == 25 {
+    return true;  // 크리스마스
+  }
+
+  return false;
+}
+
+// 음력 공휴일 (음력 기준)
+function is_lunar_korean_holiday(lunar_month: i32, lunar_day: i32) -> bool {
+  // 설날 (음력 1월 1일)
+  if lunar_month == 1 && lunar_day == 1 {
+    return true;
+  }
+
+  // 추석 (음력 8월 15일)
+  if lunar_month == 8 && lunar_day == 15 {
+    return true;
+  }
+
+  return false;
+}
+
+// 특정 날짜의 요일 계산 (Zeller 공식)
+function get_day_of_week(year: i32, month: i32, day: i32) -> i32 {
+  // 0 = 일요일, 1 = 월요일, ... 6 = 토요일
+
+  if month < 3 {
+    month = month + 12;
+    year = year - 1;
+  }
+
+  var q = day;
+  var m = month;
+  var k = year % 100;
+  var j = year / 100;
+
+  var h = q + ((13 * (m + 1)) / 5) + k + (k / 4) + (j / 4) - (2 * j);
+  var dayOfWeek = h % 7;
+
+  // 조정 (Zeller는 토요일=0)
+  dayOfWeek = (dayOfWeek + 6) % 7;
+
+  return dayOfWeek;
+}
+
+// 요일 이름
+function get_day_name(day_of_week: i32) -> string {
+  var days = "일월화수목금토";
+  return days[day_of_week];
+}
+
+// 두 날짜 사이의 일수 계산 (양력만)
+function days_between_solar(year1: i32, month1: i32, day1: i32,
+                            year2: i32, month2: i32, day2: i32) -> i32 {
+  var days1 = 0;
+  var days2 = 0;
+
+  // year1부터 day1까지의 일수
+  var y = 1;
+  var m = 1;
+
+  for y = 1; y < year1; y = y + 1 {
+    days1 = days1 + get_days_in_year_solar(y);
+  }
+
+  for m = 1; m < month1; m = m + 1 {
+    days1 = days1 + get_days_in_month_solar(year1, m);
+  }
+
+  days1 = days1 + day1;
+
+  // year2부터 day2까지의 일수
+  for y = 1; y < year2; y = y + 1 {
+    days2 = days2 + get_days_in_year_solar(y);
+  }
+
+  for m = 1; m < month2; m = m + 1 {
+    days2 = days2 + get_days_in_month_solar(year2, m);
+  }
+
+  days2 = days2 + day2;
+
+  return days2 - days1;
+}
+
+// 날짜 문자열 포맷 (YYYY-MM-DD)
+function format_date(date: KDate) -> string {
+  var result = "";
+  var year_str = "";
+  var month_str = "";
+  var day_str = "";
+
+  // 년 변환
+  var temp = date.year;
+  var digits = "";
+  if temp == 0 {
+    year_str = "0";
+  } else {
+    while temp > 0 {
+      var digit = temp % 10;
+      digits = digit + digits;
+      temp = temp / 10;
+    }
+    year_str = digits;
+  }
+
+  // 월 변환
+  if date.month < 10 {
+    month_str = "0" + date.month;
+  } else {
+    month_str = date.month;
+  }
+
+  // 일 변환
+  if date.day < 10 {
+    day_str = "0" + date.day;
+  } else {
+    day_str = date.day;
+  }
+
+  result = year_str + "-" + month_str + "-" + day_str;
+
+  if date.is_lunar {
+    result = result + " (음력)";
+  }
+
+  return result;
+}
+
+// 오늘 날짜 (시뮬레이션)
+function today() -> KDate {
+  var today_date = KDate {
+    year: 2026,
+    month: 3,
+    day: 30,
+    is_lunar: false
+  };
+
+  return today_date;
+}
+
+// 음력 나이 계산
+function get_korean_age(birth_year: i32, birth_month: i32, birth_day: i32) -> i32 {
+  var today_date = today();
+
+  // 한국식 나이: 생년 + 1세 (태어난 년도에 이미 1세)
+  var age = today_date.year - birth_year + 1;
+
+  // 생일이 아직 안 지났으면 -1
+  if today_date.month < birth_month ||
+     (today_date.month == birth_month && today_date.day < birth_day) {
+    age = age - 1;
+  }
+
+  return age;
+}

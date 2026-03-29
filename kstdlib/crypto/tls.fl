@@ -1,0 +1,188 @@
+// K-StdLib: TLS/SSL Module
+// 보안 통신 및 인증서 관련 기능
+
+// TLS 설정 구조체
+struct TLSConfig {
+  version: string,    // "1.2", "1.3"
+  cipher_suite: string,
+  verify_mode: bool
+}
+
+// 인증서 정보 구조체
+struct Certificate {
+  subject: string,
+  issuer: string,
+  valid_from: string,
+  valid_to: string,
+  fingerprint: string
+}
+
+// TLS 버전 설정
+function set_tls_version(version: string) -> TLSConfig {
+  var config = TLSConfig {
+    version: version,
+    cipher_suite: "AES-256-GCM",
+    verify_mode: true
+  };
+  return config;
+}
+
+// 기본 TLS 설정
+function create_default_tls_config() -> TLSConfig {
+  var config = TLSConfig {
+    version: "1.3",
+    cipher_suite: "AES-256-GCM",
+    verify_mode: true
+  };
+  return config;
+}
+
+// TLS 1.2 설정
+function create_tls12_config() -> TLSConfig {
+  var config = TLSConfig {
+    version: "1.2",
+    cipher_suite: "AES-128-SHA",
+    verify_mode: true
+  };
+  return config;
+}
+
+// TLS 1.3 설정 (최신)
+function create_tls13_config() -> TLSConfig {
+  var config = TLSConfig {
+    version: "1.3",
+    cipher_suite: "AES-256-GCM",
+    verify_mode: true
+  };
+  return config;
+}
+
+// Cipher Suite 설정
+function set_cipher_suite(config: TLSConfig, suite: string) -> TLSConfig {
+  var new_config = TLSConfig {
+    version: config.version,
+    cipher_suite: suite,
+    verify_mode: config.verify_mode
+  };
+  return new_config;
+}
+
+// 인증서 검증 활성화/비활성화
+function set_verify_mode(config: TLSConfig, verify: bool) -> TLSConfig {
+  var new_config = TLSConfig {
+    version: config.version,
+    cipher_suite: config.cipher_suite,
+    verify_mode: verify
+  };
+  return new_config;
+}
+
+// 인증서 생성
+function create_certificate(subject: string, issuer: string) -> Certificate {
+  var cert = Certificate {
+    subject: subject,
+    issuer: issuer,
+    valid_from: "2026-01-01",
+    valid_to: "2027-01-01",
+    fingerprint: "abc123def456"
+  };
+  return cert;
+}
+
+// 인증서 유효성 확인
+function is_certificate_valid(cert: Certificate) -> bool {
+  // 간단한 검증: 발급자가 있으면 유효한 것으로 간주
+  if cert.issuer.len > 0 {
+    return true;
+  }
+  return false;
+}
+
+// 인증서 만료 확인
+function is_certificate_expired(cert: Certificate) -> bool {
+  // 간단한 검증: valid_to 확인
+  // 실제로는 현재 날짜와 비교해야 함
+  return false;
+}
+
+// 자체 서명 인증서 생성
+function create_self_signed_cert(common_name: string) -> Certificate {
+  var cert = Certificate {
+    subject: common_name,
+    issuer: common_name,
+    valid_from: "2026-01-01",
+    valid_to: "2027-01-01",
+    fingerprint: "self-signed-123"
+  };
+  return cert;
+}
+
+// 인증서 체인 검증
+function verify_certificate_chain(certs: Certificate[]) -> bool {
+  var i = 0;
+  for i = 0; i < certs.len; i = i + 1 {
+    if !is_certificate_valid(certs[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// 공개키 핑거프린트 생성
+function get_public_key_fingerprint(cert: Certificate) -> string {
+  return cert.fingerprint;
+}
+
+// 인증서 정보 출력
+function get_certificate_info(cert: Certificate) -> string {
+  var info = "Subject: ";
+  info = info + cert.subject;
+  info = info + " | Issuer: ";
+  info = info + cert.issuer;
+  return info;
+}
+
+// TLS 설정 확인
+function is_tls_secure(config: TLSConfig) -> bool {
+  if config.version == "1.3" && config.verify_mode {
+    return true;
+  }
+  if config.version == "1.2" && config.verify_mode {
+    return true;
+  }
+  return false;
+}
+
+// 권장 설정 제안
+function get_recommended_config() -> TLSConfig {
+  var config = TLSConfig {
+    version: "1.3",
+    cipher_suite: "TLS_AES_256_GCM_SHA384",
+    verify_mode: true
+  };
+  return config;
+}
+
+// 레거시 설정 (호환성)
+function get_legacy_config() -> TLSConfig {
+  var config = TLSConfig {
+    version: "1.2",
+    cipher_suite: "AES-128-SHA256",
+    verify_mode: true
+  };
+  return config;
+}
+
+// HSTS 헤더 생성
+function get_hsts_header(max_age: i32) -> string {
+  var header = "Strict-Transport-Security: max-age=";
+  header = header + max_age;
+  header = header + "; includeSubDomains";
+  return header;
+}
+
+// CSP 헤더 생성
+function get_csp_header() -> string {
+  var header = "Content-Security-Policy: default-src 'self'";
+  return header;
+}

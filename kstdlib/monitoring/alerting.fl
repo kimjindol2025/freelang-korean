@@ -1,0 +1,193 @@
+// K-StdLib: Alerting Module
+// 알림 규칙, 임계값 감시, 다중 채널 알림
+
+// 알림 규칙
+struct AlertRule {
+  rule_id: string,
+  metric_name: string,
+  condition: string,           // "GREATER_THAN", "LESS_THAN", "EQUALS"
+  threshold: i32,
+  severity: string,            // "INFO", "WARNING", "CRITICAL"
+  is_enabled: bool
+}
+
+// 알림
+struct Alert {
+  alert_id: string,
+  rule_id: string,
+  metric_name: string,
+  current_value: i32,
+  threshold: i32,
+  severity: string,
+  message: string,
+  triggered_at: string,
+  acknowledged_at: string,
+  is_acknowledged: bool
+}
+
+// 알림 채널
+struct AlertChannel {
+  channel_id: string,
+  channel_type: string,        // "EMAIL", "SLACK", "LOG", "SMS"
+  destination: string,         // 이메일 주소, Slack URL, 파일 경로
+  is_enabled: bool,
+  retry_count: i32
+}
+
+// 알림 이력
+struct AlertHistory {
+  alert_id: string,
+  metric_name: string,
+  triggered_count: i32,
+  last_triggered: string,
+  total_duration_minutes: i32,
+  status: string               // "ACTIVE", "RESOLVED", "ACKNOWLEDGED"
+}
+
+// 알림 규칙 생성
+function create_alert_rule(metric_name: string, condition: string, threshold: i32, severity: string) -> AlertRule {
+  var rule = AlertRule {
+    rule_id: "rule_001",
+    metric_name: metric_name,
+    condition: condition,
+    threshold: threshold,
+    severity: severity,
+    is_enabled: true
+  };
+
+  return rule;
+}
+
+// 알림 생성
+function create_alert(rule_id: string, metric_name: string, current_value: i32, threshold: i32, severity: string, message: string) -> Alert {
+  var alert = Alert {
+    alert_id: "alert_001",
+    rule_id: rule_id,
+    metric_name: metric_name,
+    current_value: current_value,
+    threshold: threshold,
+    severity: severity,
+    message: message,
+    triggered_at: "2026-03-30T00:00:00Z",
+    acknowledged_at: "",
+    is_acknowledged: false
+  };
+
+  return alert;
+}
+
+// 알림 규칙 평가
+function evaluate_alert_rule(rule: AlertRule, metric_value: i32) -> bool {
+  if !rule.is_enabled {
+    return false;
+  }
+
+  if rule.condition == "GREATER_THAN" {
+    return metric_value > rule.threshold;
+  } else if rule.condition == "LESS_THAN" {
+    return metric_value < rule.threshold;
+  } else if rule.condition == "EQUALS" {
+    return metric_value == rule.threshold;
+  }
+
+  return false;
+}
+
+// 알림 채널 생성
+function create_alert_channel(channel_type: string, destination: string) -> AlertChannel {
+  var channel = AlertChannel {
+    channel_id: "channel_001",
+    channel_type: channel_type,
+    destination: destination,
+    is_enabled: true,
+    retry_count: 0
+  };
+
+  return channel;
+}
+
+// 알림 전송
+function send_alert(alert: Alert, channel: AlertChannel) -> AlertChannel {
+  var updated = AlertChannel {
+    channel_id: channel.channel_id,
+    channel_type: channel.channel_type,
+    destination: channel.destination,
+    is_enabled: channel.is_enabled,
+    retry_count: channel.retry_count + 1
+  };
+
+  return updated;
+}
+
+// 알림 확인
+function acknowledge_alert(alert: Alert) -> Alert {
+  var acknowledged = Alert {
+    alert_id: alert.alert_id,
+    rule_id: alert.rule_id,
+    metric_name: alert.metric_name,
+    current_value: alert.current_value,
+    threshold: alert.threshold,
+    severity: alert.severity,
+    message: alert.message,
+    triggered_at: alert.triggered_at,
+    acknowledged_at: "2026-03-30T00:00:00Z",
+    is_acknowledged: true
+  };
+
+  return acknowledged;
+}
+
+// 활성 알림 조회
+function get_active_alerts(alerts: string) -> i32 {
+  // 알림 목록에서 활성 알림 수 반환 (간소화)
+  return 0;
+}
+
+// 알림 해제
+function clear_alert(alert: Alert) -> Alert {
+  var cleared = Alert {
+    alert_id: alert.alert_id,
+    rule_id: alert.rule_id,
+    metric_name: alert.metric_name,
+    current_value: alert.current_value,
+    threshold: alert.threshold,
+    severity: alert.severity,
+    message: alert.message,
+    triggered_at: alert.triggered_at,
+    acknowledged_at: "2026-03-30T00:00:00Z",
+    is_acknowledged: true
+  };
+
+  return cleared;
+}
+
+// 알림 정보 조회
+function get_alert_info(alert: Alert) -> string {
+  var info = "알림: ";
+  info = info + alert.metric_name;
+  info = info + " (심각도: ";
+  info = info + alert.severity;
+  info = info + ", 값: ";
+  info = info + alert.current_value;
+  info = info + "/";
+  info = info + alert.threshold;
+  info = info + ")";
+
+  return info;
+}
+
+// 알림 규칙 정보
+function get_alert_rule_info(rule: AlertRule) -> string {
+  var info = "규칙: ";
+  info = info + rule.metric_name;
+  info = info + " ";
+  info = info + rule.condition;
+  info = info + " ";
+  info = info + rule.threshold;
+  info = info + " (심각도: ";
+  info = info + rule.severity;
+  info = info + ")";
+
+  return info;
+}
+

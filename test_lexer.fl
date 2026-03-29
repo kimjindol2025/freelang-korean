@@ -1,0 +1,46 @@
+// Test Lexer: 다양한 토큰 검증
+
+fn test_basic_tokens() {
+    let x = 42
+    let y = 3.14
+    let s = "hello world"
+    let b = true
+    return x + y
+}
+
+fn test_operators() {
+    let a = 10
+    let b = 20
+    
+    let add = a + b
+    let sub = a - b
+    let mul = a * b
+    let div = a / b
+    let mod = a % b
+    
+    let eq = (a == b)
+    let ne = (a != b)
+    let lt = (a < b)
+    let gt = (a > b)
+    let le = (a <= b)
+    let ge = (a >= b)
+    
+    return add
+}
+
+fn test_arrays() {
+    let nums = [1, 2, 3, 4, 5]
+    let mixed = ["a", 1, true]
+    let empty = []
+    
+    return len(nums)
+}
+
+fn main() {
+    println("=== Lexer Test ===")
+    println(str(test_basic_tokens()))
+    println(str(test_operators()))
+    println(str(test_arrays()))
+}
+
+main()

@@ -1,0 +1,230 @@
+// K-StdLib: Distributed Tracing Module
+// 분산 요청 추적, Trace ID, Span 기반 추적
+
+// 추적 컨텍스트 (Trace ID + 메타데이터)
+struct TraceContext {
+  trace_id: string,             // 글로벌 고유 ID
+  parent_trace_id: string,      // 부모 추적 ID (없으면 빈 문자열)
+  span_id: string,              // 현재 Span ID
+  sampled: bool,                // 샘플링 여부
+  created_at: string,
+  user_id: string,
+  request_id: string
+}
+
+// Span (요청의 작업 단위)
+struct Span {
+  span_id: string,
+  trace_id: string,
+  parent_span_id: string,       // 부모 Span ID
+  operation_name: string,       // 작업명 (예: "db_query", "http_request")
+  service_name: string,         // 서비스명
+  start_time: string,
+  end_time: string,
+  duration_ms: i32,
+  status: string,               // "OK", "ERROR"
+  error_message: string,
+  tags: string,                 // 메타데이터 (JSON)
+  logs: string                  // 로그 항목 (JSON)
+}
+
+// Span 태그
+struct SpanTag {
+  tag_key: string,
+  tag_value: string,
+  tag_type: string             // "STRING", "NUMBER", "BOOL"
+}
+
+// Span 로그 항목
+struct SpanLog {
+  timestamp: string,
+  event: string,
+  message: string,
+  fields: string                // 추가 필드 (JSON)
+}
+
+// 추적 통계
+struct TraceStatistics {
+  trace_id: string,
+  service_count: i32,
+  span_count: i32,
+  total_duration_ms: i32,
+  error_count: i32,
+  success_count: i32,
+  error_rate_percent: i32
+}
+
+// 추적 컨텍스트 생성
+function create_trace_context(user_id: string, request_id: string) -> TraceContext {
+  var ctx = TraceContext {
+    trace_id: "trace_001",
+    parent_trace_id: "",
+    span_id: "span_001",
+    sampled: true,
+    created_at: "2026-03-30T00:00:00Z",
+    user_id: user_id,
+    request_id: request_id
+  };
+
+  return ctx;
+}
+
+// Span 생성
+function create_span(trace_id: string, operation_name: string, service_name: string) -> Span {
+  var span = Span {
+    span_id: "span_001",
+    trace_id: trace_id,
+    parent_span_id: "",
+    operation_name: operation_name,
+    service_name: service_name,
+    start_time: "2026-03-30T00:00:00Z",
+    end_time: "",
+    duration_ms: 0,
+    status: "OK",
+    error_message: "",
+    tags: "",
+    logs: ""
+  };
+
+  return span;
+}
+
+// Span 시작
+function start_span(span: Span) -> Span {
+  var started = Span {
+    span_id: span.span_id,
+    trace_id: span.trace_id,
+    parent_span_id: span.parent_span_id,
+    operation_name: span.operation_name,
+    service_name: span.service_name,
+    start_time: "2026-03-30T00:00:00Z",
+    end_time: "",
+    duration_ms: 0,
+    status: span.status,
+    error_message: span.error_message,
+    tags: span.tags,
+    logs: span.logs
+  };
+
+  return started;
+}
+
+// Span 종료
+function end_span(span: Span, duration_ms: i32, status: string) -> Span {
+  var ended = Span {
+    span_id: span.span_id,
+    trace_id: span.trace_id,
+    parent_span_id: span.parent_span_id,
+    operation_name: span.operation_name,
+    service_name: span.service_name,
+    start_time: span.start_time,
+    end_time: "2026-03-30T00:00:01Z",
+    duration_ms: duration_ms,
+    status: status,
+    error_message: span.error_message,
+    tags: span.tags,
+    logs: span.logs
+  };
+
+  return ended;
+}
+
+// Span 태그 추가
+function add_span_tag(span: Span, key: string, value: string) -> Span {
+  var tag = key + "=" + value;
+  var tags = span.tags;
+
+  if tags.len > 0 {
+    tags = tags + ",";
+  }
+
+  tags = tags + tag;
+
+  var updated = Span {
+    span_id: span.span_id,
+    trace_id: span.trace_id,
+    parent_span_id: span.parent_span_id,
+    operation_name: span.operation_name,
+    service_name: span.service_name,
+    start_time: span.start_time,
+    end_time: span.end_time,
+    duration_ms: span.duration_ms,
+    status: span.status,
+    error_message: span.error_message,
+    tags: tags,
+    logs: span.logs
+  };
+
+  return updated;
+}
+
+// Span 로그 추가
+function add_span_log(span: Span, event: string, message: string) -> Span {
+  var log = event + ":" + message;
+  var logs = span.logs;
+
+  if logs.len > 0 {
+    logs = logs + ";";
+  }
+
+  logs = logs + log;
+
+  var updated = Span {
+    span_id: span.span_id,
+    trace_id: span.trace_id,
+    parent_span_id: span.parent_span_id,
+    operation_name: span.operation_name,
+    service_name: span.service_name,
+    start_time: span.start_time,
+    end_time: span.end_time,
+    duration_ms: span.duration_ms,
+    status: span.status,
+    error_message: span.error_message,
+    tags: span.tags,
+    logs: logs
+  };
+
+  return updated;
+}
+
+// 추적 컨텍스트 조회
+function get_trace_context(trace_id: string) -> TraceContext {
+  var ctx = TraceContext {
+    trace_id: trace_id,
+    parent_trace_id: "",
+    span_id: "",
+    sampled: true,
+    created_at: "2026-03-30T00:00:00Z",
+    user_id: "",
+    request_id: ""
+  };
+
+  return ctx;
+}
+
+// 추적 컨텍스트 전파 (다른 서비스로)
+function propagate_trace_context(ctx: TraceContext) -> string {
+  // HTTP 헤더 형식으로 변환
+  var header = "traceparent=";
+  header = header + ctx.trace_id;
+  header = header + "-";
+  header = header + ctx.span_id;
+
+  return header;
+}
+
+// 추적 정보 조회
+function get_trace_info(trace_id: string) -> string {
+  var info = "추적: ";
+  info = info + trace_id;
+  info = info + " (스팬 개수: N, 서비스: N개, 총시간: Nms)";
+
+  return info;
+}
+
+// 추적 데이터 내보내기
+function export_trace(trace_id: string) -> string {
+  // Jaeger, Zipkin 등 포맷으로 내보내기
+  return "exported_trace_data";
+}
+

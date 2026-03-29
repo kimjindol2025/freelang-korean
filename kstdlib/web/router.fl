@@ -1,0 +1,343 @@
+// K-StdLib: Router Module
+// REST API 라우팅, 경로 매칭, 핸들러 매핑
+
+// 라우트 정의
+struct Route {
+  method: string,           // GET, POST, PUT, DELETE, PATCH
+  path: string,             // "/api/users", "/api/users/:id"
+  handler: string,          // 핸들러 함수명
+  middleware: string,       // 미들웨어 목록
+  is_protected: bool        // 인증 필요
+}
+
+// 라우트 파라미터
+struct RouteParam {
+  name: string,             // "id", "username"
+  value: string             // "123", "alice"
+}
+
+// 라우터
+struct Router {
+  routes: string,           // 라우트 목록 (JSON 형식)
+  route_count: i32,
+  prefix: string,           // API 버전 "/api/v1"
+  base_path: string         // "/api"
+}
+
+// 라우터 생성
+function create_router() -> Router {
+  var router = Router {
+    routes: "",
+    route_count: 0,
+    prefix: "/api",
+    base_path: "/api"
+  };
+
+  return router;
+}
+
+// 라우터에 프리픽스 설정
+function set_router_prefix(router: Router, prefix: string) -> Router {
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count,
+    prefix: prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// GET 라우트 추가
+function get(router: Router, path: string, handler: string) -> Router {
+  var full_path = router.prefix + path;
+
+  var route = Route {
+    method: "GET",
+    path: full_path,
+    handler: handler,
+    middleware: "",
+    is_protected: false
+  };
+
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count + 1,
+    prefix: router.prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// POST 라우트 추가
+function post(router: Router, path: string, handler: string) -> Router {
+  var full_path = router.prefix + path;
+
+  var route = Route {
+    method: "POST",
+    path: full_path,
+    handler: handler,
+    middleware: "",
+    is_protected: false
+  };
+
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count + 1,
+    prefix: router.prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// PUT 라우트 추가
+function put(router: Router, path: string, handler: string) -> Router {
+  var full_path = router.prefix + path;
+
+  var route = Route {
+    method: "PUT",
+    path: full_path,
+    handler: handler,
+    middleware: "",
+    is_protected: false
+  };
+
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count + 1,
+    prefix: router.prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// DELETE 라우트 추가
+function delete_route(router: Router, path: string, handler: string) -> Router {
+  var full_path = router.prefix + path;
+
+  var route = Route {
+    method: "DELETE",
+    path: full_path,
+    handler: handler,
+    middleware: "",
+    is_protected: false
+  };
+
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count + 1,
+    prefix: router.prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// PATCH 라우트 추가
+function patch(router: Router, path: string, handler: string) -> Router {
+  var full_path = router.prefix + path;
+
+  var route = Route {
+    method: "PATCH",
+    path: full_path,
+    handler: handler,
+    middleware: "",
+    is_protected: false
+  };
+
+  var updated = Router {
+    routes: router.routes,
+    route_count: router.route_count + 1,
+    prefix: router.prefix,
+    base_path: router.base_path
+  };
+
+  return updated;
+}
+
+// 경로 매칭
+function match_route(router: Router, method: string, path: string) -> Route {
+  var route = Route {
+    method: method,
+    path: path,
+    handler: "not_found",
+    middleware: "",
+    is_protected: false
+  };
+
+  // 정확한 매칭 또는 파라미터 매칭 (간소화)
+  return route;
+}
+
+// 경로 파라미터 추출
+function extract_path_params(route_pattern: string, request_path: string) -> string {
+  // "/api/users/:id" + "/api/users/123" → "id=123"
+  var params = "";
+
+  // 간단한 구현: 마지막 세그먼트 추출
+  var i = route_pattern.len - 1;
+
+  while i >= 0 && route_pattern[i] != 47 {  // '/'
+    i = i - 1;
+  }
+
+  if i >= 0 && route_pattern[i + 1] == 58 {  // ':'
+    var param_name = "";
+    var j = i + 2;
+
+    while j < route_pattern.len {
+      param_name = param_name + route_pattern[j];
+      j = j + 1;
+    }
+
+    // 값 추출 (요청 경로의 마지막 세그먼트)
+    var k = request_path.len - 1;
+    while k >= 0 && request_path[k] != 47 {
+      k = k - 1;
+    }
+
+    var param_value = "";
+    var m = k + 1;
+
+    while m < request_path.len {
+      param_value = param_value + request_path[m];
+      m = m + 1;
+    }
+
+    params = param_name + "=" + param_value;
+  }
+
+  return params;
+}
+
+// 라우트에 미들웨어 추가
+function add_middleware_to_route(route: Route, middleware: string) -> Route {
+  var new_middleware = route.middleware;
+
+  if new_middleware.len > 0 {
+    new_middleware = new_middleware + ",";
+  }
+
+  new_middleware = new_middleware + middleware;
+
+  var updated = Route {
+    method: route.method,
+    path: route.path,
+    handler: route.handler,
+    middleware: new_middleware,
+    is_protected: route.is_protected
+  };
+
+  return updated;
+}
+
+// 라우트 보호 (인증 필요)
+function protect_route(route: Route) -> Route {
+  var protected_route = Route {
+    method: route.method,
+    path: route.path,
+    handler: route.handler,
+    middleware: route.middleware,
+    is_protected: true
+  };
+
+  return protected_route;
+}
+
+// 라우트 그룹 (공통 프리픽스)
+struct RouteGroup {
+  prefix: string,
+  routes: string,
+  route_count: i32,
+  middleware: string
+}
+
+function create_route_group(prefix: string) -> RouteGroup {
+  var group = RouteGroup {
+    prefix: prefix,
+    routes: "",
+    route_count: 0,
+    middleware: ""
+  };
+
+  return group;
+}
+
+// 라우트 그룹에 미들웨어 추가
+function add_group_middleware(group: RouteGroup, middleware: string) -> RouteGroup {
+  var new_middleware = group.middleware;
+
+  if new_middleware.len > 0 {
+    new_middleware = new_middleware + ",";
+  }
+
+  new_middleware = new_middleware + middleware;
+
+  var updated = RouteGroup {
+    prefix: group.prefix,
+    routes: group.routes,
+    route_count: group.route_count,
+    middleware: new_middleware
+  };
+
+  return updated;
+}
+
+// 라우트 충돌 감지
+function check_route_conflict(router: Router, method: string,
+                             path: string) -> bool {
+  // 동일한 method + path 조합이 이미 존재하는지 확인
+  // 간소화: 항상 false 반환
+  return false;
+}
+
+// 라우트 정보 조회
+function get_route_info(route: Route) -> string {
+  var info = route.method;
+  info = info + " ";
+  info = info + route.path;
+  info = info + " → ";
+  info = info + route.handler;
+
+  if route.is_protected {
+    info = info + " [보호됨]";
+  }
+
+  return info;
+}
+
+// 라우터 모든 라우트 출력
+function list_routes(router: Router) -> string {
+  var list = "라우트 목록 (총 ";
+  list = list + router.route_count;
+  list = list + "개)";
+
+  return list;
+}
+
+// OPTIONS 메서드 처리 (CORS 프리플라이트)
+function handle_options(path: string) -> string {
+  var options = "Allow: GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS";
+  return options;
+}
+
+// 리다이렉트 라우트
+struct RedirectRoute {
+  from_path: string,
+  to_path: string,
+  status_code: i32         // 301, 302, 307
+}
+
+function create_redirect(from_path: string, to_path: string,
+                        status_code: i32) -> RedirectRoute {
+  var redirect = RedirectRoute {
+    from_path: from_path,
+    to_path: to_path,
+    status_code: status_code
+  };
+
+  return redirect;
+}

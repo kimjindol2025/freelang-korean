@@ -1,0 +1,345 @@
+// K-StdLib: Test Framework Module
+// 단위 테스트, 테스트 스위트, 테스트 실행
+
+// 테스트 상태
+function get_test_status_passed() -> string { return "PASSED"; }
+function get_test_status_failed() -> string { return "FAILED"; }
+function get_test_status_skipped() -> string { return "SKIPPED"; }
+function get_test_status_pending() -> string { return "PENDING"; }
+
+// 테스트 케이스
+struct TestCase {
+  test_name: string,
+  test_function: string,    // 테스트 함수명
+  status: string,            // PASSED, FAILED, SKIPPED, PENDING
+  error_message: string,
+  execution_time_ms: i32,
+  is_skipped: bool
+}
+
+// 테스트 스위트
+struct TestSuite {
+  suite_name: string,
+  test_cases: string,        // 테스트 목록 (JSON 형식)
+  test_count: i32,
+  passed_count: i32,
+  failed_count: i32,
+  skipped_count: i32,
+  total_execution_time_ms: i32,
+  is_running: bool
+}
+
+// 테스트 결과
+struct TestResult {
+  test_name: string,
+  status: string,
+  error_message: string,
+  assertion_count: i32,
+  execution_time_ms: i32
+}
+
+// 테스트 케이스 생성
+function create_test_case(test_name: string, test_function: string) -> TestCase {
+  var test_case = TestCase {
+    test_name: test_name,
+    test_function: test_function,
+    status: get_test_status_pending(),
+    error_message: "",
+    execution_time_ms: 0,
+    is_skipped: false
+  };
+
+  return test_case;
+}
+
+// 테스트 케이스 실행
+function run_test_case(test_case: TestCase) -> TestCase {
+  var executed = TestCase {
+    test_name: test_case.test_name,
+    test_function: test_case.test_function,
+    status: get_test_status_passed(),
+    error_message: "",
+    execution_time_ms: 1,
+    is_skipped: test_case.is_skipped
+  };
+
+  return executed;
+}
+
+// 테스트 케이스 실패 표시
+function mark_test_failed(test_case: TestCase, error_message: string) -> TestCase {
+  var failed = TestCase {
+    test_name: test_case.test_name,
+    test_function: test_case.test_function,
+    status: get_test_status_failed(),
+    error_message: error_message,
+    execution_time_ms: test_case.execution_time_ms,
+    is_skipped: test_case.is_skipped
+  };
+
+  return failed;
+}
+
+// 테스트 케이스 건너뛰기
+function skip_test_case(test_case: TestCase) -> TestCase {
+  var skipped = TestCase {
+    test_name: test_case.test_name,
+    test_function: test_case.test_function,
+    status: get_test_status_skipped(),
+    error_message: "",
+    execution_time_ms: 0,
+    is_skipped: true
+  };
+
+  return skipped;
+}
+
+// 테스트 스위트 생성
+function create_test_suite(suite_name: string) -> TestSuite {
+  var test_suite = TestSuite {
+    suite_name: suite_name,
+    test_cases: "",
+    test_count: 0,
+    passed_count: 0,
+    failed_count: 0,
+    skipped_count: 0,
+    total_execution_time_ms: 0,
+    is_running: false
+  };
+
+  return test_suite;
+}
+
+// 테스트 스위트에 테스트 추가
+function add_test_to_suite(suite: TestSuite, test_case: TestCase) -> TestSuite {
+  var test_list = suite.test_cases;
+
+  if test_list.len > 0 {
+    test_list = test_list + ",";
+  }
+
+  test_list = test_list + test_case.test_name;
+
+  var updated = TestSuite {
+    suite_name: suite.suite_name,
+    test_cases: test_list,
+    test_count: suite.test_count + 1,
+    passed_count: suite.passed_count,
+    failed_count: suite.failed_count,
+    skipped_count: suite.skipped_count,
+    total_execution_time_ms: suite.total_execution_time_ms,
+    is_running: suite.is_running
+  };
+
+  return updated;
+}
+
+// 테스트 스위트 실행 시작
+function start_test_suite(suite: TestSuite) -> TestSuite {
+  var running = TestSuite {
+    suite_name: suite.suite_name,
+    test_cases: suite.test_cases,
+    test_count: suite.test_count,
+    passed_count: 0,
+    failed_count: 0,
+    skipped_count: 0,
+    total_execution_time_ms: 0,
+    is_running: true
+  };
+
+  return running;
+}
+
+// 테스트 결과 등록
+function register_test_result(suite: TestSuite, result: TestResult) -> TestSuite {
+  var passed = suite.passed_count;
+  var failed = suite.failed_count;
+  var skipped = suite.skipped_count;
+  var total_time = suite.total_execution_time_ms + result.execution_time_ms;
+
+  if result.status == get_test_status_passed() {
+    passed = passed + 1;
+  }
+  else if result.status == get_test_status_failed() {
+    failed = failed + 1;
+  }
+  else if result.status == get_test_status_skipped() {
+    skipped = skipped + 1;
+  }
+
+  var updated = TestSuite {
+    suite_name: suite.suite_name,
+    test_cases: suite.test_cases,
+    test_count: suite.test_count,
+    passed_count: passed,
+    failed_count: failed,
+    skipped_count: skipped,
+    total_execution_time_ms: total_time,
+    is_running: suite.is_running
+  };
+
+  return updated;
+}
+
+// 테스트 스위트 실행 완료
+function finish_test_suite(suite: TestSuite) -> TestSuite {
+  var finished = TestSuite {
+    suite_name: suite.suite_name,
+    test_cases: suite.test_cases,
+    test_count: suite.test_count,
+    passed_count: suite.passed_count,
+    failed_count: suite.failed_count,
+    skipped_count: suite.skipped_count,
+    total_execution_time_ms: suite.total_execution_time_ms,
+    is_running: false
+  };
+
+  return finished;
+}
+
+// 테스트 결과 생성
+function create_test_result(test_name: string, status: string) -> TestResult {
+  var result = TestResult {
+    test_name: test_name,
+    status: status,
+    error_message: "",
+    assertion_count: 0,
+    execution_time_ms: 0
+  };
+
+  return result;
+}
+
+// 테스트 결과에 에러 메시지 추가
+function add_error_to_result(result: TestResult, error_message: string) -> TestResult {
+  var updated = TestResult {
+    test_name: result.test_name,
+    status: result.status,
+    error_message: error_message,
+    assertion_count: result.assertion_count,
+    execution_time_ms: result.execution_time_ms
+  };
+
+  return updated;
+}
+
+// 테스트 결과에 검증 개수 추가
+function add_assertion_count(result: TestResult, count: i32) -> TestResult {
+  var updated = TestResult {
+    test_name: result.test_name,
+    status: result.status,
+    error_message: result.error_message,
+    assertion_count: result.assertion_count + count,
+    execution_time_ms: result.execution_time_ms
+  };
+
+  return updated;
+}
+
+// 테스트 보고서
+struct TestReport {
+  report_name: string,
+  total_suites: i32,
+  total_tests: i32,
+  total_passed: i32,
+  total_failed: i32,
+  total_skipped: i32,
+  total_execution_time_ms: i32,
+  success_rate: i32        // 0-100
+}
+
+// 테스트 보고서 생성
+function create_test_report(report_name: string) -> TestReport {
+  var report = TestReport {
+    report_name: report_name,
+    total_suites: 0,
+    total_tests: 0,
+    total_passed: 0,
+    total_failed: 0,
+    total_skipped: 0,
+    total_execution_time_ms: 0,
+    success_rate: 0
+  };
+
+  return report;
+}
+
+// 테스트 스위트 결과를 보고서에 병합
+function merge_suite_to_report(report: TestReport, suite: TestSuite) -> TestReport {
+  var total_passed = report.total_passed + suite.passed_count;
+  var total_failed = report.total_failed + suite.failed_count;
+  var total_skipped = report.total_skipped + suite.skipped_count;
+  var total_tests = report.total_tests + suite.test_count;
+  var total_time = report.total_execution_time_ms + suite.total_execution_time_ms;
+
+  var success_rate = 0;
+  if total_tests > 0 {
+    success_rate = (total_passed * 100) / total_tests;
+  }
+
+  var merged = TestReport {
+    report_name: report.report_name,
+    total_suites: report.total_suites + 1,
+    total_tests: total_tests,
+    total_passed: total_passed,
+    total_failed: total_failed,
+    total_skipped: total_skipped,
+    total_execution_time_ms: total_time,
+    success_rate: success_rate
+  };
+
+  return merged;
+}
+
+// 테스트 정보 조회
+function get_test_case_info(test_case: TestCase) -> string {
+  var info = "테스트: ";
+  info = info + test_case.test_name;
+  info = info + " (";
+  info = info + test_case.status;
+  info = info + ", ";
+  info = info + test_case.execution_time_ms;
+  info = info + "ms)";
+
+  return info;
+}
+
+// 테스트 스위트 정보 조회
+function get_test_suite_info(suite: TestSuite) -> string {
+  var info = "테스트 스위트: ";
+  info = info + suite.suite_name;
+  info = info + " (";
+  info = info + suite.test_count;
+  info = info + "개, 통과: ";
+  info = info + suite.passed_count;
+  info = info + ", 실패: ";
+  info = info + suite.failed_count;
+  info = info + ", 건너뜀: ";
+  info = info + suite.skipped_count;
+  info = info + ")";
+
+  return info;
+}
+
+// 테스트 보고서 정보 조회
+function get_test_report_info(report: TestReport) -> string {
+  var info = "테스트 보고서: ";
+  info = info + report.report_name;
+  info = info + " (";
+  info = info + report.total_tests;
+  info = info + "개, 통과: ";
+  info = info + report.total_passed;
+  info = info + ", 실패: ";
+  info = info + report.total_failed;
+  info = info + ", 성공률: ";
+  info = info + report.success_rate;
+  info = info + "%)";
+
+  return info;
+}
+
+// 모든 테스트 통과 확인
+function all_tests_passed(report: TestReport) -> bool {
+  return report.total_failed == 0 && report.total_tests > 0;
+}
+

@@ -1,0 +1,75 @@
+// K-StdLib Phase 1 테스트
+
+// 테스트 1: Math 절댓값
+var abs_val = 0;
+var a = -10;
+if a < 0 {
+  abs_val = -a;
+} else {
+  abs_val = a;
+}
+
+// 테스트 2: Array 합계
+var arr = [1, 2, 3, 4, 5];
+var sum = 0;
+for var i = 0; i < arr.len; i = i + 1 {
+  sum = sum + arr[i];
+}
+
+// 테스트 3: Array 최댓값
+var max_val = arr[0];
+for var j = 1; j < arr.len; j = j + 1 {
+  if arr[j] > max_val {
+    max_val = arr[j];
+  }
+}
+
+// 테스트 4: String 연결
+var greeting = "Hello";
+var name = "World";
+var message = greeting + " " + name;
+
+// 테스트 5: 문자열 길이
+var msg_len = message.len;
+
+// 테스트 6: Date 단위 변환 (분→초)
+var minutes = 5;
+var seconds = minutes * 60;
+
+// 테스트 7: Proof 구조체 생성
+struct Proof {
+  code_hash: string,
+  timestamp: i32,
+  verified: bool
+}
+
+var proof = Proof {
+  code_hash: "test_code",
+  timestamp: 1234567890,
+  verified: true
+};
+
+// 테스트 8: Math 제곱 (2^3)
+var base = 2;
+var exp = 3;
+var power = 1;
+for var k = 0; k < exp; k = k + 1 {
+  power = power * base;
+}
+
+// 테스트 9: 홀짝 판별
+var num = 4;
+var is_even_val = false;
+var remainder = num - (num / 2) * 2;
+if remainder == 0 {
+  is_even_val = true;
+}
+
+// 테스트 10: Array 포함 여부
+var target = 3;
+var found = false;
+for var m = 0; m < arr.len; m = m + 1 {
+  if arr[m] == target {
+    found = true;
+  }
+}

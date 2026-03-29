@@ -1,0 +1,20 @@
+// K-StdLib Phase 1 - 간단 테스트
+
+// 테스트 1: 기본 변수 및 연산
+var a = -10;
+var abs_val = a;
+if a < 0 {
+  abs_val = -a;
+}
+
+// 테스트 2: 배열 생성 및 조작
+var arr = [1, 2, 3, 4, 5];
+var sum = 0;
+for var i = 0; i < arr.len; i = i + 1 {
+  sum = sum + arr[i];
+}
+
+// 테스트 3: 배열 최댓값
+var max_val = arr[0];
+for var j = 1; j < arr.len; j = j + 1 {
+  if arr[j] > max_val {

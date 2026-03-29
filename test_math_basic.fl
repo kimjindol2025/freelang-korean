@@ -1,0 +1,12 @@
+fn main() {
+    println("Math Test")
+    let a = 5
+    let b = 3
+    let x = -42
+    
+    println(str(a))
+    println(str(b))
+    println(str(x))
+}
+
+main()

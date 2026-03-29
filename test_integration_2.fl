@@ -1,0 +1,49 @@
+// 통합 테스트 2: 계산 프로그램
+
+fn main() {
+    println("========================================")
+    println("Integration Test 2: Calculation Program")
+    println("========================================")
+    println("")
+    
+    // 함수 정의
+    fn fibonacci(n: number) -> number {
+        if n <= 1 {
+            return n
+        }
+        return fibonacci(n - 1) + fibonacci(n - 2)
+    }
+    
+    fn factorial(n: number) -> number {
+        if n == 0 {
+            return 1
+        }
+        return n * factorial(n - 1)
+    }
+    
+    // 피보나치 계산
+    println("Fibonacci(10):")
+    let fib = fibonacci(10)
+    println(str(fib))
+    println("")
+    
+    // 팩토리얼 계산
+    println("Factorial(5):")
+    let fact = factorial(5)
+    println(str(fact))
+    println("")
+    
+    // 배열 합계
+    let numbers = [1, 2, 3, 4, 5]
+    let sum = 0
+    for n in numbers {
+        let sum = sum + n
+    }
+    println("Sum of [1,2,3,4,5]:")
+    println(str(sum))
+    println("")
+    
+    println("========================================")
+    println("✅ Test 2 PASSED")
+    println("========================================")
+}

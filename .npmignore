@@ -1,0 +1,83 @@
+# Development files
+src/
+tests/
+test-*.ts
+**/*.test.ts
+**/*.spec.ts
+
+# Examples (큰 파일)
+examples/
+*.example.fl
+
+# Documentation source (HTML로 컴파일됨)
+docs/
+*.md
+!README.md
+!CHANGELOG.md
+!LICENSE
+
+# Build files
+build/
+*.tsbuildinfo
+
+# Configuration files
+tsconfig.json
+tsconfig.*.json
+jest.config.js
+.eslintrc*
+prettier.config.js
+.prettierignore
+.prettierrc
+
+# Container files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+.jenkins/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.claude/
+.history/
+.vscode-test/
+

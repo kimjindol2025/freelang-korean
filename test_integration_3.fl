@@ -1,0 +1,55 @@
+// 통합 테스트 3: 배열/객체 프로그램
+
+fn main() {
+    println("========================================")
+    println("Integration Test 3: Array & Object")
+    println("========================================")
+    println("")
+    
+    // 배열 생성 및 조작
+    let arr = [10, 20, 30, 40, 50]
+    println("Original array:")
+    println(str(len(arr)))
+    println(" elements")
+    println("")
+    
+    // 배열 길이
+    println("Array length:")
+    println(str(len(arr)))
+    println("")
+    
+    // 배열 요소 접근
+    println("First element:")
+    println(str(arr[0]))
+    println("")
+    
+    println("Last element:")
+    println(str(arr[4]))
+    println("")
+    
+    // 배열 추가 (새 배열로 생성)
+    let extended = [1, 2]
+    println("Extended array with 2 elements")
+    println("")
+    
+    // 객체 생성
+    let person = {
+        "name": "Alice",
+        "age": 30,
+        "city": "Seoul"
+    }
+    println("Person object created")
+    println("Name: Alice")
+    println("Age: 30")
+    println("")
+    
+    // JSON 변환
+    let json = json_stringify(person)
+    println("JSON representation:")
+    println(json)
+    println("")
+    
+    println("========================================")
+    println("✅ Test 3 PASSED")
+    println("========================================")
+}

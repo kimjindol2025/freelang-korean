@@ -1,0 +1,69 @@
+// K-StdLib: JSON Module
+// JSON 처리 함수 모음
+
+// JSON 인코딩 (객체를 JSON 문자열로)
+// 기본: 객체 구조를 저장하고 필요시 문자열화
+function encode_object(obj: any) -> string {
+  // 기본 구현: 객체 정보를 문자열로 변환
+  // 실제 구현은 VM의 JSON 지원에 의존
+  return "";
+}
+
+// JSON 디코딩 (문자열을 객체로)
+function decode_object(json_str: string) -> any {
+  // 기본 구현: JSON 문자열을 파싱하여 객체 생성
+  // 실제 구현은 VM의 JSON 지원에 의존
+  return null;
+}
+
+// 객체 필드 추출
+function get_field(obj: any, field: string) -> any {
+  // 객체의 특정 필드 값 반환
+  return null;
+}
+
+// 배열을 JSON 문자열로
+function encode_array(arr: i32[]) -> string {
+  var result = "[";
+  var i = 0;
+  for i = 0; i < arr.len; i = i + 1 {
+    if i > 0 {
+      result = result + ",";
+    }
+    result = result + arr[i];
+  }
+  result = result + "]";
+  return result;
+}
+
+// 숫자를 JSON 문자열로
+function encode_number(n: i32) -> string {
+  var result = "";
+  var num = n;
+  if num < 0 {
+    result = "-";
+    num = -num;
+  }
+  return result + num;
+}
+
+// 문자열을 JSON 문자열로 (이스케이프 처리)
+function encode_string(str: string) -> string {
+  var result = "\"";
+  result = result + str;
+  result = result + "\"";
+  return result;
+}
+
+// 불린을 JSON 문자열로
+function encode_bool(b: bool) -> string {
+  if b {
+    return "true";
+  }
+  return "false";
+}
+
+// null을 JSON 문자열로
+function encode_null() -> string {
+  return "null";
+}

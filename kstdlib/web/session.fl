@@ -1,0 +1,535 @@
+// K-StdLib: Session Module
+// 세션 관리, 쿠키, 사용자 인증
+
+// 세션 저장소 타입
+function get_session_store_memory() -> string { return "MEMORY"; }
+function get_session_store_redis() -> string { return "REDIS"; }
+function get_session_store_database() -> string { return "DATABASE"; }
+function get_session_store_file() -> string { return "FILE"; }
+
+// 세션 정의
+struct Session {
+  session_id: string,
+  user_id: string,
+  data: string,              // 세션 데이터 (JSON 형식)
+  created_at: string,
+  last_accessed: string,
+  expires_at: string,
+  is_valid: bool
+}
+
+// 세션 스토어
+struct SessionStore {
+  type: string,              // MEMORY, REDIS, DATABASE, FILE
+  store_id: string,
+  session_count: i32,
+  max_sessions: i32,
+  cleanup_interval_seconds: i32,
+  is_enabled: bool
+}
+
+// 세션 설정
+struct SessionConfig {
+  cookie_name: string,       // "session_id"
+  cookie_path: string,       // "/"
+  cookie_domain: string,
+  cookie_secure: bool,       // HTTPS only
+  cookie_http_only: bool,    // JavaScript 접근 불가
+  cookie_same_site: string,  // "Strict", "Lax", "None"
+  timeout_minutes: i32,
+  regenerate_on_login: bool  // 로그인 시 ID 재생성
+}
+
+// 쿠키 정의
+struct Cookie {
+  name: string,
+  value: string,
+  domain: string,
+  path: string,
+  expires: string,           // RFC 1123 형식
+  max_age_seconds: i32,
+  secure: bool,              // HTTPS only
+  http_only: bool,           // JavaScript 접근 불가
+  same_site: string          // "Strict", "Lax", "None"
+}
+
+// 사용자 세션 데이터
+struct UserSession {
+  user_id: string,
+  username: string,
+  email: string,
+  roles: string,             // 쉼표로 구분된 역할
+  permissions: string,       // 쉼표로 구분된 권한
+  login_time: string,
+  last_activity: string,
+  custom_data: string        // 사용자 정의 데이터 (JSON)
+}
+
+// 세션 생성
+function create_session(user_id: string) -> Session {
+  var session = Session {
+    session_id: "sess_001",
+    user_id: user_id,
+    data: "",
+    created_at: "2026-03-30T00:00:00Z",
+    last_accessed: "2026-03-30T00:00:00Z",
+    expires_at: "2026-03-31T00:00:00Z",
+    is_valid: true
+  };
+
+  return session;
+}
+
+// 세션 데이터 설정
+function set_session_data(session: Session, key: string, value: string) -> Session {
+  var data = session.data;
+
+  if data.len > 0 {
+    data = data + ",";
+  }
+
+  data = data + key + "=" + value;
+
+  var updated = Session {
+    session_id: session.session_id,
+    user_id: session.user_id,
+    data: data,
+    created_at: session.created_at,
+    last_accessed: session.last_accessed,
+    expires_at: session.expires_at,
+    is_valid: session.is_valid
+  };
+
+  return updated;
+}
+
+// 세션 데이터 조회
+function get_session_data(session: Session, key: string) -> string {
+  // 간단한 구현: 데이터 문자열에서 키 추출 (간소화)
+  return "";
+}
+
+// 세션 데이터 삭제
+function delete_session_data(session: Session, key: string) -> Session {
+  var updated = Session {
+    session_id: session.session_id,
+    user_id: session.user_id,
+    data: session.data,
+    created_at: session.created_at,
+    last_accessed: session.last_accessed,
+    expires_at: session.expires_at,
+    is_valid: session.is_valid
+  };
+
+  return updated;
+}
+
+// 세션 갱신
+function refresh_session(session: Session) -> Session {
+  var refreshed = Session {
+    session_id: session.session_id,
+    user_id: session.user_id,
+    data: session.data,
+    created_at: session.created_at,
+    last_accessed: "2026-03-30T00:00:01Z",
+    expires_at: "2026-03-31T00:00:00Z",
+    is_valid: session.is_valid
+  };
+
+  return refreshed;
+}
+
+// 세션 만료 확인
+function is_session_expired(session: Session) -> bool {
+  // 만료 시간 확인 (간소화)
+  return false;
+}
+
+// 세션 소멸
+function destroy_session(session: Session) -> Session {
+  var destroyed = Session {
+    session_id: session.session_id,
+    user_id: session.user_id,
+    data: session.data,
+    created_at: session.created_at,
+    last_accessed: session.last_accessed,
+    expires_at: session.expires_at,
+    is_valid: false
+  };
+
+  return destroyed;
+}
+
+// 세션 ID 재생성
+function regenerate_session_id(session: Session) -> Session {
+  var regenerated = Session {
+    session_id: "sess_new_001",
+    user_id: session.user_id,
+    data: session.data,
+    created_at: session.created_at,
+    last_accessed: session.last_accessed,
+    expires_at: session.expires_at,
+    is_valid: session.is_valid
+  };
+
+  return regenerated;
+}
+
+// 세션 스토어 생성
+function create_session_store(type: string) -> SessionStore {
+  var store = SessionStore {
+    type: type,
+    store_id: "store_001",
+    session_count: 0,
+    max_sessions: 10000,
+    cleanup_interval_seconds: 3600,
+    is_enabled: true
+  };
+
+  return store;
+}
+
+// 세션 저장
+function save_session(store: SessionStore, session: Session) -> SessionStore {
+  var updated = SessionStore {
+    type: store.type,
+    store_id: store.store_id,
+    session_count: store.session_count + 1,
+    max_sessions: store.max_sessions,
+    cleanup_interval_seconds: store.cleanup_interval_seconds,
+    is_enabled: store.is_enabled
+  };
+
+  return updated;
+}
+
+// 세션 조회
+function get_session(store: SessionStore, session_id: string) -> Session {
+  var session = Session {
+    session_id: session_id,
+    user_id: "",
+    data: "",
+    created_at: "",
+    last_accessed: "",
+    expires_at: "",
+    is_valid: false
+  };
+
+  return session;
+}
+
+// 세션 삭제
+function delete_session(store: SessionStore, session_id: string) -> SessionStore {
+  var updated = SessionStore {
+    type: store.type,
+    store_id: store.store_id,
+    session_count: store.session_count - 1,
+    max_sessions: store.max_sessions,
+    cleanup_interval_seconds: store.cleanup_interval_seconds,
+    is_enabled: store.is_enabled
+  };
+
+  if updated.session_count < 0 {
+    updated.session_count = 0;
+  }
+
+  return updated;
+}
+
+// 세션 정리 (만료된 세션 제거)
+function cleanup_expired_sessions(store: SessionStore) -> SessionStore {
+  var cleaned = SessionStore {
+    type: store.type,
+    store_id: store.store_id,
+    session_count: store.session_count,
+    max_sessions: store.max_sessions,
+    cleanup_interval_seconds: store.cleanup_interval_seconds,
+    is_enabled: store.is_enabled
+  };
+
+  return cleaned;
+}
+
+// 세션 설정 생성
+function create_session_config() -> SessionConfig {
+  var config = SessionConfig {
+    cookie_name: "session_id",
+    cookie_path: "/",
+    cookie_domain: "",
+    cookie_secure: true,
+    cookie_http_only: true,
+    cookie_same_site: "Lax",
+    timeout_minutes: 30,
+    regenerate_on_login: true
+  };
+
+  return config;
+}
+
+// 쿠키 생성
+function create_cookie(name: string, value: string) -> Cookie {
+  var cookie = Cookie {
+    name: name,
+    value: value,
+    domain: "",
+    path: "/",
+    expires: "2026-03-31T00:00:00Z",
+    max_age_seconds: 2592000,  // 30일
+    secure: true,
+    http_only: true,
+    same_site: "Lax"
+  };
+
+  return cookie;
+}
+
+// 쿠키 문자열 생성
+function serialize_cookie(cookie: Cookie) -> string {
+  var cookie_str = cookie.name + "=" + cookie.value;
+
+  if cookie.path.len > 0 {
+    cookie_str = cookie_str + "; Path=" + cookie.path;
+  }
+
+  if cookie.domain.len > 0 {
+    cookie_str = cookie_str + "; Domain=" + cookie.domain;
+  }
+
+  if cookie.expires.len > 0 {
+    cookie_str = cookie_str + "; Expires=" + cookie.expires;
+  }
+
+  if cookie.secure {
+    cookie_str = cookie_str + "; Secure";
+  }
+
+  if cookie.http_only {
+    cookie_str = cookie_str + "; HttpOnly";
+  }
+
+  if cookie.same_site.len > 0 {
+    cookie_str = cookie_str + "; SameSite=" + cookie.same_site;
+  }
+
+  return cookie_str;
+}
+
+// 쿠키 파싱
+function parse_cookie(cookie_string: string) -> Cookie {
+  var cookie = Cookie {
+    name: "",
+    value: "",
+    domain: "",
+    path: "/",
+    expires: "",
+    max_age_seconds: 0,
+    secure: false,
+    http_only: false,
+    same_site: ""
+  };
+
+  return cookie;
+}
+
+// 세션 쿠키 생성
+function create_session_cookie(session_id: string, config: SessionConfig) -> Cookie {
+  var cookie = Cookie {
+    name: config.cookie_name,
+    value: session_id,
+    domain: config.cookie_domain,
+    path: config.cookie_path,
+    expires: "2026-03-31T00:00:00Z",
+    max_age_seconds: config.timeout_minutes * 60,
+    secure: config.cookie_secure,
+    http_only: config.cookie_http_only,
+    same_site: config.cookie_same_site
+  };
+
+  return cookie;
+}
+
+// 사용자 세션 생성
+function create_user_session(user_id: string, username: string, email: string) -> UserSession {
+  var user_session = UserSession {
+    user_id: user_id,
+    username: username,
+    email: email,
+    roles: "",
+    permissions: "",
+    login_time: "2026-03-30T00:00:00Z",
+    last_activity: "2026-03-30T00:00:00Z",
+    custom_data: ""
+  };
+
+  return user_session;
+}
+
+// 역할 추가
+function add_user_role(user_session: UserSession, role: string) -> UserSession {
+  var roles = user_session.roles;
+
+  if roles.len > 0 {
+    roles = roles + ",";
+  }
+
+  roles = roles + role;
+
+  var updated = UserSession {
+    user_id: user_session.user_id,
+    username: user_session.username,
+    email: user_session.email,
+    roles: roles,
+    permissions: user_session.permissions,
+    login_time: user_session.login_time,
+    last_activity: user_session.last_activity,
+    custom_data: user_session.custom_data
+  };
+
+  return updated;
+}
+
+// 권한 추가
+function add_user_permission(user_session: UserSession, permission: string) -> UserSession {
+  var permissions = user_session.permissions;
+
+  if permissions.len > 0 {
+    permissions = permissions + ",";
+  }
+
+  permissions = permissions + permission;
+
+  var updated = UserSession {
+    user_id: user_session.user_id,
+    username: user_session.username,
+    email: user_session.email,
+    roles: user_session.roles,
+    permissions: permissions,
+    login_time: user_session.login_time,
+    last_activity: user_session.last_activity,
+    custom_data: user_session.custom_data
+  };
+
+  return updated;
+}
+
+// 역할 확인
+function has_role(user_session: UserSession, role: string) -> bool {
+  // 역할 목록에서 확인 (간소화)
+  return true;
+}
+
+// 권한 확인
+function has_permission(user_session: UserSession, permission: string) -> bool {
+  // 권한 목록에서 확인 (간소화)
+  return true;
+}
+
+// 마지막 활동 시간 업데이트
+function update_last_activity(user_session: UserSession) -> UserSession {
+  var updated = UserSession {
+    user_id: user_session.user_id,
+    username: user_session.username,
+    email: user_session.email,
+    roles: user_session.roles,
+    permissions: user_session.permissions,
+    login_time: user_session.login_time,
+    last_activity: "2026-03-30T00:00:01Z",
+    custom_data: user_session.custom_data
+  };
+
+  return updated;
+}
+
+// 사용자 정의 데이터 설정
+function set_user_custom_data(user_session: UserSession, key: string, value: string) -> UserSession {
+  var custom_data = user_session.custom_data;
+
+  if custom_data.len > 0 {
+    custom_data = custom_data + ",";
+  }
+
+  custom_data = custom_data + key + "=" + value;
+
+  var updated = UserSession {
+    user_id: user_session.user_id,
+    username: user_session.username,
+    email: user_session.email,
+    roles: user_session.roles,
+    permissions: user_session.permissions,
+    login_time: user_session.login_time,
+    last_activity: user_session.last_activity,
+    custom_data: custom_data
+  };
+
+  return updated;
+}
+
+// 세션 정보 조회
+function get_session_info(session: Session) -> string {
+  var info = "세션ID: ";
+  info = info + session.session_id;
+  info = info + ", 사용자: ";
+  info = info + session.user_id;
+  info = info + ", 상태: ";
+
+  if session.is_valid {
+    info = info + "유효";
+  } else {
+    info = info + "만료";
+  }
+
+  return info;
+}
+
+// 쿠키 정보 조회
+function get_cookie_info(cookie: Cookie) -> string {
+  var info = "쿠키: ";
+  info = info + cookie.name;
+  info = info + "=";
+  info = info + cookie.value;
+
+  if cookie.secure {
+    info = info + " (Secure)";
+  }
+
+  if cookie.http_only {
+    info = info + " (HttpOnly)";
+  }
+
+  return info;
+}
+
+// 세션 인증 상태
+struct SessionAuthStatus {
+  is_authenticated: bool,
+  user_id: string,
+  username: string,
+  authenticated_at: string,
+  last_verified_at: string
+}
+
+function create_session_auth_status(authenticated: bool) -> SessionAuthStatus {
+  var status = SessionAuthStatus {
+    is_authenticated: authenticated,
+    user_id: "",
+    username: "",
+    authenticated_at: "2026-03-30T00:00:00Z",
+    last_verified_at: "2026-03-30T00:00:00Z"
+  };
+
+  return status;
+}
+
+// 세션 기반 인증 검증
+function verify_session_auth(session: Session, auth_status: SessionAuthStatus) -> bool {
+  if !session.is_valid {
+    return false;
+  }
+
+  if !auth_status.is_authenticated {
+    return false;
+  }
+
+  return true;
+}
+

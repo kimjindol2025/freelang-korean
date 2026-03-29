@@ -1,0 +1,289 @@
+// K-StdLib: Korean String Module (kstring)
+// 한국어 문자열 처리: 자모 분해/합성, 초성/중성/종성 추출
+
+// 한글 자모 구조체
+struct Jamo {
+  char: string,      // 원본 문자
+  choseong: string,  // 초성
+  jungseong: string, // 중성
+  jongseong: string  // 종성
+}
+
+// 초성 자모표 (19개)
+function get_choseong_table() -> string {
+  return "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅄㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+}
+
+// 중성 자모표 (21개)
+function get_jungseong_table() -> string {
+  return "ㅏㅐㅑㅒㅓㅔㅕㅖㅘㅙㅚㅝㅞㅢㅤㅥㅦㅧㅨㅩㅪ";
+}
+
+// 종성 자모표 (28개, 없음 포함)
+function get_jongseong_table() -> string {
+  return "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+}
+
+// 한글 여부 확인 (U+AC00-U+D7A3)
+function is_korean_char(char: string) -> bool {
+  if char.len != 1 {
+    return false;
+  }
+
+  var code = char[0];
+
+  // 한글 음절 범위: 0xAC00-0xD7A3
+  if code >= 44032 && code <= 55203 {
+    return true;
+  }
+
+  return false;
+}
+
+// 한글 자모 분해 (Decompose)
+function decompose_korean(char: string) -> Jamo {
+  var result = Jamo {
+    char: char,
+    choseong: "",
+    jungseong: "",
+    jongseong: ""
+  };
+
+  if !is_korean_char(char) {
+    return result;
+  }
+
+  var code = char[0];
+
+  // 한글 음절 분해 알고리즘
+  // (code - 0xAC00) = (choseong_idx * 588) + (jungseong_idx * 28) + jongseong_idx
+  var temp = code - 44032;  // 0xAC00 = 44032
+
+  var jongseong_idx = temp % 28;
+  var jungseong_idx = (temp / 28) % 21;
+  var choseong_idx = temp / 588;
+
+  var choseong_table = get_choseong_table();
+  var jungseong_table = get_jungseong_table();
+  var jongseong_table = get_jongseong_table();
+
+  // 인덱스로 자모 추출
+  result.choseong = choseong_table[choseong_idx];
+  result.jungseong = jungseong_table[jungseong_idx];
+
+  if jongseong_idx > 0 {
+    result.jongseong = jongseong_table[jongseong_idx];
+  }
+
+  return result;
+}
+
+// 한글 자모 합성 (Compose)
+function compose_korean(choseong: string, jungseong: string, jongseong: string) -> string {
+  var choseong_table = get_choseong_table();
+  var jungseong_table = get_jungseong_table();
+  var jongseong_table = get_jongseong_table();
+
+  // 자모 인덱스 찾기
+  var choseong_idx = 0;
+  var jungseong_idx = 0;
+  var jongseong_idx = 0;
+
+  var i = 0;
+
+  // 초성 인덱스 찾기
+  for i = 0; i < choseong_table.len; i = i + 1 {
+    if choseong_table[i] == choseong[0] {
+      choseong_idx = i;
+      break;
+    }
+  }
+
+  // 중성 인덱스 찾기
+  for i = 0; i < jungseong_table.len; i = i + 1 {
+    if jungseong_table[i] == jungseong[0] {
+      jungseong_idx = i;
+      break;
+    }
+  }
+
+  // 종성 인덱스 찾기 (있으면)
+  if jongseong.len > 0 {
+    for i = 0; i < jongseong_table.len; i = i + 1 {
+      if jongseong_table[i] == jongseong[0] {
+        jongseong_idx = i;
+        break;
+      }
+    }
+  }
+
+  // 음절 코드 계산: 0xAC00 + (choseong * 588) + (jungseong * 28) + jongseong
+  var code = 44032 + (choseong_idx * 588) + (jungseong_idx * 28) + jongseong_idx;
+
+  // 코드를 문자로 변환 (간단한 구현)
+  var result = "";
+  result = result + code;
+
+  return result;
+}
+
+// 문자열에서 초성만 추출
+function extract_choseong(text: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < text.len; i = i + 1 {
+    var char_str = text[i];
+
+    if is_korean_char(char_str) {
+      var jamo = decompose_korean(char_str);
+      result = result + jamo.choseong;
+    } else {
+      result = result + char_str;
+    }
+  }
+
+  return result;
+}
+
+// 문자열에서 중성만 추출
+function extract_jungseong(text: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < text.len; i = i + 1 {
+    var char_str = text[i];
+
+    if is_korean_char(char_str) {
+      var jamo = decompose_korean(char_str);
+      result = result + jamo.jungseong;
+    } else {
+      result = result + char_str;
+    }
+  }
+
+  return result;
+}
+
+// 문자열에서 종성만 추출
+function extract_jongseong(text: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < text.len; i = i + 1 {
+    var char_str = text[i];
+
+    if is_korean_char(char_str) {
+      var jamo = decompose_korean(char_str);
+      if jamo.jongseong.len > 0 {
+        result = result + jamo.jongseong;
+      }
+    }
+  }
+
+  return result;
+}
+
+// 종성 여부 확인
+function has_jongseong(char: string) -> bool {
+  if !is_korean_char(char) {
+    return false;
+  }
+
+  var jamo = decompose_korean(char);
+  return jamo.jongseong.len > 0;
+}
+
+// 자음인지 확인
+function is_consonant(char: string) -> bool {
+  var choseong = get_choseong_table();
+  var jongseong = get_jongseong_table();
+
+  var i = 0;
+  for i = 0; i < choseong.len; i = i + 1 {
+    if choseong[i] == char[0] {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// 모음인지 확인
+function is_vowel(char: string) -> bool {
+  var jungseong = get_jungseong_table();
+
+  var i = 0;
+  for i = 0; i < jungseong.len; i = i + 1 {
+    if jungseong[i] == char[0] {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// 한글 문자 개수 세기
+function count_korean_chars(text: string) -> i32 {
+  var count = 0;
+  var i = 0;
+
+  for i = 0; i < text.len; i = i + 1 {
+    if is_korean_char(text[i]) {
+      count = count + 1;
+    }
+  }
+
+  return count;
+}
+
+// 한글 문자 포함 여부
+function contains_korean(text: string) -> bool {
+  var i = 0;
+
+  for i = 0; i < text.len; i = i + 1 {
+    if is_korean_char(text[i]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// 초성 기반 검색 (자동완성용)
+function search_by_choseong(text: string, choseong_pattern: string) -> bool {
+  var text_choseong = extract_choseong(text);
+
+  // 패턴이 시작 부분에 일치하는지 확인
+  if text_choseong.len < choseong_pattern.len {
+    return false;
+  }
+
+  var i = 0;
+  for i = 0; i < choseong_pattern.len; i = i + 1 {
+    if text_choseong[i] != choseong_pattern[i] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// 한글 자모 분석 (복합)
+struct KoreanAnalysis {
+  original: string,
+  choseong_list: string,
+  has_korean: bool,
+  korean_count: i32
+}
+
+function analyze_korean(text: string) -> KoreanAnalysis {
+  var analysis = KoreanAnalysis {
+    original: text,
+    choseong_list: extract_choseong(text),
+    has_korean: contains_korean(text),
+    korean_count: count_korean_chars(text)
+  };
+
+  return analysis;
+}

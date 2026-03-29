@@ -1,0 +1,205 @@
+// K-StdLib: Pub/Sub Messaging Module
+// 발행-구독 메시징, 토픽 기반 메시지 배포
+
+// Pub/Sub 브로커
+struct PubSubBroker {
+  broker_id: string,
+  topics: string,               // 토픽 목록 (JSON)
+  total_messages: i32,
+  total_subscribers: i32,
+  is_running: bool
+}
+
+// 토픽
+struct Topic {
+  topic_id: string,
+  topic_name: string,
+  subscriber_count: i32,
+  message_count: i32,
+  created_at: string,
+  last_message_time: string,
+  retention_policy: string      // "NONE", "TIME_BASED", "SIZE_BASED"
+}
+
+// 구독자
+struct Subscriber {
+  subscriber_id: string,
+  topic_id: string,
+  subscriber_name: string,
+  subscription_time: string,
+  is_active: bool,
+  message_received_count: i32,
+  last_message_time: string
+}
+
+// 발행된 메시지
+struct PublishedMessage {
+  message_id: string,
+  topic_id: string,
+  content: string,
+  publisher: string,
+  published_at: string,
+  received_count: i32,
+  acknowledged_count: i32
+}
+
+// Pub/Sub 통계
+struct PubSubStatistics {
+  total_topics: i32,
+  total_subscribers: i32,
+  total_messages: i32,
+  messages_per_second: i32,
+  average_latency_ms: i32
+}
+
+// Pub/Sub 브로커 생성
+function create_pubsub_broker() -> PubSubBroker {
+  var broker = PubSubBroker {
+    broker_id: "broker_001",
+    topics: "",
+    total_messages: 0,
+    total_subscribers: 0,
+    is_running: true
+  };
+
+  return broker;
+}
+
+// 토픽 생성
+function create_topic(broker: PubSubBroker, topic_name: string, retention_policy: string) -> Topic {
+  var topic = Topic {
+    topic_id: "topic_001",
+    topic_name: topic_name,
+    subscriber_count: 0,
+    message_count: 0,
+    created_at: "2026-03-30T00:00:00Z",
+    last_message_time: "",
+    retention_policy: retention_policy
+  };
+
+  return topic;
+}
+
+// 구독자 생성
+function create_subscriber(subscriber_name: string) -> Subscriber {
+  var subscriber = Subscriber {
+    subscriber_id: "sub_001",
+    topic_id: "",
+    subscriber_name: subscriber_name,
+    subscription_time: "2026-03-30T00:00:00Z",
+    is_active: true,
+    message_received_count: 0,
+    last_message_time: ""
+  };
+
+  return subscriber;
+}
+
+// 토픽에 구독
+function subscribe(broker: PubSubBroker, topic: Topic, subscriber: Subscriber) -> Subscriber {
+  var updated = Subscriber {
+    subscriber_id: subscriber.subscriber_id,
+    topic_id: topic.topic_id,
+    subscriber_name: subscriber.subscriber_name,
+    subscription_time: "2026-03-30T00:00:00Z",
+    is_active: true,
+    message_received_count: subscriber.message_received_count,
+    last_message_time: subscriber.last_message_time
+  };
+
+  return updated;
+}
+
+// 구독 취소
+function unsubscribe(subscriber: Subscriber) -> Subscriber {
+  var updated = Subscriber {
+    subscriber_id: subscriber.subscriber_id,
+    topic_id: subscriber.topic_id,
+    subscriber_name: subscriber.subscriber_name,
+    subscription_time: subscriber.subscription_time,
+    is_active: false,
+    message_received_count: subscriber.message_received_count,
+    last_message_time: subscriber.last_message_time
+  };
+
+  return updated;
+}
+
+// 메시지 발행
+function publish(broker: PubSubBroker, topic: Topic, content: string, publisher: string) -> PublishedMessage {
+  var message = PublishedMessage {
+    message_id: "msg_001",
+    topic_id: topic.topic_id,
+    content: content,
+    publisher: publisher,
+    published_at: "2026-03-30T00:00:00Z",
+    received_count: 0,
+    acknowledged_count: 0
+  };
+
+  var updated_topic = Topic {
+    topic_id: topic.topic_id,
+    topic_name: topic.topic_name,
+    subscriber_count: topic.subscriber_count,
+    message_count: topic.message_count + 1,
+    created_at: topic.created_at,
+    last_message_time: "2026-03-30T00:00:00Z",
+    retention_policy: topic.retention_policy
+  };
+
+  return message;
+}
+
+// 구독자 목록
+function get_subscribers(topic: Topic) -> string {
+  // 토픽의 구독자 목록 반환
+  return "";
+}
+
+// 메시지 조회
+function get_messages(topic: Topic, limit: i32) -> string {
+  // 토픽의 최근 메시지 조회
+  return "";
+}
+
+// 메시지 확인
+function acknowledge_message(message: PublishedMessage) -> PublishedMessage {
+  var updated = PublishedMessage {
+    message_id: message.message_id,
+    topic_id: message.topic_id,
+    content: message.content,
+    publisher: message.publisher,
+    published_at: message.published_at,
+    received_count: message.received_count,
+    acknowledged_count: message.acknowledged_count + 1
+  };
+
+  return updated;
+}
+
+// 토픽 통계
+function get_topic_stats(topic: Topic) -> PubSubStatistics {
+  var stats = PubSubStatistics {
+    total_topics: 1,
+    total_subscribers: topic.subscriber_count,
+    total_messages: topic.message_count,
+    messages_per_second: 0,
+    average_latency_ms: 5
+  };
+
+  return stats;
+}
+
+// 토픽 삭제
+function delete_topic(broker: PubSubBroker, topic: Topic) -> PubSubBroker {
+  var updated = PubSubBroker {
+    broker_id: broker.broker_id,
+    topics: broker.topics,
+    total_messages: broker.total_messages,
+    total_subscribers: broker.total_subscribers - topic.subscriber_count,
+    is_running: broker.is_running
+  };
+
+  return updated;
+}
+

@@ -1,0 +1,441 @@
+// K-StdLib: Middleware Module
+// 미들웨어 시스템, 요청 처리 파이프라인, 인증/로깅
+
+// 미들웨어 타입
+function get_middleware_type_auth() -> string { return "AUTH"; }
+function get_middleware_type_logging() -> string { return "LOGGING"; }
+function get_middleware_type_cors() -> string { return "CORS"; }
+function get_middleware_type_rate_limit() -> string { return "RATE_LIMIT"; }
+function get_middleware_type_compression() -> string { return "COMPRESSION"; }
+function get_middleware_type_error_handler() -> string { return "ERROR_HANDLER"; }
+function get_middleware_type_custom() -> string { return "CUSTOM"; }
+
+// 미들웨어 정의
+struct Middleware {
+  name: string,
+  type: string,              // AUTH, LOGGING, CORS, RATE_LIMIT, COMPRESSION, ERROR_HANDLER, CUSTOM
+  handler_name: string,      // 핸들러 함수명
+  priority: i32,             // 실행 우선순위 (낮을수록 먼저 실행)
+  is_enabled: bool,
+  config: string             // 설정 (JSON 형식)
+}
+
+// 미들웨어 체인
+struct MiddlewareChain {
+  middlewares: string,       // 미들웨어 목록 (JSON 형식)
+  middleware_count: i32,
+  is_executing: bool,
+  execution_order: string    // 실행 순서 (쉼표로 구분)
+}
+
+// 미들웨어 생성
+function create_middleware(name: string, type: string, handler_name: string) -> Middleware {
+  var middleware = Middleware {
+    name: name,
+    type: type,
+    handler_name: handler_name,
+    priority: 0,
+    is_enabled: true,
+    config: ""
+  };
+
+  return middleware;
+}
+
+// 미들웨어 우선순위 설정
+function set_middleware_priority(middleware: Middleware, priority: i32) -> Middleware {
+  var updated = Middleware {
+    name: middleware.name,
+    type: middleware.type,
+    handler_name: middleware.handler_name,
+    priority: priority,
+    is_enabled: middleware.is_enabled,
+    config: middleware.config
+  };
+
+  return updated;
+}
+
+// 미들웨어 설정 추가
+function set_middleware_config(middleware: Middleware, config: string) -> Middleware {
+  var updated = Middleware {
+    name: middleware.name,
+    type: middleware.type,
+    handler_name: middleware.handler_name,
+    priority: middleware.priority,
+    is_enabled: middleware.is_enabled,
+    config: config
+  };
+
+  return updated;
+}
+
+// 미들웨어 활성화/비활성화
+function enable_middleware(middleware: Middleware) -> Middleware {
+  var updated = Middleware {
+    name: middleware.name,
+    type: middleware.type,
+    handler_name: middleware.handler_name,
+    priority: middleware.priority,
+    is_enabled: true,
+    config: middleware.config
+  };
+
+  return updated;
+}
+
+function disable_middleware(middleware: Middleware) -> Middleware {
+  var updated = Middleware {
+    name: middleware.name,
+    type: middleware.type,
+    handler_name: middleware.handler_name,
+    priority: middleware.priority,
+    is_enabled: false,
+    config: middleware.config
+  };
+
+  return updated;
+}
+
+// 미들웨어 체인 생성
+function create_middleware_chain() -> MiddlewareChain {
+  var chain = MiddlewareChain {
+    middlewares: "",
+    middleware_count: 0,
+    is_executing: false,
+    execution_order: ""
+  };
+
+  return chain;
+}
+
+// 미들웨어 체인에 미들웨어 추가
+function add_middleware_to_chain(chain: MiddlewareChain, middleware: Middleware) -> MiddlewareChain {
+  var new_middlewares = chain.middlewares;
+
+  if new_middlewares.len > 0 {
+    new_middlewares = new_middlewares + ",";
+  }
+
+  new_middlewares = new_middlewares + middleware.name;
+
+  var updated = MiddlewareChain {
+    middlewares: new_middlewares,
+    middleware_count: chain.middleware_count + 1,
+    is_executing: chain.is_executing,
+    execution_order: chain.execution_order
+  };
+
+  return updated;
+}
+
+// 미들웨어 체인 정렬 (우선순위 기반)
+function sort_middleware_chain(chain: MiddlewareChain) -> MiddlewareChain {
+  var sorted = MiddlewareChain {
+    middlewares: chain.middlewares,
+    middleware_count: chain.middleware_count,
+    is_executing: chain.is_executing,
+    execution_order: chain.execution_order
+  };
+
+  return sorted;
+}
+
+// 미들웨어 실행 시작
+function start_middleware_execution(chain: MiddlewareChain) -> MiddlewareChain {
+  var executing = MiddlewareChain {
+    middlewares: chain.middlewares,
+    middleware_count: chain.middleware_count,
+    is_executing: true,
+    execution_order: chain.execution_order
+  };
+
+  return executing;
+}
+
+// 미들웨어 실행 완료
+function finish_middleware_execution(chain: MiddlewareChain) -> MiddlewareChain {
+  var finished = MiddlewareChain {
+    middlewares: chain.middlewares,
+    middleware_count: chain.middleware_count,
+    is_executing: false,
+    execution_order: chain.execution_order
+  };
+
+  return finished;
+}
+
+// 인증 미들웨어
+struct AuthMiddleware {
+  required: bool,
+  token_header: string,      // "Authorization"
+  token_prefix: string,      // "Bearer"
+  secret_key: string,
+  expiry_minutes: i32
+}
+
+function create_auth_middleware(required: bool) -> AuthMiddleware {
+  var auth = AuthMiddleware {
+    required: required,
+    token_header: "Authorization",
+    token_prefix: "Bearer",
+    secret_key: "",
+    expiry_minutes: 60
+  };
+
+  return auth;
+}
+
+// 토큰 검증
+function verify_token(auth: AuthMiddleware, token: string) -> bool {
+  if token.len == 0 {
+    return false;
+  }
+
+  // 토큰 형식 확인 (간소화)
+  return true;
+}
+
+// 로깅 미들웨어
+struct LoggingMiddleware {
+  log_level: string,         // DEBUG, INFO, WARN, ERROR
+  log_format: string,        // "simple", "detailed", "json"
+  include_headers: bool,
+  include_body: bool,
+  include_response: bool
+}
+
+function create_logging_middleware(log_level: string) -> LoggingMiddleware {
+  var logging = LoggingMiddleware {
+    log_level: log_level,
+    log_format: "simple",
+    include_headers: false,
+    include_body: false,
+    include_response: false
+  };
+
+  return logging;
+}
+
+// CORS 미들웨어
+struct CorsMiddleware {
+  allowed_origins: string,   // "*" 또는 쉼표로 구분된 도메인
+  allowed_methods: string,   // "GET,POST,PUT,DELETE"
+  allowed_headers: string,   // "Content-Type,Authorization"
+  expose_headers: string,    // 클라이언트에 노출할 헤더
+  allow_credentials: bool,
+  max_age_seconds: i32
+}
+
+function create_cors_middleware() -> CorsMiddleware {
+  var cors = CorsMiddleware {
+    allowed_origins: "*",
+    allowed_methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+    allowed_headers: "Content-Type,Authorization",
+    expose_headers: "Content-Type",
+    allow_credentials: false,
+    max_age_seconds: 86400
+  };
+
+  return cors;
+}
+
+// CORS 요청 처리
+function handle_cors_preflight(cors: CorsMiddleware, origin: string) -> bool {
+  // 프리플라이트 요청 처리
+  if cors.allowed_origins == "*" {
+    return true;
+  }
+
+  // origin 확인 (간소화)
+  return true;
+}
+
+// Rate Limiting 미들웨어
+struct RateLimitMiddleware {
+  max_requests: i32,         // 시간당 최대 요청 수
+  window_seconds: i32,       // 시간 윈도우 (초)
+  per_ip: bool,              // IP별 제한 여부
+  per_user: bool,            // 사용자별 제한 여부
+  enabled: bool
+}
+
+function create_rate_limit_middleware(max_requests: i32, window_seconds: i32) -> RateLimitMiddleware {
+  var rate_limit = RateLimitMiddleware {
+    max_requests: max_requests,
+    window_seconds: window_seconds,
+    per_ip: true,
+    per_user: false,
+    enabled: true
+  };
+
+  return rate_limit;
+}
+
+// Rate limit 확인
+function check_rate_limit(limit: RateLimitMiddleware, client_id: string) -> bool {
+  // 요청 수 확인 (간소화)
+  return true;
+}
+
+// Error Handler 미들웨어
+struct ErrorHandlerMiddleware {
+  catch_all: bool,
+  status_code: i32,
+  error_format: string,      // "json", "html", "text"
+  include_stack_trace: bool,
+  include_timestamp: bool
+}
+
+function create_error_handler_middleware() -> ErrorHandlerMiddleware {
+  var error_handler = ErrorHandlerMiddleware {
+    catch_all: true,
+    status_code: 500,
+    error_format: "json",
+    include_stack_trace: false,
+    include_timestamp: true
+  };
+
+  return error_handler;
+}
+
+// 에러 응답 생성
+function format_error_response(handler: ErrorHandlerMiddleware, error_message: string, status: i32) -> string {
+  var response = "";
+
+  if handler.error_format == "json" {
+    response = "{\"error\":\"" + error_message + "\",\"status\":" + status + "}";
+  }
+  else if handler.error_format == "html" {
+    response = "<html><body><h1>" + status + "</h1><p>" + error_message + "</p></body></html>";
+  }
+  else {
+    response = error_message;
+  }
+
+  return response;
+}
+
+// 미들웨어 실행 결과
+struct MiddlewareResult {
+  middleware_name: string,
+  success: bool,
+  status_code: i32,
+  error_message: string,
+  execution_time_ms: i32
+}
+
+function create_middleware_result(middleware_name: string, success: bool) -> MiddlewareResult {
+  var result = MiddlewareResult {
+    middleware_name: middleware_name,
+    success: success,
+    status_code: 200,
+    error_message: "",
+    execution_time_ms: 0
+  };
+
+  return result;
+}
+
+// 미들웨어 정보 조회
+function get_middleware_info(middleware: Middleware) -> string {
+  var info = "미들웨어: ";
+  info = info + middleware.name;
+  info = info + " (";
+  info = info + middleware.type;
+  info = info + ", 우선순위: ";
+  info = info + middleware.priority;
+  info = info + ", 상태: ";
+
+  if middleware.is_enabled {
+    info = info + "활성화";
+  } else {
+    info = info + "비활성화";
+  }
+
+  info = info + ")";
+
+  return info;
+}
+
+// 미들웨어 체인 정보
+function get_middleware_chain_info(chain: MiddlewareChain) -> string {
+  var info = "미들웨어 체인 (";
+  info = info + chain.middleware_count;
+  info = info + "개)";
+
+  if chain.is_executing {
+    info = info + " - 실행중";
+  }
+
+  return info;
+}
+
+// 미들웨어 활성화 조건
+struct MiddlewareCondition {
+  path_pattern: string,      // "/api/*", "/admin/*"
+  method_pattern: string,    // "GET,POST", "*"
+  exclude_paths: string      // 제외할 경로 (쉼표로 구분)
+}
+
+function create_middleware_condition(path_pattern: string) -> MiddlewareCondition {
+  var condition = MiddlewareCondition {
+    path_pattern: path_pattern,
+    method_pattern: "*",
+    exclude_paths: ""
+  };
+
+  return condition;
+}
+
+// 경로 매칭
+function match_path_pattern(condition: MiddlewareCondition, request_path: string) -> bool {
+  // 간단한 와일드카드 매칭
+  var pattern = condition.path_pattern;
+
+  if pattern == "*" {
+    return true;
+  }
+
+  if pattern.len > request_path.len {
+    return false;
+  }
+
+  // 와일드카드 처리 (간소화)
+  return true;
+}
+
+// 미들웨어 체인 실행 순서 계산
+function calculate_execution_order(chain: MiddlewareChain) -> string {
+  var order = "";
+
+  // 우선순위 기반 정렬 (간소화)
+  if chain.middlewares.len > 0 {
+    order = chain.middlewares;
+  }
+
+  return order;
+}
+
+// 다음 미들웨어로 전달
+function next_middleware(chain: MiddlewareChain, current_index: i32) -> i32 {
+  return current_index + 1;
+}
+
+// 미들웨어 체인 중단
+struct MiddlewareAbort {
+  status_code: i32,
+  message: string,
+  should_abort: bool
+}
+
+function create_middleware_abort(status_code: i32, message: string) -> MiddlewareAbort {
+  var abort = MiddlewareAbort {
+    status_code: status_code,
+    message: message,
+    should_abort: true
+  };
+
+  return abort;
+}
+

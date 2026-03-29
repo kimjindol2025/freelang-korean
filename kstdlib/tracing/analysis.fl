@@ -1,0 +1,215 @@
+// K-StdLib: Performance Analysis Module
+// 성능 분석, 병목 감지, 크리티컬 경로 계산
+
+// 성능 분석기
+struct PerformanceAnalyzer {
+  analyzer_id: string,
+  total_requests: i32,
+  total_duration_ms: i32,
+  error_count: i32,
+  p50_latency_ms: i32,
+  p95_latency_ms: i32,
+  p99_latency_ms: i32,
+  average_latency_ms: i32
+}
+
+// 요청 기록
+struct RequestRecord {
+  request_id: string,
+  trace_id: string,
+  service_name: string,
+  operation: string,
+  duration_ms: i32,
+  timestamp: string,
+  status: string,               // "OK", "ERROR"
+  error_message: string
+}
+
+// 서비스 메트릭
+struct ServiceMetrics {
+  service_name: string,
+  request_count: i32,
+  average_latency_ms: i32,
+  error_rate_percent: i32,
+  throughput_requests_per_sec: i32,
+  slowest_operation: string,
+  slowest_operation_ms: i32
+}
+
+// 의존성 그래프 노드
+struct DependencyNode {
+  service_name: string,
+  called_services: string,      // 호출하는 서비스 목록 (JSON)
+  call_count: i32,
+  error_count: i32,
+  average_latency_ms: i32
+}
+
+// 크리티컬 경로 (병목)
+struct CriticalPath {
+  path_id: string,
+  services: string,             // 순서대로 나열된 서비스
+  total_duration_ms: i32,
+  bottleneck_service: string,
+  bottleneck_duration_ms: i32,
+  bottleneck_percentage: i32
+}
+
+// 성능 리포트
+struct PerformanceReport {
+  report_id: string,
+  timestamp: string,
+  total_requests: i32,
+  average_latency_ms: i32,
+  error_rate_percent: i32,
+  slowest_service: string,
+  slowest_service_latency_ms: i32,
+  recommendations: string       // 권장사항 (JSON)
+}
+
+// 성능 분석기 생성
+function create_performance_analyzer() -> PerformanceAnalyzer {
+  var analyzer = PerformanceAnalyzer {
+    analyzer_id: "analyzer_001",
+    total_requests: 0,
+    total_duration_ms: 0,
+    error_count: 0,
+    p50_latency_ms: 0,
+    p95_latency_ms: 0,
+    p99_latency_ms: 0,
+    average_latency_ms: 0
+  };
+
+  return analyzer;
+}
+
+// 요청 기록
+function record_request(analyzer: PerformanceAnalyzer, request: RequestRecord) -> PerformanceAnalyzer {
+  var total_requests = analyzer.total_requests + 1;
+  var total_duration = analyzer.total_duration_ms + request.duration_ms;
+  var error_count = analyzer.error_count;
+
+  if request.status == "ERROR" {
+    error_count = error_count + 1;
+  }
+
+  var avg_latency = 0;
+  if total_requests > 0 {
+    avg_latency = total_duration / total_requests;
+  }
+
+  var updated = PerformanceAnalyzer {
+    analyzer_id: analyzer.analyzer_id,
+    total_requests: total_requests,
+    total_duration_ms: total_duration,
+    error_count: error_count,
+    p50_latency_ms: analyzer.p50_latency_ms,
+    p95_latency_ms: analyzer.p95_latency_ms,
+    p99_latency_ms: analyzer.p99_latency_ms,
+    average_latency_ms: avg_latency
+  };
+
+  return updated;
+}
+
+// 레이턴시 분석
+function analyze_latency(analyzer: PerformanceAnalyzer) -> string {
+  var analysis = "레이턴시 분석: ";
+  analysis = analysis + "평균 ";
+  analysis = analysis + analyzer.average_latency_ms;
+  analysis = analysis + "ms, P95 ";
+  analysis = analysis + analyzer.p95_latency_ms;
+  analysis = analysis + "ms, P99 ";
+  analysis = analysis + analyzer.p99_latency_ms;
+  analysis = analysis + "ms";
+
+  return analysis;
+}
+
+// 병목 감지
+function find_bottleneck(services: string) -> string {
+  // 가장 느린 서비스 식별
+  return "slowest_service";
+}
+
+// 의존성 그래프 생성
+function create_dependency_graph(services: string) -> DependencyNode {
+  var node = DependencyNode {
+    service_name: "service_001",
+    called_services: services,
+    call_count: 0,
+    error_count: 0,
+    average_latency_ms: 0
+  };
+
+  return node;
+}
+
+// 크리티컬 경로 계산
+function calculate_critical_path(graph: DependencyNode) -> CriticalPath {
+  var path = CriticalPath {
+    path_id: "path_001",
+    services: graph.called_services,
+    total_duration_ms: 0,
+    bottleneck_service: graph.service_name,
+    bottleneck_duration_ms: graph.average_latency_ms,
+    bottleneck_percentage: 0
+  };
+
+  return path;
+}
+
+// 성능 리포트 생성
+function generate_performance_report(analyzer: PerformanceAnalyzer) -> PerformanceReport {
+  var error_rate = 0;
+  if analyzer.total_requests > 0 {
+    error_rate = (analyzer.error_count * 100) / analyzer.total_requests;
+  }
+
+  var report = PerformanceReport {
+    report_id: "report_001",
+    timestamp: "2026-03-30T00:00:00Z",
+    total_requests: analyzer.total_requests,
+    average_latency_ms: analyzer.average_latency_ms,
+    error_rate_percent: error_rate,
+    slowest_service: "service_xyz",
+    slowest_service_latency_ms: analyzer.p99_latency_ms,
+    recommendations: ""
+  };
+
+  return report;
+}
+
+// 서비스 메트릭 조회
+function get_service_metrics(service_name: string, requests: string) -> ServiceMetrics {
+  var metrics = ServiceMetrics {
+    service_name: service_name,
+    request_count: 0,
+    average_latency_ms: 0,
+    error_rate_percent: 0,
+    throughput_requests_per_sec: 0,
+    slowest_operation: "",
+    slowest_operation_ms: 0
+  };
+
+  return metrics;
+}
+
+// 느린 서비스 식별
+function identify_slow_services(analyzer: PerformanceAnalyzer, threshold_ms: i32) -> string {
+  if analyzer.average_latency_ms > threshold_ms {
+    return "slow_services_found";
+  }
+
+  return "all_services_ok";
+}
+
+// 추적 통계
+function get_trace_statistics(trace_id: string, spans: string) -> string {
+  var stats = "추적 통계: ";
+  stats = stats + trace_id;
+  stats = stats + " (스팬 개수: N, 총시간: Nms)";
+
+  return stats;
+}
+

@@ -1,0 +1,177 @@
+// K-StdLib: Time-Series Data Module
+// 시계열 데이터 저장, 조회, 집계
+
+// 시계열 (Time-Series)
+struct TimeSeries {
+  series_id: string,
+  series_name: string,
+  metric_type: string,          // "GAUGE", "COUNTER", "HISTOGRAM"
+  unit: string,                 // "ms", "bytes", "count", "%"
+  datapoint_count: i32,
+  created_at: string,
+  last_updated: string,
+  retention_days: i32           // 데이터 보존 기간
+}
+
+// 데이터 포인트
+struct DataPoint {
+  timestamp: string,            // ISO 8601 형식 (예: 2026-03-30T10:30:00Z)
+  value: i32,
+  tags: string,                 // 메타데이터 (JSON)
+  source: string,               // 데이터 소스 (호스트명 등)
+  is_aggregated: bool
+}
+
+// 시계열 값 (타임스탬프 + 값)
+struct TimeSeriesValue {
+  timestamp: string,
+  value: i32,
+  aggregated_value: i32
+}
+
+// 시계열 인덱스
+struct TimeSeriesIndex {
+  index_id: string,
+  series_id: string,
+  index_type: string,           // "TIME", "TAG", "VALUE"
+  created_at: string
+}
+
+// 시계열 통계
+struct TimeSeriesStatistics {
+  series_name: string,
+  datapoint_count: i32,
+  min_value: i32,
+  max_value: i32,
+  avg_value: i32,
+  total_value: i32,
+  time_range_days: i32
+}
+
+// 시계열 생성
+function create_timeseries(series_name: string, metric_type: string, unit: string, retention_days: i32) -> TimeSeries {
+  var series = TimeSeries {
+    series_id: "series_001",
+    series_name: series_name,
+    metric_type: metric_type,
+    unit: unit,
+    datapoint_count: 0,
+    created_at: "2026-03-30T00:00:00Z",
+    last_updated: "2026-03-30T00:00:00Z",
+    retention_days: retention_days
+  };
+
+  return series;
+}
+
+// 데이터 포인트 생성
+function create_datapoint(timestamp: string, value: i32, source: string) -> DataPoint {
+  var point = DataPoint {
+    timestamp: timestamp,
+    value: value,
+    tags: "",
+    source: source,
+    is_aggregated: false
+  };
+
+  return point;
+}
+
+// 데이터 포인트 추가
+function append_datapoint(series: TimeSeries, datapoint: DataPoint) -> TimeSeries {
+  var updated = TimeSeries {
+    series_id: series.series_id,
+    series_name: series.series_name,
+    metric_type: series.metric_type,
+    unit: series.unit,
+    datapoint_count: series.datapoint_count + 1,
+    created_at: series.created_at,
+    last_updated: "2026-03-30T00:00:00Z",
+    retention_days: series.retention_days
+  };
+
+  return updated;
+}
+
+// 데이터 포인트 조회
+function get_datapoint(series: TimeSeries, timestamp: string) -> DataPoint {
+  var point = DataPoint {
+    timestamp: timestamp,
+    value: 0,
+    tags: "",
+    source: "",
+    is_aggregated: false
+  };
+
+  return point;
+}
+
+// 데이터 포인트 업데이트
+function update_datapoint(point: DataPoint, new_value: i32) -> DataPoint {
+  var updated = DataPoint {
+    timestamp: point.timestamp,
+    value: new_value,
+    tags: point.tags,
+    source: point.source,
+    is_aggregated: point.is_aggregated
+  };
+
+  return updated;
+}
+
+// 데이터 포인트 삭제
+function delete_datapoint(series: TimeSeries) -> TimeSeries {
+  var updated = TimeSeries {
+    series_id: series.series_id,
+    series_name: series.series_name,
+    metric_type: series.metric_type,
+    unit: series.unit,
+    datapoint_count: series.datapoint_count - 1,
+    created_at: series.created_at,
+    last_updated: "2026-03-30T00:00:00Z",
+    retention_days: series.retention_days
+  };
+
+  if updated.datapoint_count < 0 {
+    updated.datapoint_count = 0;
+  }
+
+  return updated;
+}
+
+// 시계열 정보 조회
+function get_timeseries_info(series: TimeSeries) -> string {
+  var info = "시계열: ";
+  info = info + series.series_name;
+  info = info + " (";
+  info = info + series.datapoint_count;
+  info = info + "개 포인트, 단위: ";
+  info = info + series.unit;
+  info = info + ")";
+
+  return info;
+}
+
+// 데이터 포인트 수
+function get_datapoint_count(series: TimeSeries) -> i32 {
+  return series.datapoint_count;
+}
+
+// 시계열 내보내기
+function export_timeseries(series: TimeSeries, format: string) -> string {
+  // CSV, JSON, Parquet 등 형식으로 내보내기
+  return "exported_timeseries_data";
+}
+
+// 인덱싱
+function create_timeseries_index(series: TimeSeries, index_type: string) -> TimeSeriesIndex {
+  var index = TimeSeriesIndex {
+    index_id: "index_001",
+    series_id: series.series_id,
+    index_type: index_type,
+    created_at: "2026-03-30T00:00:00Z"
+  };
+
+  return index;
+}
+

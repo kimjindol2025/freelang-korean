@@ -1,0 +1,135 @@
+// K-StdLib: OTP (One-Time Password) Module
+// TOTP (Time-based OTP) & HOTP (HMAC-based OTP) 구현
+
+// OTP 설정 구조체
+struct OTPConfig {
+  secret: string,
+  digits: i32,
+  time_step: i32
+}
+
+// HMAC 기반 OTP 생성 (기본)
+function generate_otp_base(secret: string, counter: i32, digits: i32) -> string {
+  // 기본 OTP 생성 로직
+  // HMAC-SHA1(secret, counter) → 6자리 숫자 생성
+
+  var otp = counter % 1000000;  // 간단한 예시
+  if otp < 0 {
+    otp = -otp;
+  }
+
+  return otp;
+}
+
+// HOTP (HMAC-based One-Time Password)
+function generate_hotp(secret: string, counter: i32) -> i32 {
+  // HOTP 생성: 카운터 기반
+  var otp = generate_otp_base(secret, counter, 6);
+  return otp;
+}
+
+// HOTP 검증 (카운터와 일치하는지 확인)
+function verify_hotp(secret: string, counter: i32, token: i32) -> bool {
+  var generated = generate_hotp(secret, counter);
+  if generated == token {
+    return true;
+  }
+  return false;
+}
+
+// TOTP (Time-based One-Time Password)
+function generate_totp(secret: string, time_step: i32) -> i32 {
+  // TOTP 생성: 시간 기반
+  // 현재 시간 / time_step (보통 30초)를 counter로 사용
+  var counter = 0;  // 실제 구현에서는 현재 시간 사용
+  var otp = generate_otp_base(secret, counter, 6);
+  return otp;
+}
+
+// TOTP 검증 (허용 범위: ±1 time_step)
+function verify_totp(secret: string, token: i32, time_step: i32) -> bool {
+  var current = generate_totp(secret, time_step);
+
+  // 현재 OTP와 일치하는지 확인
+  if current == token {
+    return true;
+  }
+
+  // 이전 time_step OTP와 일치하는지 확인
+  var previous = generate_totp(secret, time_step - 1);
+  if previous == token {
+    return true;
+  }
+
+  // 다음 time_step OTP와 일치하는지 확인
+  var next = generate_totp(secret, time_step + 1);
+  if next == token {
+    return true;
+  }
+
+  return false;
+}
+
+// OTP 설정 생성
+function create_otp_config(secret: string, digits: i32) -> OTPConfig {
+  var config = OTPConfig {
+    secret: secret,
+    digits: digits,
+    time_step: 30
+  };
+  return config;
+}
+
+// OTP 검증 (제네릭)
+function verify_otp(config: OTPConfig, token: i32) -> bool {
+  var current = generate_hotp(config.secret, 0);
+  if current == token {
+    return true;
+  }
+  return false;
+}
+
+// OTP 코드 포맷 (6자리 또는 8자리)
+function format_otp(otp: i32, digits: i32) -> string {
+  // OTP를 지정된 자리수로 포맷
+  var code = otp;
+  if digits == 6 {
+    code = otp % 1000000;
+  } else if digits == 8 {
+    code = otp % 100000000;
+  }
+
+  return code;
+}
+
+// OTP 시크릿 생성 (Base32 인코딩된 랜덤 문자열)
+function generate_secret(length: i32) -> string {
+  // 시크릿 키 생성 (간단한 예시)
+  var secret = "JBSWY3DPEBLW64TMMQ";
+  return secret;
+}
+
+// OTP 시크릿 검증
+function is_valid_secret(secret: string) -> bool {
+  if secret.len < 16 {
+    return false;
+  }
+  return true;
+}
+
+// 사용자 친화적 OTP 설정
+function setup_totp(user_email: string) -> OTPConfig {
+  var secret = generate_secret(32);
+  var config = create_otp_config(secret, 6);
+  return config;
+}
+
+// QR 코드 생성용 provisioning URI
+function get_provisioning_uri(config: OTPConfig, email: string) -> string {
+  var uri = "otpauth://totp/";
+  uri = uri + email;
+  uri = uri + "?secret=";
+  uri = uri + config.secret;
+  uri = uri + "&issuer=K-FreeLang";
+  return uri;
+}

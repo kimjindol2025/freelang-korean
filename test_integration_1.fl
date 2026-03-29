@@ -1,0 +1,37 @@
+// 통합 테스트 1: 간단한 프로그램
+
+fn main() {
+    println("========================================")
+    println("Integration Test 1: Simple Program")
+    println("========================================")
+    println("")
+    
+    // 기본 출력
+    println("Hello, FreeLang!")
+    println("")
+    
+    // 변수 선언
+    let message = "FreeLang V2 is awesome!"
+    println(message)
+    println("")
+    
+    // 계산
+    let x = 10
+    let y = 20
+    let sum = x + y
+    println("Sum: ")
+    println(str(sum))
+    println("")
+    
+    // 함수 정의 및 호출
+    fn greet(name: string) -> string {
+        return "Hello, " + name
+    }
+    
+    println(greet("World"))
+    println("")
+    
+    println("========================================")
+    println("✅ Test 1 PASSED")
+    println("========================================")
+}

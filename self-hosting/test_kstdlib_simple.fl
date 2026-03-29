@@ -1,0 +1,71 @@
+// K-StdLib Phase 1 - 간단 테스트
+
+// 테스트 1: 기본 변수 및 연산
+var a = -10;
+var abs_val = a;
+if a < 0 {
+  abs_val = -a;
+}
+
+// 테스트 2: 배열 생성 및 조작
+var arr = [1, 2, 3, 4, 5];
+var sum = 0;
+for var i = 0; i < arr.len; i = i + 1 {
+  sum = sum + arr[i];
+}
+
+// 테스트 3: 배열 최댓값
+var max_val = arr[0];
+for var j = 1; j < arr.len; j = j + 1 {
+  if arr[j] > max_val {
+    max_val = arr[j];
+  }
+}
+
+// 테스트 4: 문자열 작업
+var greeting = "Hello";
+var name = "World";
+var message = greeting + " " + name;
+
+// 테스트 5: 문자열 길이
+var msg_len = message.len;
+
+// 테스트 6: 단위 변환 (분 → 초)
+var minutes = 5;
+var seconds = minutes * 60;
+
+// 테스트 7: 제곱 계산
+var base = 2;
+var exp = 3;
+var power = 1;
+for var k = 0; k < exp; k = k + 1 {
+  power = power * base;
+}
+
+// 테스트 8: 홀짝 판별
+var num = 4;
+var is_even_flag = false;
+var remainder = num - (num / 2) * 2;
+if remainder == 0 {
+  is_even_flag = true;
+}
+
+// 테스트 9: 배열 포함 여부 확인
+var target = 3;
+var found = false;
+for var m = 0; m < arr.len; m = m + 1 {
+  if arr[m] == target {
+    found = true;
+  }
+}
+
+// 테스트 10: 조건부 로직 테스트
+var x = 10;
+var result = 0;
+if x > 5 {
+  result = 100;
+} else {
+  result = 200;
+}
+
+// 모든 K-StdLib Phase 1 기본 테스트 완료!

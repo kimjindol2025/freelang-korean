@@ -1,0 +1,45 @@
+// Database 함수 검증 테스트
+
+fn main() {
+    // 데이터베이스 열기
+    let db = db_open("test.db")
+    println("✅ Database opened")
+    println("")
+
+    // 테이블 생성
+    db_exec(db, "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)")
+    println("✅ Table created")
+    println("")
+
+    // 데이터 삽입
+    db_insert(db, "users", ["id", "name", "age"], [1, "Alice", 30])
+    db_insert(db, "users", ["id", "name", "age"], [2, "Bob", 25])
+    println("✅ Data inserted")
+    println("")
+
+    // 데이터 조회
+    let users = db_query(db, "SELECT * FROM users")
+    println("✅ Data queried:")
+    println(str(len(users)))
+    println(" users found")
+    println("")
+
+    // 데이터 업데이트
+    db_update(db, "users", ["age"], [31], "id = 1")
+    println("✅ Data updated")
+    println("")
+
+    // 데이터 삭제
+    db_delete(db, "users", "id = 2")
+    println("✅ Data deleted")
+    println("")
+
+    // 최종 조회
+    let final = db_query(db, "SELECT * FROM users")
+    println("✅ Final count: ")
+    println(str(len(final)))
+    
+    // 데이터베이스 닫기
+    db_close(db)
+    println("✅ Database closed")
+}

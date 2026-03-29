@@ -1,0 +1,50 @@
+// Test Stdlib: 표준 라이브러리 함수
+
+fn test_string_functions() {
+    println("=== String Functions ===")
+    let s = "  hello world  "
+    let trimmed = trim(s)
+    println(trimmed)
+    
+    let parts = split("a,b,c", ",")
+    println(str(len(parts)))
+    
+    let joined = join(["x", "y", "z"], "-")
+    println(joined)
+}
+
+fn test_array_functions() {
+    println("=== Array Functions ===")
+    let arr = [3, 1, 4, 1, 5]
+    println(str(len(arr)))
+    
+    push(arr, 9)
+    println(str(len(arr)))
+    
+    let val = pop(arr)
+    println(str(val))
+}
+
+fn test_math_functions() {
+    println("=== Math Functions ===")
+    println(str(min(5, 3)))
+    println(str(max(5, 3)))
+    println(str(abs(-42)))
+    println(str(pow(2, 8)))
+}
+
+fn test_type_functions() {
+    println("=== Type Functions ===")
+    println(str(type(42)))
+    println(str(type("hello")))
+    println(str(type([1, 2, 3])))
+}
+
+fn main() {
+    test_string_functions()
+    test_array_functions()
+    test_math_functions()
+    test_type_functions()
+}
+
+main()

@@ -1,0 +1,380 @@
+// K-StdLib: ORM Module
+// 객체-관계 매핑, 모델 정의, 쿼리 빌더
+
+// 모델 필드 정의
+struct ModelField {
+  name: string,
+  field_type: string,  // "string", "i32", "bool", "float"
+  is_primary_key: bool,
+  is_nullable: bool,
+  default_value: string
+}
+
+// 모델 정의
+struct Model {
+  name: string,
+  table_name: string,
+  fields: string,      // 필드 목록 (JSON 형식)
+  field_count: i32
+}
+
+// 쿼리 빌더
+struct QueryBuilder {
+  table: string,
+  select_clause: string,
+  where_clause: string,
+  order_by_clause: string,
+  limit_clause: string,
+  offset_clause: string
+}
+
+// 모델 필드 생성
+function create_model_field(name: string, field_type: string,
+                           is_primary_key: bool, is_nullable: bool) -> ModelField {
+  var field = ModelField {
+    name: name,
+    field_type: field_type,
+    is_primary_key: is_primary_key,
+    is_nullable: is_nullable,
+    default_value: ""
+  };
+
+  return field;
+}
+
+// 필드에 기본값 설정
+function set_field_default(field: ModelField, default_value: string) -> ModelField {
+  var updated_field = ModelField {
+    name: field.name,
+    field_type: field.field_type,
+    is_primary_key: field.is_primary_key,
+    is_nullable: field.is_nullable,
+    default_value: default_value
+  };
+
+  return updated_field;
+}
+
+// 모델 생성
+function create_model(name: string, table_name: string) -> Model {
+  var model = Model {
+    name: name,
+    table_name: table_name,
+    fields: "",
+    field_count: 0
+  };
+
+  return model;
+}
+
+// 모델에 필드 추가
+function add_field_to_model(model: Model, field: ModelField) -> Model {
+  var updated_model = Model {
+    name: model.name,
+    table_name: model.table_name,
+    fields: model.fields,
+    field_count: model.field_count + 1
+  };
+
+  // 필드 정보를 JSON 형식으로 추가
+  if model.field_count > 0 {
+    updated_model.fields = updated_model.fields + ",";
+  }
+
+  updated_model.fields = updated_model.fields + field.name;
+
+  return updated_model;
+}
+
+// 쿼리 빌더 생성
+function create_query_builder(table: string) -> QueryBuilder {
+  var builder = QueryBuilder {
+    table: table,
+    select_clause: "*",
+    where_clause: "",
+    order_by_clause: "",
+    limit_clause: "",
+    offset_clause: ""
+  };
+
+  return builder;
+}
+
+// SELECT 절 설정
+function select(builder: QueryBuilder, columns: string) -> QueryBuilder {
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: columns,
+    where_clause: builder.where_clause,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: builder.limit_clause,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// WHERE 절 추가
+function where(builder: QueryBuilder, condition: string) -> QueryBuilder {
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: condition,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: builder.limit_clause,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// AND 조건 추가
+function and_where(builder: QueryBuilder, condition: string) -> QueryBuilder {
+  var new_where = builder.where_clause;
+
+  if new_where.len > 0 {
+    new_where = new_where + " AND ";
+  }
+
+  new_where = new_where + condition;
+
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: new_where,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: builder.limit_clause,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// OR 조건 추가
+function or_where(builder: QueryBuilder, condition: string) -> QueryBuilder {
+  var new_where = builder.where_clause;
+
+  if new_where.len > 0 {
+    new_where = new_where + " OR ";
+  }
+
+  new_where = new_where + condition;
+
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: new_where,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: builder.limit_clause,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// ORDER BY 설정
+function order_by(builder: QueryBuilder, column: string, direction: string) -> QueryBuilder {
+  var order = column + " " + direction;
+
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: builder.where_clause,
+    order_by_clause: order,
+    limit_clause: builder.limit_clause,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// LIMIT 설정
+function limit(builder: QueryBuilder, count: i32) -> QueryBuilder {
+  var limit_str = "";
+  var temp = count;
+
+  if temp == 0 {
+    limit_str = "0";
+  } else {
+    var digits = "";
+    while temp > 0 {
+      var digit = temp % 10;
+      digits = digit + digits;
+      temp = temp / 10;
+    }
+    limit_str = digits;
+  }
+
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: builder.where_clause,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: limit_str,
+    offset_clause: builder.offset_clause
+  };
+
+  return updated;
+}
+
+// OFFSET 설정
+function offset(builder: QueryBuilder, count: i32) -> QueryBuilder {
+  var offset_str = "";
+  var temp = count;
+
+  if temp == 0 {
+    offset_str = "0";
+  } else {
+    var digits = "";
+    while temp > 0 {
+      var digit = temp % 10;
+      digits = digit + digits;
+      temp = temp / 10;
+    }
+    offset_str = digits;
+  }
+
+  var updated = QueryBuilder {
+    table: builder.table,
+    select_clause: builder.select_clause,
+    where_clause: builder.where_clause,
+    order_by_clause: builder.order_by_clause,
+    limit_clause: builder.limit_clause,
+    offset_clause: offset_str
+  };
+
+  return updated;
+}
+
+// SQL 쿼리 빌드
+function build_query(builder: QueryBuilder) -> string {
+  var query = "SELECT ";
+  query = query + builder.select_clause;
+  query = query + " FROM ";
+  query = query + builder.table;
+
+  if builder.where_clause.len > 0 {
+    query = query + " WHERE ";
+    query = query + builder.where_clause;
+  }
+
+  if builder.order_by_clause.len > 0 {
+    query = query + " ORDER BY ";
+    query = query + builder.order_by_clause;
+  }
+
+  if builder.limit_clause.len > 0 {
+    query = query + " LIMIT ";
+    query = query + builder.limit_clause;
+  }
+
+  if builder.offset_clause.len > 0 {
+    query = query + " OFFSET ";
+    query = query + builder.offset_clause;
+  }
+
+  return query;
+}
+
+// 관계 정의 (일대다)
+struct Relationship {
+  type: string,           // "one_to_many", "many_to_one", "many_to_many"
+  from_model: string,
+  to_model: string,
+  foreign_key: string
+}
+
+// 관계 생성
+function create_relationship(type: string, from_model: string,
+                            to_model: string, foreign_key: string) -> Relationship {
+  var rel = Relationship {
+    type: type,
+    from_model: from_model,
+    to_model: to_model,
+    foreign_key: foreign_key
+  };
+
+  return rel;
+}
+
+// 검증 규칙 정의
+struct Validation {
+  field_name: string,
+  rule_type: string,    // "required", "unique", "email", "min", "max"
+  rule_value: string
+}
+
+// 검증 규칙 생성
+function create_validation(field_name: string, rule_type: string,
+                          rule_value: string) -> Validation {
+  var validation = Validation {
+    field_name: field_name,
+    rule_type: rule_type,
+    rule_value: rule_value
+  };
+
+  return validation;
+}
+
+// 필드 검증
+function validate_field(field_name: string, value: string,
+                       validation: Validation) -> bool {
+  if validation.field_name != field_name {
+    return true;  // 다른 필드의 검증 규칙
+  }
+
+  if validation.rule_type == "required" {
+    return value.len > 0;
+  }
+
+  else if validation.rule_type == "email" {
+    // 간단한 이메일 검증
+    var i = 0;
+    var has_at = false;
+
+    for i = 0; i < value.len; i = i + 1 {
+      if value[i] == 64 {  // '@'
+        has_at = true;
+        break;
+      }
+    }
+
+    return has_at;
+  }
+
+  else if validation.rule_type == "min" {
+    return value.len >= validation.rule_value.len;
+  }
+
+  else if validation.rule_type == "max" {
+    return value.len <= validation.rule_value.len;
+  }
+
+  return true;
+}
+
+// 모델 스키마 생성 SQL
+function generate_create_table_sql(model: Model) -> string {
+  var sql = "CREATE TABLE IF NOT EXISTS ";
+  sql = sql + model.table_name;
+  sql = sql + " (id INTEGER PRIMARY KEY AUTOINCREMENT, ";
+
+  // 필드 추가 (간소화)
+  sql = sql + model.fields;
+
+  sql = sql + ")";
+
+  return sql;
+}
+
+// 모델 정보 조회
+function get_model_info(model: Model) -> string {
+  var info = "모델: ";
+  info = info + model.name;
+  info = info + ", 테이블: ";
+  info = info + model.table_name;
+  info = info + ", 필드 개수: ";
+  info = info + model.field_count;
+
+  return info;
+}

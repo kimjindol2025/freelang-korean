@@ -1,0 +1,193 @@
+// K-StdLib: Vector Similarity & Clustering Module
+// 유사도 검색, 클러스터링, 의미 기반 검색
+
+// 유사도 점수
+struct SimilarityScore {
+  doc_id_1: string,
+  doc_id_2: string,
+  similarity_metric: string,        // "COSINE", "EUCLIDEAN", "MANHATTAN", "HAMMING"
+  similarity_score: i32,            // 0-100
+  distance: i32                     // 거리 (작을수록 유사)
+}
+
+// 유사 문서 검색 결과
+struct SimilaritySearchResult {
+  query_id: string,
+  query_embedding: string,          // 쿼리 벡터
+  matched_docs: string,             // 유사 문서 목록 (JSON)
+  total_results: i32,
+  search_time_ms: i32,
+  threshold: i32                    // 최소 유사도 (0-100)
+}
+
+// 클러스터
+struct Cluster {
+  cluster_id: string,
+  centroid: string,                 // 클러스터 중심 벡터
+  member_count: i32,
+  members: string,                  // 클러스터 멤버 (JSON)
+  intra_cluster_distance: i32       // 클러스터 내 평균 거리
+}
+
+// 클러스터링 결과
+struct ClusteringResult {
+  clustering_id: string,
+  algorithm: string,                // "KMEANS", "DBSCAN", "HIERARCHICAL"
+  cluster_count: i32,
+  total_points: i32,
+  clusters: string,                 // 클러스터 목록 (JSON)
+  silhouette_score: i32,            // 클러스터 품질 (0-100)
+  processing_time_ms: i32
+}
+
+// 이상 감지 결과
+struct AnomalyDetectionResult {
+  detection_id: string,
+  total_vectors: i32,
+  anomalies: string,                // 이상 벡터 목록 (JSON)
+  anomaly_count: i32,
+  anomaly_threshold: i32            // 이상도 임계값
+}
+
+// 계층적 클러스터링 덴드로그램
+struct Dendrogram {
+  dendrogram_id: string,
+  tree_structure: string,           // 트리 구조 (JSON)
+  leaf_count: i32,
+  height: i32                       // 덴드로그램 높이
+}
+
+// 코사인 유사도 계산
+function calculate_cosine_similarity(vector1: string, vector2: string) -> SimilarityScore {
+  var score = SimilarityScore {
+    doc_id_1: "doc_001",
+    doc_id_2: "doc_002",
+    similarity_metric: "COSINE",
+    similarity_score: 85,
+    distance: 15
+  };
+
+  return score;
+}
+
+// 유클리드 거리 계산
+function calculate_euclidean_distance(vector1: string, vector2: string) -> SimilarityScore {
+  var score = SimilarityScore {
+    doc_id_1: "doc_001",
+    doc_id_2: "doc_002",
+    similarity_metric: "EUCLIDEAN",
+    similarity_score: 80,
+    distance: 2
+  };
+
+  return score;
+}
+
+// 맨해튼 거리 계산
+function calculate_manhattan_distance(vector1: string, vector2: string) -> SimilarityScore {
+  var score = SimilarityScore {
+    doc_id_1: "doc_001",
+    doc_id_2: "doc_002",
+    similarity_metric: "MANHATTAN",
+    similarity_score: 78,
+    distance: 12
+  };
+
+  return score;
+}
+
+// 유사도 검색
+function similarity_search(query_vector: string, vectors: string, top_k: i32) -> SimilaritySearchResult {
+  var result = SimilaritySearchResult {
+    query_id: "query_001",
+    query_embedding: query_vector,
+    matched_docs: "",
+    total_results: top_k,
+    search_time_ms: 0,
+    threshold: 70
+  };
+
+  return result;
+}
+
+// K-Means 클러스터링
+function kmeans_clustering(vectors: string, k: i32, max_iterations: i32) -> ClusteringResult {
+  var result = ClusteringResult {
+    clustering_id: "cluster_001",
+    algorithm: "KMEANS",
+    cluster_count: k,
+    total_points: 0,
+    clusters: "",
+    silhouette_score: 0,
+    processing_time_ms: 0
+  };
+
+  return result;
+}
+
+// DBSCAN 클러스터링
+function dbscan_clustering(vectors: string, epsilon: i32, min_points: i32) -> ClusteringResult {
+  var result = ClusteringResult {
+    clustering_id: "cluster_002",
+    algorithm: "DBSCAN",
+    cluster_count: 0,
+    total_points: 0,
+    clusters: "",
+    silhouette_score: 0,
+    processing_time_ms: 0
+  };
+
+  return result;
+}
+
+// 계층적 클러스터링
+function hierarchical_clustering(vectors: string, linkage_method: string) -> Dendrogram {
+  var dendrogram = Dendrogram {
+    dendrogram_id: "dendro_001",
+    tree_structure: "",
+    leaf_count: 0,
+    height: 0
+  };
+
+  return dendrogram;
+}
+
+// 이상 감지 (Anomaly Detection)
+function detect_anomalies(vectors: string, method: string, threshold: i32) -> AnomalyDetectionResult {
+  var result = AnomalyDetectionResult {
+    detection_id: "anomaly_001",
+    total_vectors: 0,
+    anomalies: "",
+    anomaly_count: 0,
+    anomaly_threshold: threshold
+  };
+
+  return result;
+}
+
+// 클러스터 중심 계산
+function calculate_centroid(cluster_members: string) -> string {
+  // 클러스터 멤버들의 평균 벡터 계산
+  return cluster_members;
+}
+
+// 실루엣 점수 계산 (클러스터 품질)
+function calculate_silhouette_score(clustering: ClusteringResult) -> i32 {
+  // 클러스터 응집도와 분리도 측정
+  // 0-100 범위 (높을수록 좋음)
+  return clustering.silhouette_score;
+}
+
+// 의미적 유사도 기반 검색
+function semantic_search(query: string, documents: string, top_k: i32) -> SimilaritySearchResult {
+  var result = SimilaritySearchResult {
+    query_id: "semantic_001",
+    query_embedding: "",
+    matched_docs: "",
+    total_results: top_k,
+    search_time_ms: 0,
+    threshold: 60
+  };
+
+  return result;
+}

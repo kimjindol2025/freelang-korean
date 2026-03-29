@@ -1,0 +1,365 @@
+// K-StdLib: Transaction Module
+// 트랜잭션 관리, ACID 보장, 동시성 제어
+
+// 트랜잭션 격리 수준
+function get_isolation_level_read_uncommitted() -> string { return "READ UNCOMMITTED"; }
+function get_isolation_level_read_committed() -> string { return "READ COMMITTED"; }
+function get_isolation_level_repeatable_read() -> string { return "REPEATABLE READ"; }
+function get_isolation_level_serializable() -> string { return "SERIALIZABLE"; }
+
+// 트랜잭션 상태
+function get_transaction_state_active() -> string { return "ACTIVE"; }
+function get_transaction_state_committed() -> string { return "COMMITTED"; }
+function get_transaction_state_rolled_back() -> string { return "ROLLED_BACK"; }
+function get_transaction_state_failed() -> string { return "FAILED"; }
+
+// 트랜잭션 정보
+struct Transaction {
+  transaction_id: string,
+  state: string,             // ACTIVE, COMMITTED, ROLLED_BACK, FAILED
+  isolation_level: string,   // READ COMMITTED 등
+  start_time: string,
+  end_time: string,
+  operation_count: i32,
+  is_read_only: bool
+}
+
+// 트랜잭션 시작
+function begin_transaction(isolation_level: string) -> Transaction {
+  var transaction = Transaction {
+    transaction_id: "txn_001",
+    state: get_transaction_state_active(),
+    isolation_level: isolation_level,
+    start_time: "2026-03-30T00:00:00Z",
+    end_time: "",
+    operation_count: 0,
+    is_read_only: false
+  };
+
+  return transaction;
+}
+
+// 트랜잭션 커밋
+function commit_transaction(transaction: Transaction) -> Transaction {
+  var committed = Transaction {
+    transaction_id: transaction.transaction_id,
+    state: get_transaction_state_committed(),
+    isolation_level: transaction.isolation_level,
+    start_time: transaction.start_time,
+    end_time: "2026-03-30T00:00:01Z",
+    operation_count: transaction.operation_count,
+    is_read_only: transaction.is_read_only
+  };
+
+  return committed;
+}
+
+// 트랜잭션 롤백
+function rollback_transaction(transaction: Transaction) -> Transaction {
+  var rolled_back = Transaction {
+    transaction_id: transaction.transaction_id,
+    state: get_transaction_state_rolled_back(),
+    isolation_level: transaction.isolation_level,
+    start_time: transaction.start_time,
+    end_time: "2026-03-30T00:00:01Z",
+    operation_count: transaction.operation_count,
+    is_read_only: transaction.is_read_only
+  };
+
+  return rolled_back;
+}
+
+// 트랜잭션 상태 확인
+function is_transaction_active(transaction: Transaction) -> bool {
+  return transaction.state == get_transaction_state_active();
+}
+
+function is_transaction_committed(transaction: Transaction) -> bool {
+  return transaction.state == get_transaction_state_committed();
+}
+
+function is_transaction_rolled_back(transaction: Transaction) -> bool {
+  return transaction.state == get_transaction_state_rolled_back();
+}
+
+// 트랜잭션에 작업 추가
+function add_operation(transaction: Transaction) -> Transaction {
+  var updated = Transaction {
+    transaction_id: transaction.transaction_id,
+    state: transaction.state,
+    isolation_level: transaction.isolation_level,
+    start_time: transaction.start_time,
+    end_time: transaction.end_time,
+    operation_count: transaction.operation_count + 1,
+    is_read_only: transaction.is_read_only
+  };
+
+  return updated;
+}
+
+// 읽기 전용 트랜잭션 설정
+function set_read_only(transaction: Transaction) -> Transaction {
+  var read_only = Transaction {
+    transaction_id: transaction.transaction_id,
+    state: transaction.state,
+    isolation_level: transaction.isolation_level,
+    start_time: transaction.start_time,
+    end_time: transaction.end_time,
+    operation_count: transaction.operation_count,
+    is_read_only: true
+  };
+
+  return read_only;
+}
+
+// Savepoint 생성
+struct Savepoint {
+  savepoint_name: string,
+  transaction_id: string,
+  operation_count_at_savepoint: i32,
+  created_at: string
+}
+
+function create_savepoint(transaction: Transaction, savepoint_name: string) -> Savepoint {
+  var savepoint = Savepoint {
+    savepoint_name: savepoint_name,
+    transaction_id: transaction.transaction_id,
+    operation_count_at_savepoint: transaction.operation_count,
+    created_at: "2026-03-30T00:00:00Z"
+  };
+
+  return savepoint;
+}
+
+// Savepoint로 롤백
+function rollback_to_savepoint(transaction: Transaction, savepoint: Savepoint) -> Transaction {
+  var rolled_back = Transaction {
+    transaction_id: transaction.transaction_id,
+    state: transaction.state,
+    isolation_level: transaction.isolation_level,
+    start_time: transaction.start_time,
+    end_time: transaction.end_time,
+    operation_count: savepoint.operation_count_at_savepoint,
+    is_read_only: transaction.is_read_only
+  };
+
+  return rolled_back;
+}
+
+// 동시성 제어 - 낙관적 잠금
+struct OptimisticLock {
+  record_id: string,
+  version: i32,
+  last_modified: string
+}
+
+function create_optimistic_lock(record_id: string) -> OptimisticLock {
+  var lock = OptimisticLock {
+    record_id: record_id,
+    version: 1,
+    last_modified: "2026-03-30T00:00:00Z"
+  };
+
+  return lock;
+}
+
+// 버전 체크
+function check_version(lock: OptimisticLock, expected_version: i32) -> bool {
+  return lock.version == expected_version;
+}
+
+// 버전 증가
+function increment_version(lock: OptimisticLock) -> OptimisticLock {
+  var updated = OptimisticLock {
+    record_id: lock.record_id,
+    version: lock.version + 1,
+    last_modified: "2026-03-30T00:00:01Z"
+  };
+
+  return updated;
+}
+
+// 동시성 제어 - 비관적 잠금
+struct PessimisticLock {
+  record_id: string,
+  lock_type: string,    // "SHARED", "EXCLUSIVE"
+  owner_transaction_id: string,
+  acquired_at: string,
+  is_locked: bool
+}
+
+function create_pessimistic_lock(record_id: string, lock_type: string,
+                               transaction_id: string) -> PessimisticLock {
+  var lock = PessimisticLock {
+    record_id: record_id,
+    lock_type: lock_type,
+    owner_transaction_id: transaction_id,
+    acquired_at: "2026-03-30T00:00:00Z",
+    is_locked: true
+  };
+
+  return lock;
+}
+
+// 잠금 해제
+function unlock(lock: PessimisticLock) -> PessimisticLock {
+  var unlocked = PessimisticLock {
+    record_id: lock.record_id,
+    lock_type: lock.lock_type,
+    owner_transaction_id: "",
+    acquired_at: lock.acquired_at,
+    is_locked: false
+  };
+
+  return unlocked;
+}
+
+// 데드락 감지
+struct DeadlockDetector {
+  transaction_graph: string,
+  has_cycle: bool,
+  involved_transactions: string
+}
+
+function detect_deadlock() -> DeadlockDetector {
+  var detector = DeadlockDetector {
+    transaction_graph: "",
+    has_cycle: false,
+    involved_transactions: ""
+  };
+
+  return detector;
+}
+
+// 트랜잭션 타임아웃
+struct TransactionTimeout {
+  transaction_id: string,
+  timeout_seconds: i32,
+  elapsed_seconds: i32,
+  is_timed_out: bool
+}
+
+function create_transaction_timeout(transaction_id: string,
+                                   timeout_seconds: i32) -> TransactionTimeout {
+  var timeout = TransactionTimeout {
+    transaction_id: transaction_id,
+    timeout_seconds: timeout_seconds,
+    elapsed_seconds: 0,
+    is_timed_out: false
+  };
+
+  return timeout;
+}
+
+// 타임아웃 확인
+function check_timeout(timeout: TransactionTimeout, current_seconds: i32) -> bool {
+  var elapsed = current_seconds;
+  return elapsed >= timeout.timeout_seconds;
+}
+
+// 트랜잭션 로그
+struct TransactionLog {
+  transaction_id: string,
+  operation: string,    // "INSERT", "UPDATE", "DELETE"
+  table_name: string,
+  record_id: string,
+  old_value: string,
+  new_value: string,
+  timestamp: string
+}
+
+function create_transaction_log(transaction_id: string, operation: string,
+                              table_name: string, record_id: string,
+                              old_value: string, new_value: string) -> TransactionLog {
+  var log = TransactionLog {
+    transaction_id: transaction_id,
+    operation: operation,
+    table_name: table_name,
+    record_id: record_id,
+    old_value: old_value,
+    new_value: new_value,
+    timestamp: "2026-03-30T00:00:00Z"
+  };
+
+  return log;
+}
+
+// 트랜잭션 복구
+function recovery_from_log(log: TransactionLog) -> bool {
+  // 로그를 이용한 복구 로직
+  if log.operation.len == 0 {
+    return false;
+  }
+
+  return true;
+}
+
+// 트랜잭션 통계
+struct TransactionStatistics {
+  total_transactions: i32,
+  committed_count: i32,
+  rolled_back_count: i32,
+  failed_count: i32,
+  average_duration_ms: i32
+}
+
+function create_transaction_statistics() -> TransactionStatistics {
+  var stats = TransactionStatistics {
+    total_transactions: 0,
+    committed_count: 0,
+    rolled_back_count: 0,
+    failed_count: 0,
+    average_duration_ms: 0
+  };
+
+  return stats;
+}
+
+// 트랜잭션 정보 조회
+function get_transaction_info(transaction: Transaction) -> string {
+  var info = "트랜잭션ID: ";
+  info = info + transaction.transaction_id;
+  info = info + ", 상태: ";
+  info = info + transaction.state;
+  info = info + ", 격리수준: ";
+  info = info + transaction.isolation_level;
+  info = info + ", 작업수: ";
+  info = info + transaction.operation_count;
+
+  return info;
+}
+
+// Two-Phase Commit (2PC) - Prepare Phase
+struct PreparePhase {
+  transaction_id: string,
+  participants: string,
+  all_prepared: bool
+}
+
+function execute_prepare_phase(transaction_id: string,
+                              participants: string) -> PreparePhase {
+  var phase = PreparePhase {
+    transaction_id: transaction_id,
+    participants: participants,
+    all_prepared: true
+  };
+
+  return phase;
+}
+
+// Two-Phase Commit - Commit Phase
+struct CommitPhase {
+  transaction_id: string,
+  all_committed: bool,
+  failed_participants: string
+}
+
+function execute_commit_phase(transaction_id: string) -> CommitPhase {
+  var phase = CommitPhase {
+    transaction_id: transaction_id,
+    all_committed: true,
+    failed_participants: ""
+  };
+
+  return phase;
+}

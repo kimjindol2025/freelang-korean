@@ -1,0 +1,73 @@
+// Bootstrap Blocker Tests: P1-P5
+
+// ===== P1: Anonymous Struct Literal =====
+var obj1 = { name: "test", value: 42 };
+var n = obj1.name;
+var v = obj1.value;
+
+// ===== P2: Struct Constructor =====
+struct Point { x: i32, y: i32 }
+var p = Point { x: 10, y: 20 };
+var px = p.x;
+var py = p.y;
+
+// ===== P3: If-Else =====
+var cond = true;
+if cond {
+  var result = 1;
+} else {
+  var result = 2;
+}
+
+// If without else
+if true {
+  var x = 100;
+}
+
+// ===== P4: C-style For Loop =====
+var sum = 0;
+for var i = 0; i < 5; i = i + 1 {
+  sum = sum + i;
+}
+
+// C-style for with multiple initialization patterns
+for var j = 0; j < 3; j = j + 1 {
+  var inner = j;
+}
+
+// ===== P5: Match Statement =====
+var selector = 2;
+match selector {
+  1 => {
+    var r1 = "one";
+  }
+  2 => {
+    var r2 = "two";
+  }
+  3 => {
+    var r3 = "three";
+  }
+}
+
+// Match as expression
+var matched = match 5 {
+  1 => 10
+  2 => 20
+  3 => 30
+  _ => 99
+};
+
+// ===== Combined: All blockers in one structure =====
+var final = 0;
+for var k = 1; k < 4; k = k + 1 {
+  var item = { id: k, name: "item" };
+  if k == 2 {
+    match k {
+      1 => { final = 100; }
+      2 => { final = 200; }
+      _ => { final = 999; }
+    }
+  }
+}
+
+// All 5 blockers successfully parsed and compiled!

@@ -1,0 +1,87 @@
+// K-StdLib: Date Module
+// 날짜/시간 함수 모음
+
+// 현재 시간의 타임스탬프 (초 단위)
+function now() -> i32 {
+  // 기본 구현: 현재 UNIX 시간 반환
+  // 실제 구현은 시스템 시간 호출 필요
+  return 0;
+}
+
+// 밀리초 단위 현재 시간
+function now_millis() -> i32 {
+  // 기본 구현: 현재 UNIX 시간(ms) 반환
+  return 0;
+}
+
+// 마이크로초 단위 현재 시간
+function now_micros() -> i32 {
+  // 기본 구현: 현재 UNIX 시간(us) 반환
+  return 0;
+}
+
+// 초 단위를 분으로 변환
+function seconds_to_minutes(seconds: i32) -> i32 {
+  return seconds / 60;
+}
+
+// 초 단위를 시간으로 변환
+function seconds_to_hours(seconds: i32) -> i32 {
+  return seconds / 3600;
+}
+
+// 초 단위를 일로 변환
+function seconds_to_days(seconds: i32) -> i32 {
+  return seconds / 86400;
+}
+
+// 분을 초로 변환
+function minutes_to_seconds(minutes: i32) -> i32 {
+  return minutes * 60;
+}
+
+// 시간을 초로 변환
+function hours_to_seconds(hours: i32) -> i32 {
+  return hours * 3600;
+}
+
+// 일을 초로 변환
+function days_to_seconds(days: i32) -> i32 {
+  return days * 86400;
+}
+
+// 윤년 판별
+function is_leap_year(year: i32) -> bool {
+  if year % 400 == 0 {
+    return true;
+  }
+  if year % 100 == 0 {
+    return false;
+  }
+  if year % 4 == 0 {
+    return true;
+  }
+  return false;
+}
+
+// 월의 일수
+function days_in_month(month: i32, year: i32) -> i32 {
+  if month == 2 {
+    if is_leap_year(year) {
+      return 29;
+    }
+    return 28;
+  }
+  if month == 4 || month == 6 || month == 9 || month == 11 {
+    return 30;
+  }
+  return 31;
+}
+
+// 년의 일수
+function days_in_year(year: i32) -> i32 {
+  if is_leap_year(year) {
+    return 366;
+  }
+  return 365;
+}

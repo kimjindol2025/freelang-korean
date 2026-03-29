@@ -1,0 +1,28 @@
+// Crypto 함수 검증 테스트
+
+fn main() {
+    // sha256 테스트
+    let hash1 = sha256("hello")
+    println("sha256('hello'):")
+    println(hash1)
+    println("")
+
+    // md5 테스트
+    let hash2 = md5("hello")
+    println("md5('hello'):")
+    println(hash2)
+    println("")
+
+    // random 테스트
+    let rand1 = random()
+    let rand2 = random()
+    println("random():")
+    println(str(rand1))
+    println(str(rand2))
+    println("")
+
+    // randomInt 테스트
+    let randint = randomInt(1, 10)
+    println("randomInt(1, 10):")
+    println(str(randint))
+}

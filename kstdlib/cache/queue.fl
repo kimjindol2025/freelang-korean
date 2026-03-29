@@ -1,0 +1,397 @@
+// K-StdLib: Queue Module
+// 메시지 큐, FIFO, 우선순위 큐, 비동기 작업 처리
+
+// 큐 아이템
+struct QueueItem {
+  item_id: string,
+  item_type: string,     // "TASK", "MESSAGE", "EVENT"
+  priority: i32,         // 0-10 (높을수록 높은 우선순위)
+  data: string,
+  created_at: string,
+  processed_at: string,
+  is_processed: bool
+}
+
+// FIFO 큐 (First In First Out)
+struct Queue {
+  queue_id: string,
+  queue_type: string,    // "FIFO", "PRIORITY"
+  max_size: i32,
+  current_size: i32,
+  items: string,         // 큐 항목 (JSON 형식)
+  enqueue_count: i32,
+  dequeue_count: i32,
+  is_full: bool,
+  is_empty: bool
+}
+
+// 우선순위 큐 (Priority Queue)
+struct PriorityQueue {
+  queue_id: string,
+  max_size: i32,
+  current_size: i32,
+  items: string,         // 우선순위 순서대로 정렬된 항목
+  enqueue_count: i32,
+  dequeue_count: i32,
+  is_full: bool,
+  is_empty: bool
+}
+
+// 비동기 작업 (Async Task)
+struct AsyncTask {
+  task_id: string,
+  task_name: string,
+  handler_name: string,
+  status: string,        // "PENDING", "RUNNING", "COMPLETED", "FAILED"
+  priority: i32,
+  scheduled_at: string,
+  started_at: string,
+  completed_at: string,
+  result: string,
+  error_message: string,
+  retry_count: i32,
+  max_retries: i32
+}
+
+// 큐 생성
+function create_queue(queue_type: string, max_size: i32) -> Queue {
+  var queue = Queue {
+    queue_id: "queue_001",
+    queue_type: queue_type,
+    max_size: max_size,
+    current_size: 0,
+    items: "",
+    enqueue_count: 0,
+    dequeue_count: 0,
+    is_full: false,
+    is_empty: true
+  };
+
+  return queue;
+}
+
+// 큐 아이템 생성
+function create_queue_item(item_id: string, data: string) -> QueueItem {
+  var item = QueueItem {
+    item_id: item_id,
+    item_type: "MESSAGE",
+    priority: 0,
+    data: data,
+    created_at: "2026-03-30T00:00:00Z",
+    processed_at: "",
+    is_processed: false
+  };
+
+  return item;
+}
+
+// 큐에 항목 추가 (Enqueue)
+function enqueue(queue: Queue, item: QueueItem) -> Queue {
+  var items = queue.items;
+
+  if items.len > 0 {
+    items = items + ",";
+  }
+
+  items = items + item.item_id + ":" + item.data;
+
+  var current_size = queue.current_size + 1;
+  var is_full = current_size >= queue.max_size;
+  var is_empty = false;
+
+  var updated = Queue {
+    queue_id: queue.queue_id,
+    queue_type: queue.queue_type,
+    max_size: queue.max_size,
+    current_size: current_size,
+    items: items,
+    enqueue_count: queue.enqueue_count + 1,
+    dequeue_count: queue.dequeue_count,
+    is_full: is_full,
+    is_empty: is_empty
+  };
+
+  return updated;
+}
+
+// 큐에서 항목 제거 (Dequeue)
+function dequeue(queue: Queue) -> Queue {
+  var current_size = queue.current_size - 1;
+  var is_empty = current_size == 0;
+
+  if current_size < 0 {
+    current_size = 0;
+  }
+
+  var updated = Queue {
+    queue_id: queue.queue_id,
+    queue_type: queue.queue_type,
+    max_size: queue.max_size,
+    current_size: current_size,
+    items: queue.items,
+    enqueue_count: queue.enqueue_count,
+    dequeue_count: queue.dequeue_count + 1,
+    is_full: false,
+    is_empty: is_empty
+  };
+
+  return updated;
+}
+
+// 큐 첫 번째 항목 확인 (Peek)
+function queue_peek(queue: Queue) -> string {
+  if queue.current_size == 0 {
+    return "";
+  }
+
+  return "first_item";
+}
+
+// 큐 비우기
+function queue_clear(queue: Queue) -> Queue {
+  var cleared = Queue {
+    queue_id: queue.queue_id,
+    queue_type: queue.queue_type,
+    max_size: queue.max_size,
+    current_size: 0,
+    items: "",
+    enqueue_count: queue.enqueue_count,
+    dequeue_count: queue.dequeue_count,
+    is_full: false,
+    is_empty: true
+  };
+
+  return cleared;
+}
+
+// 우선순위 큐 생성
+function create_priority_queue(max_size: i32) -> PriorityQueue {
+  var pq = PriorityQueue {
+    queue_id: "pq_001",
+    max_size: max_size,
+    current_size: 0,
+    items: "",
+    enqueue_count: 0,
+    dequeue_count: 0,
+    is_full: false,
+    is_empty: true
+  };
+
+  return pq;
+}
+
+// 우선순위 큐에 항목 추가
+function priority_enqueue(pq: PriorityQueue, item: QueueItem) -> PriorityQueue {
+  var items = pq.items;
+
+  if items.len > 0 {
+    items = items + ",";
+  }
+
+  items = items + item.item_id + ":" + item.data + ":" + item.priority;
+
+  var current_size = pq.current_size + 1;
+  var is_full = current_size >= pq.max_size;
+
+  var updated = PriorityQueue {
+    queue_id: pq.queue_id,
+    max_size: pq.max_size,
+    current_size: current_size,
+    items: items,
+    enqueue_count: pq.enqueue_count + 1,
+    dequeue_count: pq.dequeue_count,
+    is_full: is_full,
+    is_empty: false
+  };
+
+  return updated;
+}
+
+// 우선순위 큐에서 항목 제거 (최고 우선순위부터)
+function priority_dequeue(pq: PriorityQueue) -> PriorityQueue {
+  var current_size = pq.current_size - 1;
+  var is_empty = current_size == 0;
+
+  if current_size < 0 {
+    current_size = 0;
+  }
+
+  var updated = PriorityQueue {
+    queue_id: pq.queue_id,
+    max_size: pq.max_size,
+    current_size: current_size,
+    items: pq.items,
+    enqueue_count: pq.enqueue_count,
+    dequeue_count: pq.dequeue_count + 1,
+    is_full: false,
+    is_empty: is_empty
+  };
+
+  return updated;
+}
+
+// 우선순위 큐 정렬
+function priority_queue_sort(pq: PriorityQueue) -> PriorityQueue {
+  var sorted = PriorityQueue {
+    queue_id: pq.queue_id,
+    max_size: pq.max_size,
+    current_size: pq.current_size,
+    items: pq.items,
+    enqueue_count: pq.enqueue_count,
+    dequeue_count: pq.dequeue_count,
+    is_full: pq.is_full,
+    is_empty: pq.is_empty
+  };
+
+  return sorted;
+}
+
+// 비동기 작업 생성
+function create_async_task(task_name: string, handler_name: string) -> AsyncTask {
+  var task = AsyncTask {
+    task_id: "task_001",
+    task_name: task_name,
+    handler_name: handler_name,
+    status: "PENDING",
+    priority: 0,
+    scheduled_at: "2026-03-30T00:00:00Z",
+    started_at: "",
+    completed_at: "",
+    result: "",
+    error_message: "",
+    retry_count: 0,
+    max_retries: 3
+  };
+
+  return task;
+}
+
+// 비동기 작업 시작
+function start_async_task(task: AsyncTask) -> AsyncTask {
+  var started = AsyncTask {
+    task_id: task.task_id,
+    task_name: task.task_name,
+    handler_name: task.handler_name,
+    status: "RUNNING",
+    priority: task.priority,
+    scheduled_at: task.scheduled_at,
+    started_at: "2026-03-30T00:00:00Z",
+    completed_at: "",
+    result: "",
+    error_message: "",
+    retry_count: task.retry_count,
+    max_retries: task.max_retries
+  };
+
+  return started;
+}
+
+// 비동기 작업 완료
+function complete_async_task(task: AsyncTask, result: string) -> AsyncTask {
+  var completed = AsyncTask {
+    task_id: task.task_id,
+    task_name: task.task_name,
+    handler_name: task.handler_name,
+    status: "COMPLETED",
+    priority: task.priority,
+    scheduled_at: task.scheduled_at,
+    started_at: task.started_at,
+    completed_at: "2026-03-30T00:00:01Z",
+    result: result,
+    error_message: "",
+    retry_count: task.retry_count,
+    max_retries: task.max_retries
+  };
+
+  return completed;
+}
+
+// 비동기 작업 실패
+function fail_async_task(task: AsyncTask, error_message: string) -> AsyncTask {
+  var retry_count = task.retry_count + 1;
+  var status = "FAILED";
+
+  if retry_count < task.max_retries {
+    status = "PENDING";  // 재시도 예약
+  }
+
+  var failed = AsyncTask {
+    task_id: task.task_id,
+    task_name: task.task_name,
+    handler_name: task.handler_name,
+    status: status,
+    priority: task.priority,
+    scheduled_at: task.scheduled_at,
+    started_at: task.started_at,
+    completed_at: "",
+    result: "",
+    error_message: error_message,
+    retry_count: retry_count,
+    max_retries: task.max_retries
+  };
+
+  return failed;
+}
+
+// 비동기 작업 재시도 가능 확인
+function can_retry_task(task: AsyncTask) -> bool {
+  return task.retry_count < task.max_retries;
+}
+
+// 큐 정보 조회
+function get_queue_info(queue: Queue) -> string {
+  var info = "큐: ";
+  info = info + queue.queue_type;
+  info = info + " (";
+  info = info + queue.current_size;
+  info = info + "/";
+  info = info + queue.max_size;
+  info = info + ", 추가: ";
+  info = info + queue.enqueue_count;
+  info = info + ", 제거: ";
+  info = info + queue.dequeue_count;
+  info = info + ")";
+
+  return info;
+}
+
+// 우선순위 큐 정보
+function get_priority_queue_info(pq: PriorityQueue) -> string {
+  var info = "우선순위 큐: (";
+  info = info + pq.current_size;
+  info = info + "/";
+  info = info + pq.max_size;
+  info = info + ", 추가: ";
+  info = info + pq.enqueue_count;
+  info = info + ", 제거: ";
+  info = info + pq.dequeue_count;
+  info = info + ")";
+
+  return info;
+}
+
+// 비동기 작업 정보
+function get_async_task_info(task: AsyncTask) -> string {
+  var info = "작업: ";
+  info = info + task.task_name;
+  info = info + " (";
+  info = info + task.status;
+  info = info + ", 재시도: ";
+  info = info + task.retry_count;
+  info = info + "/";
+  info = info + task.max_retries;
+  info = info + ")";
+
+  return info;
+}
+
+// 큐 크기 확인
+function get_queue_size(queue: Queue) -> i32 {
+  return queue.current_size;
+}
+
+// 큐 용량 확인
+function get_queue_capacity(queue: Queue) -> i32 {
+  return queue.max_size - queue.current_size;
+}
+

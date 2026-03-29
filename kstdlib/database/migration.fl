@@ -1,0 +1,314 @@
+// K-StdLib: Migration Module
+// 데이터베이스 마이그레이션, 스키마 버전 관리
+
+// 마이그레이션 파일
+struct Migration {
+  version: string,      // "001", "002" 등
+  name: string,         // 마이그레이션 이름
+  up_sql: string,       // 업그레이드 SQL
+  down_sql: string,     // 롤백 SQL
+  created_at: string,   // 생성 시간
+  is_applied: bool      // 적용 여부
+}
+
+// 마이그레이션 히스토리
+struct MigrationHistory {
+  migration_id: string,
+  applied_at: string,
+  execution_time_ms: i32
+}
+
+// 마이그레이션 생성
+function create_migration(version: string, name: string,
+                         up_sql: string, down_sql: string) -> Migration {
+  var migration = Migration {
+    version: version,
+    name: name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 마이그레이션 히스토리 생성
+function create_migration_history(migration_id: string) -> MigrationHistory {
+  var history = MigrationHistory {
+    migration_id: migration_id,
+    applied_at: "2026-03-30T00:00:00Z",
+    execution_time_ms: 0
+  };
+
+  return history;
+}
+
+// 컬럼 추가 마이그레이션
+function create_add_column_migration(table_name: string, column_name: string,
+                                    column_type: string) -> Migration {
+  var up_sql = "ALTER TABLE ";
+  up_sql = up_sql + table_name;
+  up_sql = up_sql + " ADD COLUMN ";
+  up_sql = up_sql + column_name;
+  up_sql = up_sql + " ";
+  up_sql = up_sql + column_type;
+
+  var down_sql = "ALTER TABLE ";
+  down_sql = down_sql + table_name;
+  down_sql = down_sql + " DROP COLUMN ";
+  down_sql = down_sql + column_name;
+
+  var migration = Migration {
+    version: "001",
+    name: "add_column_" + column_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 컬럼 삭제 마이그레이션
+function create_drop_column_migration(table_name: string, column_name: string) -> Migration {
+  var up_sql = "ALTER TABLE ";
+  up_sql = up_sql + table_name;
+  up_sql = up_sql + " DROP COLUMN ";
+  up_sql = up_sql + column_name;
+
+  var down_sql = "ALTER TABLE ";
+  down_sql = down_sql + table_name;
+  down_sql = down_sql + " ADD COLUMN ";
+  down_sql = down_sql + column_name;
+  down_sql = down_sql + " TEXT";
+
+  var migration = Migration {
+    version: "001",
+    name: "drop_column_" + column_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 컬럼 이름 변경 마이그레이션
+function create_rename_column_migration(table_name: string,
+                                       old_name: string, new_name: string) -> Migration {
+  var up_sql = "ALTER TABLE ";
+  up_sql = up_sql + table_name;
+  up_sql = up_sql + " RENAME COLUMN ";
+  up_sql = up_sql + old_name;
+  up_sql = up_sql + " TO ";
+  up_sql = up_sql + new_name;
+
+  var down_sql = "ALTER TABLE ";
+  down_sql = down_sql + table_name;
+  down_sql = down_sql + " RENAME COLUMN ";
+  down_sql = down_sql + new_name;
+  down_sql = down_sql + " TO ";
+  down_sql = down_sql + old_name;
+
+  var migration = Migration {
+    version: "001",
+    name: "rename_" + old_name + "_to_" + new_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 테이블 생성 마이그레이션
+function create_create_table_migration(table_name: string,
+                                      columns: string) -> Migration {
+  var up_sql = "CREATE TABLE IF NOT EXISTS ";
+  up_sql = up_sql + table_name;
+  up_sql = up_sql + " (";
+  up_sql = up_sql + columns;
+  up_sql = up_sql + ")";
+
+  var down_sql = "DROP TABLE IF EXISTS ";
+  down_sql = down_sql + table_name;
+
+  var migration = Migration {
+    version: "001",
+    name: "create_table_" + table_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 테이블 삭제 마이그레이션
+function create_drop_table_migration(table_name: string) -> Migration {
+  var up_sql = "DROP TABLE IF EXISTS ";
+  up_sql = up_sql + table_name;
+
+  var down_sql = "CREATE TABLE IF NOT EXISTS ";
+  down_sql = down_sql + table_name;
+  down_sql = down_sql + " (id INTEGER PRIMARY KEY)";
+
+  var migration = Migration {
+    version: "001",
+    name: "drop_table_" + table_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 인덱스 생성 마이그레이션
+function create_create_index_migration(index_name: string, table_name: string,
+                                      column_name: string) -> Migration {
+  var up_sql = "CREATE INDEX IF NOT EXISTS ";
+  up_sql = up_sql + index_name;
+  up_sql = up_sql + " ON ";
+  up_sql = up_sql + table_name;
+  up_sql = up_sql + " (";
+  up_sql = up_sql + column_name;
+  up_sql = up_sql + ")";
+
+  var down_sql = "DROP INDEX IF EXISTS ";
+  down_sql = down_sql + index_name;
+
+  var migration = Migration {
+    version: "001",
+    name: "create_index_" + index_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 인덱스 삭제 마이그레이션
+function create_drop_index_migration(index_name: string) -> Migration {
+  var up_sql = "DROP INDEX IF EXISTS ";
+  up_sql = up_sql + index_name;
+
+  var down_sql = "CREATE INDEX IF NOT EXISTS ";
+  down_sql = down_sql + index_name;
+  down_sql = down_sql + " ON table_name (column_name)";
+
+  var migration = Migration {
+    version: "001",
+    name: "drop_index_" + index_name,
+    up_sql: up_sql,
+    down_sql: down_sql,
+    created_at: "2026-03-30T00:00:00Z",
+    is_applied: false
+  };
+
+  return migration;
+}
+
+// 마이그레이션 상태 확인
+function is_migration_applied(migration: Migration) -> bool {
+  return migration.is_applied;
+}
+
+// 마이그레이션 적용 표시
+function mark_migration_applied(migration: Migration) -> Migration {
+  var updated = Migration {
+    version: migration.version,
+    name: migration.name,
+    up_sql: migration.up_sql,
+    down_sql: migration.down_sql,
+    created_at: migration.created_at,
+    is_applied: true
+  };
+
+  return updated;
+}
+
+// 마이그레이션 파일명 생성
+function generate_migration_filename(version: string, name: string) -> string {
+  var filename = "";
+  filename = filename + version;
+  filename = filename + "_";
+  filename = filename + name;
+  filename = filename + ".sql";
+
+  return filename;
+}
+
+// 마이그레이션 정보 조회
+function get_migration_info(migration: Migration) -> string {
+  var info = "버전: ";
+  info = info + migration.version;
+  info = info + ", 이름: ";
+  info = info + migration.name;
+  info = info + ", 상태: ";
+
+  if migration.is_applied {
+    info = info + "적용됨";
+  } else {
+    info = info + "미적용";
+  }
+
+  return info;
+}
+
+// 마이그레이션 목록 (간소화)
+struct MigrationList {
+  count: i32,
+  applied_count: i32,
+  pending_count: i32
+}
+
+// 마이그레이션 목록 생성
+function create_migration_list() -> MigrationList {
+  var list = MigrationList {
+    count: 0,
+    applied_count: 0,
+    pending_count: 0
+  };
+
+  return list;
+}
+
+// 데이터 마이그레이션 (데이터 변환)
+struct DataMigration {
+  migration_id: string,
+  table_name: string,
+  operation: string,     // "INSERT", "UPDATE", "DELETE"
+  condition: string,
+  affected_rows: i32
+}
+
+// 데이터 마이그레이션 생성
+function create_data_migration(migration_id: string, table_name: string,
+                              operation: string) -> DataMigration {
+  var migration = DataMigration {
+    migration_id: migration_id,
+    table_name: table_name,
+    operation: operation,
+    condition: "",
+    affected_rows: 0
+  };
+
+  return migration;
+}
+
+// 마이그레이션 롤백 정보
+function get_rollback_info(migration: Migration) -> string {
+  var info = "롤백 SQL: ";
+  info = info + migration.down_sql;
+
+  return info;
+}

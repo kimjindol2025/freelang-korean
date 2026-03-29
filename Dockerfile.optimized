@@ -1,0 +1,75 @@
+# FreeLang V2.10.0 - Optimized Production Docker Image
+# ====================================================
+# Multi-stage build for minimal final image size
+#
+# Usage:
+#   docker build -f Dockerfile.optimized -t freelang:2.10.0 .
+#   docker run --rm -it freelang:2.10.0 hello.fl
+
+# ==================== Stage 1: Builder ====================
+FROM node:20-slim AS builder
+
+LABEL maintainer="FreeLang Development Team"
+LABEL version="2.10.0"
+LABEL description="FreeLang V2 Independent Programming Language"
+
+ARG FREELANG_VERSION=2.10.0
+ARG BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+# Metadata
+LABEL org.opencontainers.image.version=$FREELANG_VERSION
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.title="FreeLang V2"
+LABEL org.opencontainers.image.description="100% Independent Programming Language"
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    build-essential \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies (skip optional/native builds for Docker)
+RUN npm ci --omit=optional --ignore-scripts
+
+# Copy source code
+COPY src ./src
+COPY stdlib ./stdlib
+
+# Build TypeScript
+RUN npm run build:ts
+
+# ==================== Stage 2: Runtime ====================
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copy only necessary files from builder
+COPY --from=builder /build/dist ./dist
+COPY --from=builder /build/node_modules ./node_modules
+COPY --from=builder /build/package.json ./
+COPY stdlib ./stdlib
+COPY examples ./examples
+COPY docs ./docs
+
+# Add FreeLang CLI to PATH
+ENV PATH="/app/dist/cli:${PATH}"
+
+# Set default command
+ENTRYPOINT ["node", "/app/dist/cli/index.js"]
+CMD ["--repl"]
+
+# Expose ports for future HTTP/WebSocket features
+EXPOSE 3000 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "console.log('OK')" || exit 1
+

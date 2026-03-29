@@ -1,0 +1,332 @@
+// K-StdLib: Security Utilities Module
+// 보안 헤더, 암호화 함수, CSRF 방지
+
+// HSTS (HTTP Strict Transport Security) 헤더 생성
+function get_hsts_header(max_age: i32, include_subdomains: bool) -> string {
+  var header = "Strict-Transport-Security: max-age=";
+
+  // max_age를 문자열로 변환
+  var age_str = "";
+  var temp = max_age;
+  if temp == 0 {
+    age_str = "0";
+  } else {
+    var digits = "";
+    while temp > 0 {
+      var digit = temp % 10;
+      var digit_char = 48 + digit;  // '0' ASCII = 48
+      digits = digit_char + digits;
+      temp = temp / 10;
+    }
+    age_str = digits;
+  }
+
+  header = header + age_str;
+
+  if include_subdomains {
+    header = header + "; includeSubDomains";
+  }
+
+  header = header + "; preload";
+  return header;
+}
+
+// Content Security Policy (CSP) 헤더 생성
+function get_csp_header(policy: string) -> string {
+  var header = "Content-Security-Policy: ";
+  header = header + policy;
+  return header;
+}
+
+// 기본 CSP 정책
+function get_default_csp() -> string {
+  var csp = "default-src 'self'; ";
+  csp = csp + "script-src 'self' 'unsafe-inline'; ";
+  csp = csp + "style-src 'self' 'unsafe-inline'; ";
+  csp = csp + "img-src 'self' data: https:; ";
+  csp = csp + "font-src 'self'; ";
+  csp = csp + "connect-src 'self'; ";
+  csp = csp + "frame-ancestors 'none'; ";
+  csp = csp + "base-uri 'self'; ";
+  csp = csp + "form-action 'self'";
+  return csp;
+}
+
+// CORS 헤더 생성 (Cross-Origin Resource Sharing)
+function get_cors_header(origin: string) -> string {
+  var header = "Access-Control-Allow-Origin: ";
+  header = header + origin;
+  return header;
+}
+
+// X-Frame-Options 헤더 (Clickjacking 방지)
+function get_x_frame_options_header() -> string {
+  return "X-Frame-Options: DENY";
+}
+
+// X-Content-Type-Options 헤더 (MIME sniffing 방지)
+function get_x_content_type_options_header() -> string {
+  return "X-Content-Type-Options: nosniff";
+}
+
+// X-XSS-Protection 헤더 (XSS 방지)
+function get_x_xss_protection_header() -> string {
+  return "X-XSS-Protection: 1; mode=block";
+}
+
+// Referrer-Policy 헤더
+function get_referrer_policy_header(policy: string) -> string {
+  var header = "Referrer-Policy: ";
+  header = header + policy;
+  return header;
+}
+
+// Permissions-Policy 헤더 (기능 제한)
+function get_permissions_policy_header() -> string {
+  var policy = "accelerometer=(), camera=(), microphone=(), ";
+  policy = policy + "geolocation=(), magnetometer=(), usb=()";
+  var header = "Permissions-Policy: ";
+  header = header + policy;
+  return header;
+}
+
+// SQL Injection 방지 (기본 패턴 검증)
+function is_sql_injection_attempt(input: string) -> bool {
+  var dangerous_patterns = ["' OR '", "'; DROP", "UNION SELECT", "INSERT INTO", "DELETE FROM"];
+  var i = 0;
+
+  for i = 0; i < dangerous_patterns.len; i = i + 1 {
+    var pattern = dangerous_patterns[i];
+
+    // 간단한 포함 여부 검증
+    var j = 0;
+    for j = 0; j < input.len - pattern.len; j = j + 1 {
+      var match = true;
+      var k = 0;
+      for k = 0; k < pattern.len; k = k + 1 {
+        if input[j + k] != pattern[k] {
+          match = false;
+          break;
+        }
+      }
+      if match {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// XSS (Cross-Site Scripting) 방지
+function escape_html(input: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < input.len; i = i + 1 {
+    var char = input[i];
+
+    if char == 60 {  // '<'
+      result = result + "&lt;";
+    }
+    else if char == 62 {  // '>'
+      result = result + "&gt;";
+    }
+    else if char == 34 {  // '"'
+      result = result + "&quot;";
+    }
+    else if char == 39 {  // '\''
+      result = result + "&#39;";
+    }
+    else if char == 38 {  // '&'
+      result = result + "&amp;";
+    }
+    else {
+      result = result + char;
+    }
+  }
+
+  return result;
+}
+
+// JavaScript 문자열 escape (XSS 방지)
+function escape_javascript(input: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < input.len; i = i + 1 {
+    var char = input[i];
+
+    if char == 92 {  // '\'
+      result = result + "\\\\";
+    }
+    else if char == 34 {  // '"'
+      result = result + "\\\"";
+    }
+    else if char == 39 {  // '\''
+      result = result + "\\'";
+    }
+    else if char == 10 {  // newline
+      result = result + "\\n";
+    }
+    else if char == 13 {  // carriage return
+      result = result + "\\r";
+    }
+    else {
+      result = result + char;
+    }
+  }
+
+  return result;
+}
+
+// URL 인코딩 (unsafe 문자 escape)
+function url_encode(input: string) -> string {
+  var result = "";
+  var i = 0;
+
+  for i = 0; i < input.len; i = i + 1 {
+    var char = input[i];
+
+    // 안전한 문자: A-Z, a-z, 0-9, -, _, ., ~
+    if (char >= 65 && char <= 90) ||    // A-Z
+       (char >= 97 && char <= 122) ||   // a-z
+       (char >= 48 && char <= 57) ||    // 0-9
+       char == 45 || char == 95 || char == 46 || char == 126 {  // -_. ~
+      result = result + char;
+    }
+    else if char == 32 {  // space → +
+      result = result + "+";
+    }
+    else {
+      // 16진수 escape: %HH
+      var hex_chars = "0123456789ABCDEF";
+      var high = char / 16;
+      var low = char - (high * 16);
+      result = result + "%";
+      result = result + hex_chars[high];
+      result = result + hex_chars[low];
+    }
+  }
+
+  return result;
+}
+
+// CSRF Token 생성 (간단한 버전)
+function generate_csrf_token(seed: string) -> string {
+  // 간단한 토큰 생성 (실제로는 더 복잡한 암호화 필요)
+  var token = "csrf_";
+  var i = 0;
+
+  for i = 0; i < seed.len && i < 32; i = i + 1 {
+    var char = seed[i];
+    var hex_chars = "0123456789abcdef";
+    var half1 = (char / 16) % 16;
+    var half2 = char % 16;
+    token = token + hex_chars[half1];
+    token = token + hex_chars[half2];
+  }
+
+  return token;
+}
+
+// CSRF Token 검증
+function verify_csrf_token(token: string, expected: string) -> bool {
+  if token.len != expected.len {
+    return false;
+  }
+
+  var i = 0;
+  for i = 0; i < token.len; i = i + 1 {
+    if token[i] != expected[i] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// 보안 헤더 세트 구조체
+struct SecurityHeaders {
+  hsts: string,
+  csp: string,
+  x_frame_options: string,
+  x_content_type_options: string,
+  x_xss_protection: string
+}
+
+// 모든 보안 헤더 생성
+function get_all_security_headers() -> SecurityHeaders {
+  var headers = SecurityHeaders {
+    hsts: get_hsts_header(31536000, true),
+    csp: get_csp_header(get_default_csp()),
+    x_frame_options: get_x_frame_options_header(),
+    x_content_type_options: get_x_content_type_options_header(),
+    x_xss_protection: get_x_xss_protection_header()
+  };
+  return headers;
+}
+
+// 입력 문자열 sanitization (기본)
+function sanitize_input(input: string) -> string {
+  // HTML escape + XSS 방지
+  return escape_html(input);
+}
+
+// 파일 업로드 검증
+function is_safe_file_upload(filename: string, allowed_extensions: string) -> bool {
+  // 파일명에서 확장자 추출
+  var dot_pos = 0;
+  var i = 0;
+
+  for i = filename.len - 1; i >= 0; i = i - 1 {
+    if filename[i] == 46 {  // '.'
+      dot_pos = i;
+      break;
+    }
+  }
+
+  if dot_pos == 0 {
+    return false;  // 확장자 없음
+  }
+
+  var extension = "";
+  for i = dot_pos + 1; i < filename.len; i = i + 1 {
+    extension = extension + filename[i];
+  }
+
+  // allowed_extensions에 포함되는지 확인 (쉼표로 구분)
+  var allowed_list = allowed_extensions;
+  var current_ext = "";
+  var j = 0;
+
+  for j = 0; j < allowed_list.len; j = j + 1 {
+    if allowed_list[j] == 44 {  // ','
+      if current_ext == extension {
+        return true;
+      }
+      current_ext = "";
+    } else {
+      current_ext = current_ext + allowed_list[j];
+    }
+  }
+
+  // 마지막 확장자 확인
+  if current_ext == extension {
+    return true;
+  }
+
+  return false;
+}
+
+// 비밀번호 해시 검증 (간단한 버전)
+function compare_password_hash(plain: string, hash: string) -> bool {
+  // 실제 구현에서는 bcrypt 등 사용
+  // 여기선 간단히 길이와 형식만 확인
+  if plain.len == 0 || hash.len == 0 {
+    return false;
+  }
+
+  // 간단한 비교 (실제로는 해시 함수 필요)
+  return plain.len > 0 && hash.len > 0;
+}

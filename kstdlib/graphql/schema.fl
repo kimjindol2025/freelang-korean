@@ -1,0 +1,228 @@
+// K-StdLib: GraphQL Schema & Federation Module
+// GraphQL 스키마 정의, 타입 관리, 페더레이션 구성
+
+// GraphQL 스키마
+struct GraphQLSchema {
+  schema_id: string,
+  name: string,
+  version: string,
+  type_definitions: string,       // "User,Post,Comment" (콤마 구분)
+  query_fields: string,           // "user:User,users:[User]" (콤마 구분)
+  mutation_fields: string,        // "createUser:User" (콤마 구분)
+  field_count: i32,
+  created_at: string,
+  is_valid: bool
+}
+
+// 타입 정의
+struct TypeDefinition {
+  type_id: string,
+  type_name: string,              // "User"
+  kind: string,                   // "OBJECT", "INTERFACE", "ENUM", "SCALAR"
+  fields: string,                 // JSON
+  directives: string,             // JSON "@key(fields: \"id\")"
+  description: string,
+  field_count: i32
+}
+
+// 서브그래프 (분산 마이크로서비스)
+struct Subgraph {
+  subgraph_id: string,
+  name: string,                   // "users-service"
+  url: string,                    // "https://users.api/graphql"
+  schema_sdl: string,             // SDL 전체 문자열
+  entity_types: string,           // JSON
+  is_active: bool,
+  registered_at: string,
+  version: string
+}
+
+// 페더레이션 (여러 서브그래프의 모음)
+struct Federation {
+  federation_id: string,
+  name: string,
+  subgraphs: string,              // "sg_001,sg_002,sg_003" (콤마 구분)
+  subgraph_count: i32,
+  created_at: string,
+  last_composed_at: string,
+  status: string                  // "ACTIVE", "COMPOSING", "ERROR"
+}
+
+// 슈퍼그래프 (합성된 스키마)
+struct Supergraph {
+  supergraph_id: string,
+  federation_id: string,
+  schema_sdl: string,
+  subgraph_count: i32,
+  type_count: i32,
+  query_field_count: i32,
+  mutation_field_count: i32,
+  composed_at: string,
+  is_valid: bool
+}
+
+// 새 GraphQL 스키마 생성
+function create_schema(name: string, version: string) -> GraphQLSchema {
+  var schema = GraphQLSchema {
+    schema_id: "schema_001",
+    name: name,
+    version: version,
+    type_definitions: "",
+    query_fields: "",
+    mutation_fields: "",
+    field_count: 0,
+    created_at: "2026-03-30T00:00:00Z",
+    is_valid: true
+  };
+
+  return schema;
+}
+
+// 타입 정의 추가 (불변 패턴)
+function add_type_definition(schema: GraphQLSchema, type_name: string, fields: string) -> GraphQLSchema {
+  var existing = schema.type_definitions;
+  if existing.len > 0 {
+    existing = existing + ",";
+  }
+  existing = existing + type_name;
+
+  var updated = GraphQLSchema {
+    schema_id: schema.schema_id,
+    name: schema.name,
+    version: schema.version,
+    type_definitions: existing,
+    query_fields: schema.query_fields,
+    mutation_fields: schema.mutation_fields,
+    field_count: schema.field_count + 1,
+    created_at: schema.created_at,
+    is_valid: schema.is_valid
+  };
+
+  return updated;
+}
+
+// Query 루트 필드 추가
+function add_query_field(schema: GraphQLSchema, field_name: string, return_type: string) -> GraphQLSchema {
+  var existing = schema.query_fields;
+  if existing.len > 0 {
+    existing = existing + ",";
+  }
+  existing = existing + field_name;
+
+  var updated = GraphQLSchema {
+    schema_id: schema.schema_id,
+    name: schema.name,
+    version: schema.version,
+    type_definitions: schema.type_definitions,
+    query_fields: existing,
+    mutation_fields: schema.mutation_fields,
+    field_count: schema.field_count + 1,
+    created_at: schema.created_at,
+    is_valid: schema.is_valid
+  };
+
+  return updated;
+}
+
+// Mutation 루트 필드 추가
+function add_mutation_field(schema: GraphQLSchema, field_name: string, return_type: string) -> GraphQLSchema {
+  var existing = schema.mutation_fields;
+  if existing.len > 0 {
+    existing = existing + ",";
+  }
+  existing = existing + field_name;
+
+  var updated = GraphQLSchema {
+    schema_id: schema.schema_id,
+    name: schema.name,
+    version: schema.version,
+    type_definitions: schema.type_definitions,
+    query_fields: schema.query_fields,
+    mutation_fields: existing,
+    field_count: schema.field_count + 1,
+    created_at: schema.created_at,
+    is_valid: schema.is_valid
+  };
+
+  return updated;
+}
+
+// 서브그래프 생성
+function create_subgraph(name: string, url: string, schema_sdl: string) -> Subgraph {
+  var subgraph = Subgraph {
+    subgraph_id: "sg_001",
+    name: name,
+    url: url,
+    schema_sdl: schema_sdl,
+    entity_types: "",
+    is_active: true,
+    registered_at: "2026-03-30T00:00:00Z",
+    version: "1.0"
+  };
+
+  return subgraph;
+}
+
+// 페더레이션에 서브그래프 등록
+function register_subgraph(federation: Federation, subgraph: Subgraph) -> Federation {
+  var existing = federation.subgraphs;
+  if existing.len > 0 {
+    existing = existing + ",";
+  }
+  existing = existing + subgraph.subgraph_id;
+
+  var updated = Federation {
+    federation_id: federation.federation_id,
+    name: federation.name,
+    subgraphs: existing,
+    subgraph_count: federation.subgraph_count + 1,
+    created_at: federation.created_at,
+    last_composed_at: federation.last_composed_at,
+    status: federation.status
+  };
+
+  return updated;
+}
+
+// 서브그래프 → 슈퍼그래프 합성
+function compose_supergraph(federation: Federation) -> Supergraph {
+  var supergraph = Supergraph {
+    supergraph_id: "super_001",
+    federation_id: federation.federation_id,
+    schema_sdl: "",
+    subgraph_count: federation.subgraph_count,
+    type_count: 0,
+    query_field_count: 0,
+    mutation_field_count: 0,
+    composed_at: "2026-03-30T00:00:00Z",
+    is_valid: true
+  };
+
+  return supergraph;
+}
+
+// 스키마 유효성 검증
+function validate_schema(schema: GraphQLSchema) -> string {
+  var result = "스키마 " + schema.name + " 유효성 검사";
+  if schema.is_valid {
+    result = result + " - ✅ 통과";
+  } else {
+    result = result + " - ❌ 실패";
+  }
+  return result;
+}
+
+// 스키마 요약 정보
+function get_schema_info(schema: GraphQLSchema) -> string {
+  var info = "스키마 " + schema.name + " " + schema.version + " - 타입 " + schema.type_definitions.len + "개, 필드 " + schema.field_count + "개";
+  return info;
+}
+
+// SDL 형식으로 직렬화
+function export_schema_sdl(schema: GraphQLSchema) -> string {
+  var sdl = "schema {\n";
+  sdl = sdl + "  query: Query\n";
+  sdl = sdl + "  mutation: Mutation\n";
+  sdl = sdl + "}\n";
+  return sdl;
+}

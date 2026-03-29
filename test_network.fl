@@ -1,0 +1,28 @@
+// Network 함수 검증 테스트
+
+fn main() {
+    // JSON 파싱 테스트
+    let json_str = "{\"name\": \"Alice\", \"age\": 30}"
+    let parsed = json_parse(json_str)
+    println("✅ JSON parsed")
+    println(str(parsed))
+    println("")
+
+    // JSON 생성
+    let obj = {"greeting": "Hello", "count": 42}
+    let json_out = json_stringify(obj)
+    println("✅ JSON stringified:")
+    println(json_out)
+    println("")
+
+    // Base64 인코딩
+    let encoded = base64_encode("hello world")
+    println("✅ Base64 encoded:")
+    println(encoded)
+    println("")
+
+    // Base64 디코딩
+    let decoded = base64_decode(encoded)
+    println("✅ Base64 decoded:")
+    println(decoded)
+}

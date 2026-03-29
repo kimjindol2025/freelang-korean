@@ -1,0 +1,314 @@
+// K-StdLib: Mocking Module
+// 모의 객체, 스텁, 스파이
+
+// Mock 객체
+struct Mock {
+  mock_name: string,
+  mock_id: string,
+  expected_calls: i32,
+  actual_calls: i32,
+  return_value: string,
+  is_called: bool,
+  call_history: string    // 호출 이력 (JSON 형식)
+}
+
+// Stub 객체
+struct Stub {
+  stub_name: string,
+  stub_id: string,
+  function_name: string,
+  return_value: string,
+  return_type: string,    // "string", "int", "bool"
+  is_called: bool,
+  implementation: string  // 스텁 구현
+}
+
+// Spy 객체
+struct Spy {
+  spy_name: string,
+  spy_id: string,
+  original_function: string,
+  call_count: i32,
+  call_history: string,   // 호출 이력 (JSON 형식)
+  arguments: string,      // 마지막 호출 인자
+  return_value: string
+}
+
+// Mock 객체 생성
+function create_mock(mock_name: string, expected_calls: i32) -> Mock {
+  var mock = Mock {
+    mock_name: mock_name,
+    mock_id: "mock_001",
+    expected_calls: expected_calls,
+    actual_calls: 0,
+    return_value: "",
+    is_called: false,
+    call_history: ""
+  };
+
+  return mock;
+}
+
+// Mock 반환 값 설정
+function set_mock_return_value(mock: Mock, return_value: string) -> Mock {
+  var updated = Mock {
+    mock_name: mock.mock_name,
+    mock_id: mock.mock_id,
+    expected_calls: mock.expected_calls,
+    actual_calls: mock.actual_calls,
+    return_value: return_value,
+    is_called: mock.is_called,
+    call_history: mock.call_history
+  };
+
+  return updated;
+}
+
+// Mock 호출
+function call_mock(mock: Mock) -> Mock {
+  var history = mock.call_history;
+
+  if history.len > 0 {
+    history = history + ",";
+  }
+
+  history = history + "call";
+
+  var called = Mock {
+    mock_name: mock.mock_name,
+    mock_id: mock.mock_id,
+    expected_calls: mock.expected_calls,
+    actual_calls: mock.actual_calls + 1,
+    return_value: mock.return_value,
+    is_called: true,
+    call_history: history
+  };
+
+  return called;
+}
+
+// Mock 검증
+function verify_mock_called(mock: Mock) -> bool {
+  return mock.actual_calls > 0;
+}
+
+// Mock 호출 횟수 검증
+function verify_mock_called_times(mock: Mock) -> bool {
+  return mock.actual_calls == mock.expected_calls;
+}
+
+// Mock 리셋
+function reset_mock(mock: Mock) -> Mock {
+  var reset = Mock {
+    mock_name: mock.mock_name,
+    mock_id: mock.mock_id,
+    expected_calls: mock.expected_calls,
+    actual_calls: 0,
+    return_value: mock.return_value,
+    is_called: false,
+    call_history: ""
+  };
+
+  return reset;
+}
+
+// Stub 생성
+function create_stub(stub_name: string, function_name: string) -> Stub {
+  var stub = Stub {
+    stub_name: stub_name,
+    stub_id: "stub_001",
+    function_name: function_name,
+    return_value: "",
+    return_type: "string",
+    is_called: false,
+    implementation: ""
+  };
+
+  return stub;
+}
+
+// Stub 반환 값 설정
+function set_stub_return_value(stub: Stub, return_value: string) -> Stub {
+  var updated = Stub {
+    stub_name: stub.stub_name,
+    stub_id: stub.stub_id,
+    function_name: stub.function_name,
+    return_value: return_value,
+    return_type: stub.return_type,
+    is_called: stub.is_called,
+    implementation: stub.implementation
+  };
+
+  return updated;
+}
+
+// Stub 반환 타입 설정
+function set_stub_return_type(stub: Stub, return_type: string) -> Stub {
+  var updated = Stub {
+    stub_name: stub.stub_name,
+    stub_id: stub.stub_id,
+    function_name: stub.function_name,
+    return_value: stub.return_value,
+    return_type: return_type,
+    is_called: stub.is_called,
+    implementation: stub.implementation
+  };
+
+  return updated;
+}
+
+// Stub 구현 설정
+function set_stub_implementation(stub: Stub, implementation: string) -> Stub {
+  var updated = Stub {
+    stub_name: stub.stub_name,
+    stub_id: stub.stub_id,
+    function_name: stub.function_name,
+    return_value: stub.return_value,
+    return_type: stub.return_type,
+    is_called: stub.is_called,
+    implementation: implementation
+  };
+
+  return updated;
+}
+
+// Stub 호출
+function call_stub(stub: Stub) -> Stub {
+  var called = Stub {
+    stub_name: stub.stub_name,
+    stub_id: stub.stub_id,
+    function_name: stub.function_name,
+    return_value: stub.return_value,
+    return_type: stub.return_type,
+    is_called: true,
+    implementation: stub.implementation
+  };
+
+  return called;
+}
+
+// Spy 생성
+function create_spy(spy_name: string, original_function: string) -> Spy {
+  var spy = Spy {
+    spy_name: spy_name,
+    spy_id: "spy_001",
+    original_function: original_function,
+    call_count: 0,
+    call_history: "",
+    arguments: "",
+    return_value: ""
+  };
+
+  return spy;
+}
+
+// Spy 호출 기록
+function record_spy_call(spy: Spy, arguments: string, return_value: string) -> Spy {
+  var history = spy.call_history;
+
+  if history.len > 0 {
+    history = history + ",";
+  }
+
+  history = history + "call";
+
+  var recorded = Spy {
+    spy_name: spy.spy_name,
+    spy_id: spy.spy_id,
+    original_function: spy.original_function,
+    call_count: spy.call_count + 1,
+    call_history: history,
+    arguments: arguments,
+    return_value: return_value
+  };
+
+  return recorded;
+}
+
+// Spy 호출 횟수 확인
+function get_spy_call_count(spy: Spy) -> i32 {
+  return spy.call_count;
+}
+
+// Spy 마지막 인자 확인
+function get_spy_last_arguments(spy: Spy) -> string {
+  return spy.arguments;
+}
+
+// Spy 호출 확인
+function verify_spy_called(spy: Spy) -> bool {
+  return spy.call_count > 0;
+}
+
+// Spy 호출 횟수 검증
+function verify_spy_called_times(spy: Spy, expected_times: i32) -> bool {
+  return spy.call_count == expected_times;
+}
+
+// Spy 리셋
+function reset_spy(spy: Spy) -> Spy {
+  var reset = Spy {
+    spy_name: spy.spy_name,
+    spy_id: spy.spy_id,
+    original_function: spy.original_function,
+    call_count: 0,
+    call_history: "",
+    arguments: "",
+    return_value: ""
+  };
+
+  return reset;
+}
+
+// Mock 정보 조회
+function get_mock_info(mock: Mock) -> string {
+  var info = "Mock: ";
+  info = info + mock.mock_name;
+  info = info + " (호출: ";
+  info = info + mock.actual_calls;
+  info = info + "/";
+  info = info + mock.expected_calls;
+  info = info + ")";
+
+  return info;
+}
+
+// Stub 정보 조회
+function get_stub_info(stub: Stub) -> string {
+  var info = "Stub: ";
+  info = info + stub.stub_name;
+  info = info + " → ";
+  info = info + stub.function_name;
+  info = info + " (반환: ";
+  info = info + stub.return_value;
+  info = info + ")";
+
+  return info;
+}
+
+// Spy 정보 조회
+function get_spy_info(spy: Spy) -> string {
+  var info = "Spy: ";
+  info = info + spy.spy_name;
+  info = info + " (호출: ";
+  info = info + spy.call_count;
+  info = info + "회)";
+
+  return info;
+}
+
+// Mock 호출되지 않음 검증
+function verify_mock_not_called(mock: Mock) -> bool {
+  return mock.actual_calls == 0;
+}
+
+// Stub 호출되지 않음 검증
+function verify_stub_not_called(stub: Stub) -> bool {
+  return !stub.is_called;
+}
+
+// Spy 호출되지 않음 검증
+function verify_spy_not_called(spy: Spy) -> bool {
+  return spy.call_count == 0;
+}
+

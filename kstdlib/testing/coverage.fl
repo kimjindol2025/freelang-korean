@@ -1,0 +1,343 @@
+// K-StdLib: Coverage Module
+// 코드 커버리지 리포팅
+
+// 코드 라인
+struct CodeLine {
+  file_name: string,
+  line_number: i32,
+  code: string,
+  is_covered: bool,
+  hit_count: i32
+}
+
+// 함수 커버리지
+struct FunctionCoverage {
+  function_name: string,
+  file_name: string,
+  line_start: i32,
+  line_end: i32,
+  covered_lines: i32,
+  total_lines: i32,
+  coverage_percent: i32,
+  is_covered: bool
+}
+
+// 파일 커버리지
+struct FileCoverage {
+  file_name: string,
+  total_lines: i32,
+  covered_lines: i32,
+  coverage_percent: i32,
+  functions: string        // 함수 목록 (JSON 형식)
+}
+
+// 전체 커버리지 리포트
+struct CoverageReport {
+  report_name: string,
+  total_lines: i32,
+  covered_lines: i32,
+  coverage_percent: i32,
+  total_files: i32,
+  total_functions: i32,
+  generation_time: string
+}
+
+// 커버리지 데이터 수집기
+struct CoverageCollector {
+  collector_id: string,
+  is_collecting: bool,
+  covered_lines: string,   // 커버된 라인 목록
+  uncovered_lines: string, // 미커버된 라인 목록
+  file_count: i32,
+  line_count: i32
+}
+
+// 커버리지 수집기 생성
+function create_coverage_collector() -> CoverageCollector {
+  var collector = CoverageCollector {
+    collector_id: "cov_001",
+    is_collecting: false,
+    covered_lines: "",
+    uncovered_lines: "",
+    file_count: 0,
+    line_count: 0
+  };
+
+  return collector;
+}
+
+// 커버리지 수집 시작
+function start_coverage_collection(collector: CoverageCollector) -> CoverageCollector {
+  var started = CoverageCollector {
+    collector_id: collector.collector_id,
+    is_collecting: true,
+    covered_lines: "",
+    uncovered_lines: "",
+    file_count: 0,
+    line_count: 0
+  };
+
+  return started;
+}
+
+// 라인 커버리지 기록
+function record_line_coverage(collector: CoverageCollector, file_name: string, line_number: i32, is_covered: bool) -> CoverageCollector {
+  var covered = collector.covered_lines;
+  var uncovered = collector.uncovered_lines;
+  var line_count = collector.line_count + 1;
+
+  if is_covered {
+    if covered.len > 0 {
+      covered = covered + ",";
+    }
+    covered = covered + file_name + ":" + line_number;
+  } else {
+    if uncovered.len > 0 {
+      uncovered = uncovered + ",";
+    }
+    uncovered = uncovered + file_name + ":" + line_number;
+  }
+
+  var updated = CoverageCollector {
+    collector_id: collector.collector_id,
+    is_collecting: collector.is_collecting,
+    covered_lines: covered,
+    uncovered_lines: uncovered,
+    file_count: collector.file_count,
+    line_count: line_count
+  };
+
+  return updated;
+}
+
+// 커버리지 수집 완료
+function finish_coverage_collection(collector: CoverageCollector) -> CoverageCollector {
+  var finished = CoverageCollector {
+    collector_id: collector.collector_id,
+    is_collecting: false,
+    covered_lines: collector.covered_lines,
+    uncovered_lines: collector.uncovered_lines,
+    file_count: collector.file_count,
+    line_count: collector.line_count
+  };
+
+  return finished;
+}
+
+// 함수 커버리지 생성
+function create_function_coverage(function_name: string, file_name: string) -> FunctionCoverage {
+  var coverage = FunctionCoverage {
+    function_name: function_name,
+    file_name: file_name,
+    line_start: 0,
+    line_end: 0,
+    covered_lines: 0,
+    total_lines: 0,
+    coverage_percent: 0,
+    is_covered: false
+  };
+
+  return coverage;
+}
+
+// 함수 커버리지 업데이트
+function update_function_coverage(coverage: FunctionCoverage, covered: i32, total: i32) -> FunctionCoverage {
+  var percent = 0;
+  var is_covered = false;
+
+  if total > 0 {
+    percent = (covered * 100) / total;
+    is_covered = percent > 0;
+  }
+
+  var updated = FunctionCoverage {
+    function_name: coverage.function_name,
+    file_name: coverage.file_name,
+    line_start: coverage.line_start,
+    line_end: coverage.line_end,
+    covered_lines: covered,
+    total_lines: total,
+    coverage_percent: percent,
+    is_covered: is_covered
+  };
+
+  return updated;
+}
+
+// 파일 커버리지 생성
+function create_file_coverage(file_name: string) -> FileCoverage {
+  var coverage = FileCoverage {
+    file_name: file_name,
+    total_lines: 0,
+    covered_lines: 0,
+    coverage_percent: 0,
+    functions: ""
+  };
+
+  return coverage;
+}
+
+// 파일 커버리지 업데이트
+function update_file_coverage(coverage: FileCoverage, covered: i32, total: i32) -> FileCoverage {
+  var percent = 0;
+
+  if total > 0 {
+    percent = (covered * 100) / total;
+  }
+
+  var updated = FileCoverage {
+    file_name: coverage.file_name,
+    total_lines: total,
+    covered_lines: covered,
+    coverage_percent: percent,
+    functions: coverage.functions
+  };
+
+  return updated;
+}
+
+// 파일에 함수 추가
+function add_function_to_file(coverage: FileCoverage, function_name: string) -> FileCoverage {
+  var functions = coverage.functions;
+
+  if functions.len > 0 {
+    functions = functions + ",";
+  }
+
+  functions = functions + function_name;
+
+  var updated = FileCoverage {
+    file_name: coverage.file_name,
+    total_lines: coverage.total_lines,
+    covered_lines: coverage.covered_lines,
+    coverage_percent: coverage.coverage_percent,
+    functions: functions
+  };
+
+  return updated;
+}
+
+// 전체 커버리지 리포트 생성
+function create_coverage_report(report_name: string) -> CoverageReport {
+  var report = CoverageReport {
+    report_name: report_name,
+    total_lines: 0,
+    covered_lines: 0,
+    coverage_percent: 0,
+    total_files: 0,
+    total_functions: 0,
+    generation_time: "2026-03-30T00:00:00Z"
+  };
+
+  return report;
+}
+
+// 커버리지 리포트 업데이트
+function update_coverage_report(report: CoverageReport, total_lines: i32, covered_lines: i32, total_files: i32, total_functions: i32) -> CoverageReport {
+  var percent = 0;
+
+  if total_lines > 0 {
+    percent = (covered_lines * 100) / total_lines;
+  }
+
+  var updated = CoverageReport {
+    report_name: report.report_name,
+    total_lines: total_lines,
+    covered_lines: covered_lines,
+    coverage_percent: percent,
+    total_files: total_files,
+    total_functions: total_functions,
+    generation_time: "2026-03-30T00:00:01Z"
+  };
+
+  return updated;
+}
+
+// 커버리지 임계값 확인
+function check_coverage_threshold(report: CoverageReport, threshold_percent: i32) -> bool {
+  return report.coverage_percent >= threshold_percent;
+}
+
+// 함수 커버리지 정보
+function get_function_coverage_info(coverage: FunctionCoverage) -> string {
+  var info = "함수 커버리지: ";
+  info = info + coverage.function_name;
+  info = info + " (";
+  info = info + coverage.covered_lines;
+  info = info + "/";
+  info = info + coverage.total_lines;
+  info = info + ", ";
+  info = info + coverage.coverage_percent;
+  info = info + "%)";
+
+  return info;
+}
+
+// 파일 커버리지 정보
+function get_file_coverage_info(coverage: FileCoverage) -> string {
+  var info = "파일 커버리지: ";
+  info = info + coverage.file_name;
+  info = info + " (";
+  info = info + coverage.covered_lines;
+  info = info + "/";
+  info = info + coverage.total_lines;
+  info = info + ", ";
+  info = info + coverage.coverage_percent;
+  info = info + "%)";
+
+  return info;
+}
+
+// 전체 커버리지 정보
+function get_coverage_report_info(report: CoverageReport) -> string {
+  var info = "커버리지 리포트: ";
+  info = info + report.report_name;
+  info = info + " (";
+  info = info + report.covered_lines;
+  info = info + "/";
+  info = info + report.total_lines;
+  info = info + ", ";
+  info = info + report.coverage_percent;
+  info = info + "%, ";
+  info = info + report.total_files;
+  info = info + "개 파일)";
+
+  return info;
+}
+
+// 커버리지 등급 계산
+function calculate_coverage_grade(percent: i32) -> string {
+  var grade = "";
+
+  if percent >= 90 {
+    grade = "A";
+  }
+  else if percent >= 80 {
+    grade = "B";
+  }
+  else if percent >= 70 {
+    grade = "C";
+  }
+  else if percent >= 60 {
+    grade = "D";
+  }
+  else {
+    grade = "F";
+  }
+
+  return grade;
+}
+
+// 미커버된 라인 리포트
+function get_uncovered_lines_report(collector: CoverageCollector) -> string {
+  var report = "미커버된 라인: ";
+
+  if collector.uncovered_lines.len > 0 {
+    report = report + collector.uncovered_lines;
+  } else {
+    report = report + "없음";
+  }
+
+  return report;
+}
+

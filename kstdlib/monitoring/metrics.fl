@@ -1,0 +1,225 @@
+// K-StdLib: Monitoring & Metrics Module
+// 성능 메트릭 수집, 모니터링, 임계값 기반 알림
+
+// 메트릭 항목
+struct Metric {
+  metric_id: string,
+  metric_name: string,
+  metric_type: string,        // "CPU", "MEMORY", "HTTP", "DATABASE"
+  unit: string,                // "%", "MB", "ms", "count"
+  current_value: i32,
+  recorded_at: string,
+  is_active: bool
+}
+
+// 메트릭 수집기
+struct MetricCollector {
+  collector_id: string,
+  metrics: string,             // 메트릭 목록 (JSON 형식)
+  total_collected: i32,
+  last_collection_time: string,
+  is_collecting: bool
+}
+
+// CPU 메트릭
+struct CPUMetric {
+  metric_id: string,
+  cpu_usage_percent: i32,
+  core_count: i32,
+  load_average: string,        // "1분,5분,15분" 형식
+  timestamp: string
+}
+
+// 메모리 메트릭
+struct MemoryMetric {
+  metric_id: string,
+  total_memory_mb: i32,
+  used_memory_mb: i32,
+  free_memory_mb: i32,
+  usage_percent: i32,
+  timestamp: string
+}
+
+// HTTP 메트릭
+struct HttpMetric {
+  metric_id: string,
+  total_requests: i32,
+  success_requests: i32,
+  error_requests: i32,
+  average_response_time_ms: i32,
+  error_rate_percent: i32,
+  timestamp: string
+}
+
+// 메트릭 통계
+struct MetricStatistics {
+  metric_name: string,
+  min_value: i32,
+  max_value: i32,
+  avg_value: i32,
+  total_samples: i32,
+  trend: string               // "UP", "DOWN", "STABLE"
+}
+
+// 메트릭 생성
+function create_metric(metric_name: string, metric_type: string, unit: string) -> Metric {
+  var metric = Metric {
+    metric_id: "metric_001",
+    metric_name: metric_name,
+    metric_type: metric_type,
+    unit: unit,
+    current_value: 0,
+    recorded_at: "2026-03-30T00:00:00Z",
+    is_active: true
+  };
+
+  return metric;
+}
+
+// 메트릭 값 기록
+function record_metric_value(metric: Metric, value: i32) -> Metric {
+  var updated = Metric {
+    metric_id: metric.metric_id,
+    metric_name: metric.metric_name,
+    metric_type: metric.metric_type,
+    unit: metric.unit,
+    current_value: value,
+    recorded_at: "2026-03-30T00:00:00Z",
+    is_active: metric.is_active
+  };
+
+  return updated;
+}
+
+// 메트릭 수집기 생성
+function create_metric_collector() -> MetricCollector {
+  var collector = MetricCollector {
+    collector_id: "collector_001",
+    metrics: "",
+    total_collected: 0,
+    last_collection_time: "2026-03-30T00:00:00Z",
+    is_collecting: false
+  };
+
+  return collector;
+}
+
+// CPU 메트릭 수집
+function collect_cpu_metric(cpu_usage: i32, core_count: i32) -> CPUMetric {
+  var cpu_metric = CPUMetric {
+    metric_id: "cpu_metric_001",
+    cpu_usage_percent: cpu_usage,
+    core_count: core_count,
+    load_average: "0.5,0.6,0.7",
+    timestamp: "2026-03-30T00:00:00Z"
+  };
+
+  return cpu_metric;
+}
+
+// 메모리 메트릭 수집
+function collect_memory_metric(total_mb: i32, used_mb: i32) -> MemoryMetric {
+  var free_mb = total_mb - used_mb;
+  var usage_percent = (used_mb * 100) / total_mb;
+
+  var mem_metric = MemoryMetric {
+    metric_id: "mem_metric_001",
+    total_memory_mb: total_mb,
+    used_memory_mb: used_mb,
+    free_memory_mb: free_mb,
+    usage_percent: usage_percent,
+    timestamp: "2026-03-30T00:00:00Z"
+  };
+
+  return mem_metric;
+}
+
+// HTTP 메트릭 수집
+function collect_http_metric(total: i32, success: i32, error: i32, avg_time: i32) -> HttpMetric {
+  var error_rate = 0;
+  if total > 0 {
+    error_rate = (error * 100) / total;
+  }
+
+  var http_metric = HttpMetric {
+    metric_id: "http_metric_001",
+    total_requests: total,
+    success_requests: success,
+    error_requests: error,
+    average_response_time_ms: avg_time,
+    error_rate_percent: error_rate,
+    timestamp: "2026-03-30T00:00:00Z"
+  };
+
+  return http_metric;
+}
+
+// 메트릭 값 조회
+function get_metric_value(metric: Metric) -> i32 {
+  return metric.current_value;
+}
+
+// 메트릭 통계 생성
+function create_metric_statistics(metric_name: string, min: i32, max: i32, avg: i32, samples: i32) -> MetricStatistics {
+  var trend = "STABLE";
+  if max > avg {
+    trend = "UP";
+  } else if min < avg {
+    trend = "DOWN";
+  }
+
+  var stats = MetricStatistics {
+    metric_name: metric_name,
+    min_value: min,
+    max_value: max,
+    avg_value: avg,
+    total_samples: samples,
+    trend: trend
+  };
+
+  return stats;
+}
+
+// 메트릭 통계 정보
+function get_metric_statistics_info(stats: MetricStatistics) -> string {
+  var info = "메트릭: ";
+  info = info + stats.metric_name;
+  info = info + " (최소: ";
+  info = info + stats.min_value;
+  info = info + ", 최대: ";
+  info = info + stats.max_value;
+  info = info + ", 평균: ";
+  info = info + stats.avg_value;
+  info = info + ", 트렌드: ";
+  info = info + stats.trend;
+  info = info + ")";
+
+  return info;
+}
+
+// 메트릭 수집 시작
+function start_metric_collection(collector: MetricCollector) -> MetricCollector {
+  var started = MetricCollector {
+    collector_id: collector.collector_id,
+    metrics: collector.metrics,
+    total_collected: collector.total_collected,
+    last_collection_time: "2026-03-30T00:00:00Z",
+    is_collecting: true
+  };
+
+  return started;
+}
+
+// 메트릭 수집 중지
+function stop_metric_collection(collector: MetricCollector) -> MetricCollector {
+  var stopped = MetricCollector {
+    collector_id: collector.collector_id,
+    metrics: collector.metrics,
+    total_collected: collector.total_collected,
+    last_collection_time: "2026-03-30T00:00:00Z",
+    is_collecting: false
+  };
+
+  return stopped;
+}
+

@@ -1,0 +1,383 @@
+// K-StdLib: HTTP Module
+// HTTP 서버, 요청/응답 처리, 헤더 관리
+
+// HTTP 메서드
+function get_http_method_get() -> string { return "GET"; }
+function get_http_method_post() -> string { return "POST"; }
+function get_http_method_put() -> string { return "PUT"; }
+function get_http_method_delete() -> string { return "DELETE"; }
+function get_http_method_patch() -> string { return "PATCH"; }
+function get_http_method_head() -> string { return "HEAD"; }
+function get_http_method_options() -> string { return "OPTIONS"; }
+
+// HTTP 상태 코드
+function get_http_status_ok() -> i32 { return 200; }
+function get_http_status_created() -> i32 { return 201; }
+function get_http_status_no_content() -> i32 { return 204; }
+function get_http_status_bad_request() -> i32 { return 400; }
+function get_http_status_unauthorized() -> i32 { return 401; }
+function get_http_status_forbidden() -> i32 { return 403; }
+function get_http_status_not_found() -> i32 { return 404; }
+function get_http_status_internal_error() -> i32 { return 500; }
+function get_http_status_service_unavailable() -> i32 { return 503; }
+
+// HTTP 요청
+struct HttpRequest {
+  method: string,           // GET, POST, PUT, DELETE, PATCH
+  path: string,             // "/api/users"
+  query_string: string,     // "id=1&name=test"
+  headers: string,          // 헤더 (JSON 형식)
+  body: string,             // 요청 본문
+  remote_ip: string,        // 클라이언트 IP
+  content_type: string,     // "application/json"
+  content_length: i32
+}
+
+// HTTP 응답
+struct HttpResponse {
+  status_code: i32,
+  status_text: string,      // "OK", "Not Found"
+  headers: string,          // 응답 헤더 (JSON 형식)
+  body: string,             // 응답 본문
+  content_type: string,     // "application/json"
+  content_length: i32
+}
+
+// HTTP 서버 설정
+struct HttpServerConfig {
+  host: string,             // "0.0.0.0"
+  port: i32,                // 8080
+  max_connections: i32,
+  request_timeout_seconds: i32,
+  enable_cors: bool,
+  enable_gzip: bool
+}
+
+// HTTP 서버
+struct HttpServer {
+  config: HttpServerConfig,
+  is_running: bool,
+  total_requests: i32,
+  active_connections: i32
+}
+
+// HTTP 요청 생성
+function create_http_request(method: string, path: string) -> HttpRequest {
+  var request = HttpRequest {
+    method: method,
+    path: path,
+    query_string: "",
+    headers: "",
+    body: "",
+    remote_ip: "",
+    content_type: "",
+    content_length: 0
+  };
+
+  return request;
+}
+
+// HTTP 응답 생성
+function create_http_response(status_code: i32) -> HttpResponse {
+  var status_text = "OK";
+
+  if status_code == 200 {
+    status_text = "OK";
+  }
+  else if status_code == 201 {
+    status_text = "Created";
+  }
+  else if status_code == 400 {
+    status_text = "Bad Request";
+  }
+  else if status_code == 401 {
+    status_text = "Unauthorized";
+  }
+  else if status_code == 403 {
+    status_text = "Forbidden";
+  }
+  else if status_code == 404 {
+    status_text = "Not Found";
+  }
+  else if status_code == 500 {
+    status_text = "Internal Server Error";
+  }
+
+  var response = HttpResponse {
+    status_code: status_code,
+    status_text: status_text,
+    headers: "",
+    body: "",
+    content_type: "text/plain",
+    content_length: 0
+  };
+
+  return response;
+}
+
+// 요청에 헤더 추가
+function add_request_header(request: HttpRequest, header_name: string,
+                           header_value: string) -> HttpRequest {
+  var new_headers = request.headers;
+
+  if new_headers.len > 0 {
+    new_headers = new_headers + ", ";
+  }
+
+  new_headers = new_headers + header_name + ": " + header_value;
+
+  var updated = HttpRequest {
+    method: request.method,
+    path: request.path,
+    query_string: request.query_string,
+    headers: new_headers,
+    body: request.body,
+    remote_ip: request.remote_ip,
+    content_type: request.content_type,
+    content_length: request.content_length
+  };
+
+  return updated;
+}
+
+// 응답에 헤더 추가
+function add_response_header(response: HttpResponse, header_name: string,
+                            header_value: string) -> HttpResponse {
+  var new_headers = response.headers;
+
+  if new_headers.len > 0 {
+    new_headers = new_headers + ", ";
+  }
+
+  new_headers = new_headers + header_name + ": " + header_value;
+
+  var updated = HttpResponse {
+    status_code: response.status_code,
+    status_text: response.status_text,
+    headers: new_headers,
+    body: response.body,
+    content_type: response.content_type,
+    content_length: response.content_length
+  };
+
+  return updated;
+}
+
+// 요청 본문 설정
+function set_request_body(request: HttpRequest, body: string) -> HttpRequest {
+  var updated = HttpRequest {
+    method: request.method,
+    path: request.path,
+    query_string: request.query_string,
+    headers: request.headers,
+    body: body,
+    remote_ip: request.remote_ip,
+    content_type: request.content_type,
+    content_length: body.len
+  };
+
+  return updated;
+}
+
+// 응답 본문 설정
+function set_response_body(response: HttpResponse, body: string) -> HttpResponse {
+  var updated = HttpResponse {
+    status_code: response.status_code,
+    status_text: response.status_text,
+    headers: response.headers,
+    body: body,
+    content_type: response.content_type,
+    content_length: body.len
+  };
+
+  return updated;
+}
+
+// 콘텐츠 타입 설정 (응답)
+function set_response_content_type(response: HttpResponse,
+                                  content_type: string) -> HttpResponse {
+  var updated = HttpResponse {
+    status_code: response.status_code,
+    status_text: response.status_text,
+    headers: response.headers,
+    body: response.body,
+    content_type: content_type,
+    content_length: response.content_length
+  };
+
+  return updated;
+}
+
+// JSON 응답
+function json_response(status_code: i32, json_body: string) -> HttpResponse {
+  var response = create_http_response(status_code);
+  response = set_response_body(response, json_body);
+  response = set_response_content_type(response, "application/json");
+
+  return response;
+}
+
+// 서버 설정 생성
+function create_http_server_config(host: string, port: i32) -> HttpServerConfig {
+  var config = HttpServerConfig {
+    host: host,
+    port: port,
+    max_connections: 100,
+    request_timeout_seconds: 30,
+    enable_cors: true,
+    enable_gzip: false
+  };
+
+  return config;
+}
+
+// HTTP 서버 생성
+function create_http_server(config: HttpServerConfig) -> HttpServer {
+  var server = HttpServer {
+    config: config,
+    is_running: false,
+    total_requests: 0,
+    active_connections: 0
+  };
+
+  return server;
+}
+
+// 서버 시작
+function start_http_server(server: HttpServer) -> HttpServer {
+  var started = HttpServer {
+    config: server.config,
+    is_running: true,
+    total_requests: server.total_requests,
+    active_connections: 0
+  };
+
+  return started;
+}
+
+// 서버 중지
+function stop_http_server(server: HttpServer) -> HttpServer {
+  var stopped = HttpServer {
+    config: server.config,
+    is_running: false,
+    total_requests: server.total_requests,
+    active_connections: 0
+  };
+
+  return stopped;
+}
+
+// 요청 처리 (카운트)
+function handle_request(server: HttpServer, request: HttpRequest) -> HttpServer {
+  var updated = HttpServer {
+    config: server.config,
+    is_running: server.is_running,
+    total_requests: server.total_requests + 1,
+    active_connections: server.active_connections + 1
+  };
+
+  return updated;
+}
+
+// 응답 완료 (연결 종료)
+function finish_response(server: HttpServer) -> HttpServer {
+  var updated = HttpServer {
+    config: server.config,
+    is_running: server.is_running,
+    total_requests: server.total_requests,
+    active_connections: server.active_connections - 1
+  };
+
+  if updated.active_connections < 0 {
+    updated.active_connections = 0;
+  }
+
+  return updated;
+}
+
+// HTTP 버전 설정
+struct HttpVersion {
+  major: i32,
+  minor: i32
+}
+
+function create_http_version(major: i32, minor: i32) -> HttpVersion {
+  var version = HttpVersion {
+    major: major,
+    minor: minor
+  };
+
+  return version;
+}
+
+// 메서드별 처리 함수 타입
+struct HttpHandler {
+  method: string,
+  path: string,
+  handler_name: string   // 핸들러 함수명
+}
+
+// 요청 라인 파싱
+function parse_request_line(request_line: string) -> HttpRequest {
+  // "GET /api/users HTTP/1.1" → method, path 추출
+  var method = "";
+  var path = "";
+  var i = 0;
+
+  // 메서드 추출
+  for i = 0; i < request_line.len; i = i + 1 {
+    if request_line[i] == 32 {  // space
+      break;
+    }
+    method = method + request_line[i];
+  }
+
+  // 경로 추출
+  var j = i + 1;
+  for j = i + 1; j < request_line.len; j = j + 1 {
+    if request_line[j] == 32 {  // space
+      break;
+    }
+    path = path + request_line[j];
+  }
+
+  var request = create_http_request(method, path);
+  return request;
+}
+
+// 응답 라인 생성
+function build_response_line(response: HttpResponse) -> string {
+  var line = "HTTP/1.1 ";
+
+  var status_str = "";
+  var temp = response.status_code;
+  var digits = "";
+
+  while temp > 0 {
+    var digit = temp % 10;
+    digits = digit + digits;
+    temp = temp / 10;
+  }
+
+  line = line + digits + " " + response.status_text;
+  return line;
+}
+
+// 서버 정보
+function get_server_info(server: HttpServer) -> string {
+  var info = "HTTP 서버: ";
+  info = info + server.config.host;
+  info = info + ":";
+  info = info + server.config.port;
+  info = info + ", 상태: ";
+
+  if server.is_running {
+    info = info + "실행중";
+  } else {
+    info = info + "중지";
+  }
+
+  info = info + ", 요청: " + server.total_requests;
+
+  return info;
+}

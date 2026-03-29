@@ -1,0 +1,42 @@
+// Test Type System: 타입 검증
+
+fn test_number_ops() {
+    let x: number = 10
+    let y: number = 3.14
+    let z = x + y
+    println(str(z))
+}
+
+fn test_string_ops() {
+    let s1: string = "Hello"
+    let s2: string = " World"
+    let s3 = s1 + s2
+    println(s3)
+}
+
+fn test_array_types() {
+    let nums: array<number> = [1, 2, 3, 4, 5]
+    let total = 0
+    for n in nums {
+        total = total + n
+    }
+    println(str(total))
+}
+
+fn test_bool_logic() {
+    let a: boolean = true
+    let b: boolean = false
+    let c = a && b
+    let d = a || b
+    println(str(d))
+}
+
+fn main() {
+    println("=== Type System Test ===")
+    test_number_ops()
+    test_string_ops()
+    test_array_types()
+    test_bool_logic()
+}
+
+main()

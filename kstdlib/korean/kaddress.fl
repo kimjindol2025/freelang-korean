@@ -1,0 +1,388 @@
+// K-StdLib: Korean Address Module (kaddress)
+// 한국 주소 파싱, 정규화, 검증
+
+// 주소 구조체
+struct Address {
+  original: string,
+  sido: string,        // 시/도
+  sigungu: string,     // 시/군/구
+  eup_myeon: string,   // 읍/면
+  dong: string,        // 동
+  bunji: string,       // 번지
+  building_name: string,  // 건물명
+  postal_code: string  // 우편번호
+}
+
+// 시/도 목록
+function get_sido_list() -> string {
+  var sidos = "서울특별시,부산광역시,대구광역시,인천광역시,광주광역시,대전광역시,울산광역시,";
+  sidos = sidos + "세종특별자치시,";
+  sidos = sidos + "경기도,강원도,충청북도,충청남도,전라북도,전라남도,경상북도,경상남도,제주도";
+  return sidos;
+}
+
+// 특별시/광역시 목록
+function get_metro_cities() -> string {
+  return "서울,부산,대구,인천,광주,대전,울산,세종";
+}
+
+// 시/도 약자 변환
+function get_sido_short(sido: string) -> string {
+  if sido == "서울특별시" {
+    return "서울";
+  }
+  else if sido == "부산광역시" {
+    return "부산";
+  }
+  else if sido == "대구광역시" {
+    return "대구";
+  }
+  else if sido == "인천광역시" {
+    return "인천";
+  }
+  else if sido == "광주광역시" {
+    return "광주";
+  }
+  else if sido == "대전광역시" {
+    return "대전";
+  }
+  else if sido == "울산광역시" {
+    return "울산";
+  }
+  else if sido == "경기도" {
+    return "경기";
+  }
+  else if sido == "강원도" {
+    return "강원";
+  }
+  else if sido == "충청북도" {
+    return "충북";
+  }
+  else if sido == "충청남도" {
+    return "충남";
+  }
+  else if sido == "전라북도" {
+    return "전북";
+  }
+  else if sido == "전라남도" {
+    return "전남";
+  }
+  else if sido == "경상북도" {
+    return "경북";
+  }
+  else if sido == "경상남도" {
+    return "경남";
+  }
+  else if sido == "제주도" {
+    return "제주";
+  }
+
+  return sido;
+}
+
+// 우편번호 검증 (5자리 또는 6자리)
+function is_valid_postal_code(postal_code: string) -> bool {
+  if postal_code.len != 5 && postal_code.len != 6 {
+    return false;
+  }
+
+  var i = 0;
+  for i = 0; i < postal_code.len; i = i + 1 {
+    var char = postal_code[i];
+
+    // 숫자만 가능 (48-57)
+    if !(char >= 48 && char <= 57) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// 주소 문자열 파싱 (기본)
+function parse_address(address_str: string) -> Address {
+  var result = Address {
+    original: address_str,
+    sido: "",
+    sigungu: "",
+    eup_myeon: "",
+    dong: "",
+    bunji: "",
+    building_name: "",
+    postal_code: ""
+  };
+
+  // 우편번호 추출 (괄호 안)
+  var i = 0;
+  for i = 0; i < address_str.len - 5; i = i + 1 {
+    if address_str[i] == 40 {  // '('
+      var j = i + 1;
+      var postal = "";
+      for j = i + 1; j < address_str.len && address_str[j] != 41; j = j + 1 {
+        if address_str[j] >= 48 && address_str[j] <= 57 {
+          postal = postal + address_str[j];
+        }
+      }
+      if is_valid_postal_code(postal) {
+        result.postal_code = postal;
+      }
+    }
+  }
+
+  // 시/도 추출 (가장 앞)
+  var sido_list = get_sido_list();
+  var sidos = ["서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시",
+               "대전광역시", "울산광역시", "세종특별자치시",
+               "경기도", "강원도", "충청북도", "충청남도", "전라북도",
+               "전라남도", "경상북도", "경상남도", "제주도"];
+
+  for i = 0; i < sidos.len; i = i + 1 {
+    var sido = sidos[i];
+    if address_str.len >= sido.len {
+      var match = true;
+      var k = 0;
+      for k = 0; k < sido.len; k = k + 1 {
+        if address_str[k] != sido[k] {
+          match = false;
+          break;
+        }
+      }
+      if match {
+        result.sido = sido;
+        break;
+      }
+    }
+  }
+
+  return result;
+}
+
+// 도로명 주소 파싱 (예: "서울시 강남구 테헤란로 123")
+function parse_roadname_address(address_str: string) -> Address {
+  var result = parse_address(address_str);
+
+  // 도로명 주소에서 "번지" 또는 "길" 뒤의 숫자 추출
+  var i = 0;
+  var found_number = false;
+
+  for i = 0; i < address_str.len - 2; i = i + 1 {
+    // "로" 또는 "길" 찾기
+    if (address_str[i] == 47 || address_str[i] == 47) {  // 한글 로/길은 다른 코드
+      // 다음 문자가 숫자인지 확인
+      var j = i + 1;
+      var num_str = "";
+
+      for j = i + 1; j < address_str.len; j = j + 1 {
+        var char = address_str[j];
+        if char >= 48 && char <= 57 {
+          num_str = num_str + char;
+        } else if char == 32 {  // space
+          if num_str.len > 0 {
+            result.bunji = num_str;
+            found_number = true;
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+
+      if found_number {
+        break;
+      }
+    }
+  }
+
+  return result;
+}
+
+// 주소 정규화 (공백 제거, 표준 형식)
+function normalize_address(address_str: string) -> string {
+  var result = "";
+  var i = 0;
+  var prev_space = false;
+
+  for i = 0; i < address_str.len; i = i + 1 {
+    var char = address_str[i];
+
+    if char == 32 {  // space
+      if !prev_space {
+        result = result + " ";
+        prev_space = true;
+      }
+    } else {
+      result = result + char;
+      prev_space = false;
+    }
+  }
+
+  // 앞뒤 공백 제거
+  if result.len > 0 && result[0] == 32 {
+    result = result;  // 간단화
+  }
+
+  return result;
+}
+
+// 주소 검증 (시/도 포함 여부)
+function is_valid_address(address_str: string) -> bool {
+  var parsed = parse_address(address_str);
+  return parsed.sido.len > 0;
+}
+
+// 지역 코드 생성 (서울=10, 부산=20 등)
+function get_region_code(sido: string) -> i32 {
+  if sido == "서울특별시" || sido == "서울" {
+    return 10;
+  }
+  else if sido == "부산광역시" || sido == "부산" {
+    return 20;
+  }
+  else if sido == "대구광역시" || sido == "대구" {
+    return 30;
+  }
+  else if sido == "인천광역시" || sido == "인천" {
+    return 40;
+  }
+  else if sido == "광주광역시" || sido == "광주" {
+    return 50;
+  }
+  else if sido == "대전광역시" || sido == "대전" {
+    return 60;
+  }
+  else if sido == "울산광역시" || sido == "울산" {
+    return 70;
+  }
+  else if sido == "경기도" || sido == "경기" {
+    return 41;
+  }
+  else if sido == "강원도" || sido == "강원" {
+    return 42;
+  }
+  else if sido == "충청북도" || sido == "충북" {
+    return 43;
+  }
+  else if sido == "충청남도" || sido == "충남" {
+    return 44;
+  }
+  else if sido == "전라북도" || sido == "전북" {
+    return 45;
+  }
+  else if sido == "전라남도" || sido == "전남" {
+    return 46;
+  }
+  else if sido == "경상북도" || sido == "경북" {
+    return 47;
+  }
+  else if sido == "경상남도" || sido == "경남" {
+    return 48;
+  }
+  else if sido == "제주도" || sido == "제주" {
+    return 50;
+  }
+
+  return 0;
+}
+
+// 주소 포맷 (한글 표준 형식)
+function format_address(address: Address) -> string {
+  var result = "";
+
+  if address.sido.len > 0 {
+    result = result + address.sido;
+  }
+
+  if address.sigungu.len > 0 {
+    result = result + " " + address.sigungu;
+  }
+
+  if address.eup_myeon.len > 0 {
+    result = result + " " + address.eup_myeon;
+  }
+
+  if address.dong.len > 0 {
+    result = result + " " + address.dong;
+  }
+
+  if address.bunji.len > 0 {
+    result = result + " " + address.bunji;
+  }
+
+  if address.building_name.len > 0 {
+    result = result + " " + address.building_name;
+  }
+
+  if address.postal_code.len > 0 {
+    result = result + " (" + address.postal_code + ")";
+  }
+
+  return result;
+}
+
+// 광역시 여부 확인
+function is_metropolitan(sido: string) -> bool {
+  var metros = get_metro_cities();
+
+  var i = 0;
+  var current = "";
+
+  for i = 0; i < metros.len; i = i + 1 {
+    if metros[i] == 44 {  // ','
+      if current == sido {
+        return true;
+      }
+      current = "";
+    } else {
+      current = current + metros[i];
+    }
+  }
+
+  // 마지막 체크
+  if current == sido {
+    return true;
+  }
+
+  return false;
+}
+
+// 주소 비교 (두 주소가 같은지 확인)
+function are_addresses_equal(addr1: Address, addr2: Address) -> bool {
+  if addr1.sido != addr2.sido {
+    return false;
+  }
+
+  if addr1.sigungu != addr2.sigungu {
+    return false;
+  }
+
+  if addr1.dong != addr2.dong {
+    return false;
+  }
+
+  if addr1.bunji != addr2.bunji {
+    return false;
+  }
+
+  return true;
+}
+
+// 주소 부분 매칭 (동/읍 단위)
+function match_address_eup_dong(addr1: Address, addr2: Address) -> bool {
+  if addr1.sido != addr2.sido {
+    return false;
+  }
+
+  if addr1.sigungu != addr2.sigungu {
+    return false;
+  }
+
+  if addr1.eup_myeon.len > 0 && addr2.eup_myeon.len > 0 {
+    return addr1.eup_myeon == addr2.eup_myeon;
+  }
+
+  if addr1.dong.len > 0 && addr2.dong.len > 0 {
+    return addr1.dong == addr2.dong;
+  }
+
+  return true;
+}

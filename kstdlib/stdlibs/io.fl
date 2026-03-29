@@ -1,0 +1,85 @@
+// K-StdLib: IO Module
+// 입출력 함수 모음
+
+// 표준 출력 (내장: print, println)
+// Usage: print("hello")
+
+// 여러 값 출력
+function print_values(values: any[]) -> null {
+  var i = 0;
+  for i = 0; i < values.len; i = i + 1 {
+    if i > 0 {
+      print(" ");
+    }
+    print(values[i]);
+  }
+  return null;
+}
+
+// 포맷된 출력
+function printf(format: string, value: i32) -> null {
+  // 기본: format 문자열과 값을 조합하여 출력
+  // %d, %s 등의 포맷 지원 예정
+  print(format);
+  return null;
+}
+
+// 오류 메시지 출력
+function print_error(message: string) -> null {
+  print("ERROR: ");
+  print(message);
+  print("\n");
+  return null;
+}
+
+// 경고 메시지 출력
+function print_warning(message: string) -> null {
+  print("WARNING: ");
+  print(message);
+  print("\n");
+  return null;
+}
+
+// 정보 메시지 출력
+function print_info(message: string) -> null {
+  print("INFO: ");
+  print(message);
+  print("\n");
+  return null;
+}
+
+// 디버그 메시지 출력
+function print_debug(message: string) -> null {
+  print("DEBUG: ");
+  print(message);
+  print("\n");
+  return null;
+}
+
+// 줄 건너뛰기
+function println() -> null {
+  print("\n");
+  return null;
+}
+
+// 문자열 출력
+function print_string(str: string) -> null {
+  print(str);
+  return null;
+}
+
+// 숫자 출력
+function print_number(n: i32) -> null {
+  print(n);
+  return null;
+}
+
+// 불린 출력
+function print_bool(b: bool) -> null {
+  if b {
+    print("true");
+  } else {
+    print("false");
+  }
+  return null;
+}

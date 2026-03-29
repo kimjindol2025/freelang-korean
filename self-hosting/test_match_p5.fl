@@ -1,0 +1,40 @@
+// P5: Match statement - comprehensive test (Korean comments & identifiers)
+
+// Test 1: Simple match with expression bodies
+var x = 1;
+match x {
+  1 => {
+    var 메시지_한글 = "one";
+  }
+  2 => {
+    var 메시지_한글 = "two";
+  }
+}
+
+// Test 2: Match with statement bodies
+var y = 2;
+match y {
+  1 => {
+    var 값_한글 = 10;
+  }
+  2 => {
+    var 값_한글 = 20;
+  }
+}
+
+// Test 3: Match expression (single arm) - 한글 변수명
+var z = 3;
+var 결과_한글 = match 1 {
+  1 => 100
+  2 => 200
+  3 => 300
+};
+
+// Test 4: For C-style loop with Korean identifiers
+var 합계 = 0;
+for var 반복자 = 0; 반복자 < 5; 반복자 = 반복자 + 1 {
+  합계 = 합계 + 반복자;
+}
+
+// 한글 주석으로 상태 표시
+// 모든 테스트 완료

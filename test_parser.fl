@@ -1,0 +1,44 @@
+// Test Parser: 제어문 및 함수 검증
+
+fn test_if_else() {
+    let x = 10
+    if x > 5 {
+        println("x is greater than 5")
+    } else {
+        println("x is less than or equal to 5")
+    }
+}
+
+fn test_while() {
+    let i = 0
+    while i < 3 {
+        println(str(i))
+        i = i + 1
+    }
+}
+
+fn test_for() {
+    for i in [1, 2, 3] {
+        println(str(i))
+    }
+}
+
+fn factorial(n) {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+fn main() {
+    println("=== Parser Test ===")
+    test_if_else()
+    println("--- While Test ---")
+    test_while()
+    println("--- For Test ---")
+    test_for()
+    println("--- Recursion Test ---")
+    println(str(factorial(5)))
+}
+
+main()

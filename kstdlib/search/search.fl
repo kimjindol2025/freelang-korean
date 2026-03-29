@@ -1,0 +1,178 @@
+// K-StdLib: Full-Text Search Module
+// 전문 검색 (Full-Text Search) - 텍스트 인덱싱, 검색, 쿼리
+
+// 검색 인덱스
+struct SearchIndex {
+  index_id: string,
+  document_count: i32,
+  total_terms: i32,
+  indexed_at: string,
+  index_type: string                // "INVERTED", "FORWARD", "BOTH"
+}
+
+// 문서 (Document)
+struct Document {
+  doc_id: string,
+  title: string,
+  content: string,
+  author: string,
+  created_at: string,
+  updated_at: string,
+  language: string                  // "ko", "en", "ja"
+}
+
+// 검색 용어 (Term)
+struct SearchTerm {
+  term_id: string,
+  term: string,
+  document_frequency: i32,          // 이 용어가 포함된 문서 수
+  total_occurrences: i32,           // 전체 등장 횟수
+  idf_score: i32                    // Inverse Document Frequency (0-100)
+}
+
+// 검색 결과
+struct SearchResult {
+  doc_id: string,
+  title: string,
+  relevance_score: i32,             // 0-100
+  matched_terms: string,            // 매칭된 용어 목록 (JSON)
+  excerpt: string,                  // 일부 발췌
+  rank: i32
+}
+
+// 검색 쿼리
+struct SearchQuery {
+  query_id: string,
+  query_text: string,
+  query_type: string,               // "SIMPLE", "BOOLEAN", "PHRASE", "WILDCARD"
+  filters: string,                  // 필터 (JSON)
+  limit: i32,
+  offset: i32
+}
+
+// 역색인 (Inverted Index)
+struct InvertedIndex {
+  term: string,
+  document_ids: string,             // 문서 ID 목록 (JSON)
+  doc_count: i32,
+  positions: string                 // 문서 내 위치 정보 (JSON)
+}
+
+// 토큰화 결과
+struct TokenizeResult {
+  original_text: string,
+  tokens: string,                   // 토큰 배열 (JSON)
+  token_count: i32,
+  removed_stopwords: i32
+}
+
+// 인덱스 생성
+function create_search_index(index_type: string) -> SearchIndex {
+  var index = SearchIndex {
+    index_id: "idx_001",
+    document_count: 0,
+    total_terms: 0,
+    indexed_at: "2026-03-30T00:00:00Z",
+    index_type: index_type
+  };
+
+  return index;
+}
+
+// 문서 추가
+function add_document(index: SearchIndex, document: Document) -> SearchIndex {
+  var updated = SearchIndex {
+    index_id: index.index_id,
+    document_count: index.document_count + 1,
+    total_terms: index.total_terms,
+    indexed_at: index.indexed_at,
+    index_type: index.index_type
+  };
+
+  return updated;
+}
+
+// 역색인 생성
+function create_inverted_index(documents: string) -> InvertedIndex {
+  var inv_index = InvertedIndex {
+    term: "example",
+    document_ids: "",
+    doc_count: 0,
+    positions: ""
+  };
+
+  return inv_index;
+}
+
+// 토큰화 (문서를 단어 단위로 분해)
+function tokenize(text: string, language: string) -> TokenizeResult {
+  var result = TokenizeResult {
+    original_text: text,
+    tokens: "",
+    token_count: 0,
+    removed_stopwords: 0
+  };
+
+  return result;
+}
+
+// 불용어 필터링 (Stopwords)
+function filter_stopwords(tokens: string, language: string) -> TokenizeResult {
+  var result = TokenizeResult {
+    original_text: "",
+    tokens: tokens,
+    token_count: 0,
+    removed_stopwords: 0
+  };
+
+  return result;
+}
+
+// 단어 정규화 (정간, 대소문자, 어근)
+function normalize_text(text: string) -> string {
+  var normalized = text;
+  // 공백 정규화, 소문자 변환, 특수문자 제거
+  return normalized;
+}
+
+// 단순 검색 (Simple Search)
+function simple_search(index: SearchIndex, query: string) -> SearchResult {
+  var result = SearchResult {
+    doc_id: "doc_001",
+    title: "Sample Document",
+    relevance_score: 85,
+    matched_terms: "",
+    excerpt: "",
+    rank: 1
+  };
+
+  return result;
+}
+
+// 불린 검색 (Boolean Search: AND, OR, NOT)
+function boolean_search(index: SearchIndex, query: string) -> SearchResult {
+  var result = SearchResult {
+    doc_id: "doc_001",
+    title: "Sample Document",
+    relevance_score: 75,
+    matched_terms: "",
+    excerpt: "",
+    rank: 1
+  };
+
+  return result;
+}
+
+// 구문 검색 (Phrase Search: "정확한 구문")
+function phrase_search(index: SearchIndex, phrase: string) -> SearchResult {
+  var result = SearchResult {
+    doc_id: "doc_001",
+    title: "Sample Document",
+    relevance_score: 95,
+    matched_terms: phrase,
+    excerpt: "",
+    rank: 1
+  };
+
+  return result;
+}

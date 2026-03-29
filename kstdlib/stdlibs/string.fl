@@ -1,0 +1,89 @@
+// K-StdLib: String Module
+// 문자열 함수 모음
+
+// 문자열 길이 (내장: str.len)
+// Usage: "hello".len
+
+// 문자열 연결
+function concat(a: string, b: string) -> string {
+  return a + b;
+}
+
+// 문자열에 접두어 확인
+function starts_with(str: string, prefix: string) -> bool {
+  if str.len < prefix.len {
+    return false;
+  }
+  var i = 0;
+  for i = 0; i < prefix.len; i = i + 1 {
+    if str[i] != prefix[i] {
+      return false;
+    }
+  }
+  return true;
+}
+
+// 문자열에 접미어 확인
+function ends_with(str: string, suffix: string) -> bool {
+  if str.len < suffix.len {
+    return false;
+  }
+  var start = str.len - suffix.len;
+  var i = 0;
+  for i = 0; i < suffix.len; i = i + 1 {
+    if str[start + i] != suffix[i] {
+      return false;
+    }
+  }
+  return true;
+}
+
+// 문자열에서 문자 위치 찾기
+function index_of(str: string, char: string) -> i32 {
+  var i = 0;
+  for i = 0; i < str.len; i = i + 1 {
+    if str[i] == char {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// 문자열 포함 여부
+function contains(str: string, substring: string) -> bool {
+  if substring.len > str.len {
+    return false;
+  }
+  var i = 0;
+  for i = 0; i <= str.len - substring.len; i = i + 1 {
+    var j = 0;
+    var match = true;
+    for j = 0; j < substring.len; j = j + 1 {
+      if str[i + j] != substring[j] {
+        match = false;
+      }
+    }
+    if match {
+      return true;
+    }
+  }
+  return false;
+}
+
+// 문자열 반복
+function repeat(str: string, count: i32) -> string {
+  var result = "";
+  var i = 0;
+  for i = 0; i < count; i = i + 1 {
+    result = result + str;
+  }
+  return result;
+}
+
+// 문자열 비어있는지 확인
+function is_empty(str: string) -> bool {
+  if str.len == 0 {
+    return true;
+  }
+  return false;
+}
