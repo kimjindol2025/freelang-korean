@@ -17,11 +17,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kimjindol2025/freelang-korean-.git"
+    "url": "https://github.com/kimjindol2025/freelang-korean.git"
   },
-  "homepage": "https://kimjindol2025.github.io/freelang-korean-/",
+  "homepage": "https://kimjindol2025.github.io/freelang-korean/",
   "bugs": {
-    "url": "https://github.com/kimjindol2025/freelang-korean-/issues",
+    "url": "https://github.com/kimjindol2025/freelang-korean/issues",
     "email": "kim@dclub.kr"
   },
   "files": [
