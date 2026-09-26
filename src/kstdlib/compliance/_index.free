@@ -1,0 +1,8 @@
+// K-Compliance 모듈 진입점
+사용 compliance.identity
+사용 compliance.pii_protection
+사용 compliance.crypto_wrappers
+사용 compliance.integrity
+사용 compliance.audit_log
+사용 compliance.access_control
+사용 compliance.compliance_check
